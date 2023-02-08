@@ -9,9 +9,22 @@
   let canvas
   let ctx
 
+  const drawFullImage = (image) => {
+    ctx.drawImage(image, 0, 0, width, height)
+  }
+
+  const drawPoint = ({ x, y, r, fillStyle }) => {
+    ctx.beginPath()
+    ctx.fillStyle = fillStyle
+    ctx.arc(x, y, r, 0, 2 * Math.PI)
+    ctx.fill()
+  }
+
   setContext(key, {
     getCanvas: () => canvas,
     getCtx: () => ctx,
+    drawFullImage,
+    drawPoint,
   })
 
   onMount(() => {

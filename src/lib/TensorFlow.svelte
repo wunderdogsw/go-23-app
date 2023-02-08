@@ -10,14 +10,10 @@
   import { key as videoKey } from './camera-video'
   import { key as canvasKey } from './canvas'
 
-  export let width = 640
-  export let height = 480
-
   const { getVideo } = getContext(videoKey)
-  const { getCtx } = getContext(canvasKey)
+  const { drawFullImage, drawPoint } = getContext(canvasKey)
 
   let video
-  let ctx
   let detector
   let rafId
 
@@ -37,7 +33,7 @@
     })
 
   const drawVideo = () => {
-    ctx.drawImage(video, 0, 0, width, height)
+    drawFullImage(video)
   }
 
   const drawResults = (hands) => {
@@ -57,28 +53,20 @@
     }
   }
 
-  const drawPoint = (y, x, r) => {
-    ctx.beginPath()
-    ctx.arc(x, y, r, 0, 2 * Math.PI)
-    ctx.fill()
-  }
+  const drawKeypoints = ({ keypoints, handedness }) => {
+    const keyPointsArray = keypoints
+    const fillStyle = handedness === 'Left' ? '#FFFE18' : '#881BFF'
 
-  const drawKeypoints = (keypoints, handedness) => {
-    const keypointsArray = keypoints
-    ctx.fillStyle = handedness === 'Left' ? '#FFFE18' : '#881BFF'
-    ctx.strokeStyle = 'White'
-    ctx.lineWidth = 3
-
-    for (let i = 0; i < keypointsArray.length; i++) {
-      const y = keypointsArray[i].x
-      const x = keypointsArray[i].y
-      drawPoint(x - 2, y - 2, 20)
+    for (let i = 0; i < keyPointsArray.length; i++) {
+      const x = keyPointsArray[i].x
+      const y = keyPointsArray[i].y
+      drawPoint({ x: x - 2, y: y - 2, r: 20, fillStyle })
     }
   }
 
   const drawResult = (hand) => {
     if (hand.keypoints != null) {
-      drawKeypoints(hand.keypoints, hand.handedness)
+      drawKeypoints(hand)
     }
   }
 
@@ -109,7 +97,6 @@
 
   onMount(async () => {
     video = getVideo()
-    ctx = getCtx()
     detector = await createDetector()
     await renderPrediction()
   })
