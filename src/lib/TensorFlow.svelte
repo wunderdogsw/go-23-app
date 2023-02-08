@@ -64,14 +64,14 @@
 
   const drawKeypoints = (keypoints, handedness) => {
     const keypointsArray = keypoints
-    ctx.fillStyle = handedness === 'Left' ? 'Red' : 'Blue'
+    ctx.fillStyle = handedness === 'Left' ? '#FFFE18' : '#881BFF'
     ctx.strokeStyle = 'White'
-    ctx.lineWidth = 1
+    ctx.lineWidth = 3
 
     for (let i = 0; i < keypointsArray.length; i++) {
       const y = keypointsArray[i].x
       const x = keypointsArray[i].y
-      drawPoint(x - 2, y - 2, 3)
+      drawPoint(x - 2, y - 2, 20)
     }
   }
 
