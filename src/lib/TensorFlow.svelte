@@ -7,15 +7,16 @@
   import '@tensorflow/tfjs-backend-webgl'
   import '@mediapipe/hands'
 
-  import { key } from './camera-video'
+  import { key as videoKey } from './camera-video'
+  import { key as canvasKey } from './canvas'
 
   export let width = 640
   export let height = 480
 
-  const { getVideo } = getContext(key)
+  const { getVideo } = getContext(videoKey)
+  const { getCtx } = getContext(canvasKey)
 
   let video
-  let canvas
   let ctx
   let detector
   let rafId
@@ -35,7 +36,7 @@
       flipHorizontal: false,
     })
 
-  const drawCtx = () => {
+  const drawVideo = () => {
     ctx.drawImage(video, 0, 0, width, height)
   }
 
@@ -88,7 +89,7 @@
       }
       const hands = await estimateHands()
 
-      drawCtx()
+      drawVideo()
 
       if (hands?.length > 0) {
         drawResults(hands)
@@ -108,7 +109,7 @@
 
   onMount(async () => {
     video = getVideo()
-    ctx = canvas.getContext('2d')
+    ctx = getCtx()
     detector = await createDetector()
     await renderPrediction()
   })
@@ -118,5 +119,3 @@
     detector.dispose()
   })
 </script>
-
-<canvas bind:this={canvas} {width} {height} />
