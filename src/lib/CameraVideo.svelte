@@ -58,12 +58,13 @@
 
 <style>
   .wrapper {
-    height: 300px;
     position: relative;
-    width: 400px;
   }
 
-  video,
+  video {
+    visibility: hidden;
+  }
+
   .slot {
     left: 0;
     position: absolute;
