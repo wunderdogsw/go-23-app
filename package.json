@@ -23,6 +23,13 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
-    "clmtrackr": "^1.1.2"
+    "@mediapipe/hands": "~0.4.0",
+    "@tensorflow-models/hand-pose-detection": "^2.0.0",
+    "@tensorflow/tfjs-backend-wasm": "^3.9.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.9.0",
+    "@tensorflow/tfjs-converter": "^3.9.0",
+    "@tensorflow/tfjs-core": "^3.9.0",
+    "clmtrackr": "^1.1.2",
+    "scatter-gl": "0.0.8"
   }
 }

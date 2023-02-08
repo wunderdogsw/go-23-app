@@ -2,8 +2,8 @@
   import { setContext } from 'svelte'
   import { key } from './camera-video'
 
-  export let width = 400
-  export let height = 300
+  export let width = 640
+  export let height = 480
 
   let video
 

@@ -3,8 +3,8 @@
   import { key } from './camera-video'
   import { getContext, onDestroy, onMount } from 'svelte'
 
-  export let width = 400
-  export let height = 300
+  export let width = 640
+  export let height = 480
 
   let video
   let canvas
