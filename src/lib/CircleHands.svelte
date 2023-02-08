@@ -1,36 +1,18 @@
 <script lang="ts">
-  import { getContext, onDestroy, onMount } from 'svelte'
-
   // reference: https://github.com/tensorflow/tfjs-models/blob/master/hand-pose-detection/demos/live_video/src/camera.js
-  import * as handPoseDetection from '@tensorflow-models/hand-pose-detection'
-  import '@tensorflow/tfjs-core'
-  import '@tensorflow/tfjs-backend-webgl'
-  import '@mediapipe/hands'
+  import { getContext, onDestroy, onMount } from 'svelte'
 
   import { key as videoKey } from './camera-video'
   import { key as canvasKey } from './canvas'
+  import { key as detectorKey } from './hands-detector'
 
   const { getVideo } = getContext(videoKey)
   const { drawFullImage, drawPoint } = getContext(canvasKey)
+  const { getDetector } = getContext(detectorKey)
 
   let video
   let detector
   let rafId
-
-  const createDetector = async () => {
-    const model = handPoseDetection.SupportedModels.MediaPipeHands
-    const detectorConfig = {
-      runtime: 'mediapipe', // or 'tfjs',
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
-      modelType: 'full',
-    }
-    return await handPoseDetection.createDetector(model, detectorConfig)
-  }
-
-  const estimateHands = async () =>
-    await detector.estimateHands(video, {
-      flipHorizontal: false,
-    })
 
   const drawVideo = () => {
     drawFullImage(video)
@@ -75,15 +57,15 @@
       if (!detector) {
         return
       }
-      const hands = await estimateHands()
-
+      const hands = await detector.estimateHands(video, {
+        flipHorizontal: false,
+      })
       drawVideo()
 
-      if (hands?.length > 0) {
+      if (hands?.length) {
         drawResults(hands)
       }
     } catch (error) {
-      window.cancelAnimationFrame(rafId)
       detector.dispose()
       detector = null
       console.error(error)
@@ -97,12 +79,11 @@
 
   onMount(async () => {
     video = getVideo()
-    detector = await createDetector()
+    detector = getDetector()
     await renderPrediction()
   })
 
   onDestroy(() => {
     window.cancelAnimationFrame(rafId)
-    detector.dispose()
   })
 </script>

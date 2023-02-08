@@ -61,8 +61,9 @@
     position: relative;
   }
 
-  video {
-    visibility: hidden;
+  video,
+  .slot {
+    transform: scale(-1, 1);
   }
 
   .slot {
