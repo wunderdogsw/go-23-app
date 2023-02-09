@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, setContext, getContext } from 'svelte'
 
-  import '@tensorflow/tfjs-core'
+  import * as tf from '@tensorflow/tfjs-core'
   import '@tensorflow/tfjs-backend-webgl'
   import * as handPoseDetection from '@tensorflow-models/hand-pose-detection'
 
@@ -29,6 +29,7 @@
   const { getVideo } = getContext(videoKey)
 
   onMount(async () => {
+    tf.enableProdMode()
     video = getVideo()
     detector = await createDetector()
   })
