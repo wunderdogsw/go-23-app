@@ -37,14 +37,11 @@
 </script>
 
 <div class="wrapper">
-  <video
-    bind:this={video}
-    {width}
-    {height}
-    preload="auto"
-    playsinline
-    autoplay
-  />
+  <video bind:this={video} {width} {height} preload="auto" playsinline autoplay>
+    <!-- required just to remove a build error -->
+    <track kind="captions" />
+  </video>
+
   {#if video}
     <div class="slot">
       <slot />
