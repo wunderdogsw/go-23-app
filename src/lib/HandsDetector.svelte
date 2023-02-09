@@ -15,8 +15,8 @@
   const createDetector = async () => {
     const model = handPoseDetection.SupportedModels.MediaPipeHands
     const detectorConfig = {
-      runtime: 'mediapipe', // or 'tfjs',
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
+      // mediapipe runtime doesn't work when building :(
+      runtime: 'tfjs',
       modelType: 'full',
     }
     return await handPoseDetection.createDetector(model, detectorConfig)
