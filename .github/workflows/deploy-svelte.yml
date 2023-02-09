@@ -1,28 +1,47 @@
-# source: https://github.com/josecelano/svelte-deploy-with-github-actions/tree/master/.github/workflows
-# This is a basic workflow to automatically build a Svelte app and deploy it to GitHub Pages
-
+# source: https://gist.github.com/AndrewLester/2d3e6257d932831756226ca9a281d9b5
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [ master ]
 
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install and Build
-        run: |
-          npm install
-          npm run build
-
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4
+      - uses: actions/checkout@v3
+      - uses: actions/configure-pages@v1
+        id: pages
+      - uses: actions/setup-node@v3
         with:
-          folder: public
+          node-version: 16
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./build
 
-permissions:
-  contents: write
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v1
+        id: deployment
