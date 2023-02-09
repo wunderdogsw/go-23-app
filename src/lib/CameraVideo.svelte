@@ -6,9 +6,11 @@
   export let height = 480
 
   let video
+  let visibility = 'visible'
 
   setContext(key, {
     getVideo: () => video,
+    hideVideo: () => (visibility = 'hidden'),
   })
 
   const success = (stream) => {
@@ -37,7 +39,15 @@
 </script>
 
 <div class="wrapper">
-  <video bind:this={video} {width} {height} preload="auto" playsinline autoplay>
+  <video
+    bind:this={video}
+    style:visibility
+    {width}
+    {height}
+    preload="auto"
+    playsinline
+    autoplay
+  >
     <!-- required just to remove a build error -->
     <track kind="captions" />
   </video>

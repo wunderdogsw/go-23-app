@@ -6,7 +6,7 @@
   import { key as canvasKey } from './canvas'
   import { key as detectorKey } from './hands-detector'
 
-  const { getVideo } = getContext(videoKey)
+  const { getVideo, hideVideo } = getContext(videoKey)
   const { drawFullImage, drawPoint } = getContext(canvasKey)
   const { getDetector } = getContext(detectorKey)
 
@@ -14,7 +14,7 @@
   let detector
   let rafId
 
-  const drawVideo = () => {
+  const drawVideoCanvas = () => {
     drawFullImage(video)
   }
 
@@ -60,7 +60,8 @@
       const hands = await detector.estimateHands(video, {
         flipHorizontal: false,
       })
-      drawVideo()
+      hideVideo()
+      drawVideoCanvas()
 
       if (hands?.length) {
         drawResults(hands)
