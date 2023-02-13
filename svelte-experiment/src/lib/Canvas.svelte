@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, setContext } from 'svelte'
 
-  import { key } from './canvas'
+  import { key } from './Canvas.svelte'
 
   export let width = 640
   export let height = 480

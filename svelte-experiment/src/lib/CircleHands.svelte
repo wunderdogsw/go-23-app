@@ -3,7 +3,7 @@
   import { getContext, onDestroy, onMount } from 'svelte'
 
   import { key as videoKey } from './camera-video'
-  import { key as canvasKey } from './canvas'
+  import { key as canvasKey } from './Canvas.svelte'
   import { key as detectorKey } from './hands-detector'
 
   const { getVideo, hideVideo } = getContext(videoKey)
