@@ -8,7 +8,7 @@ const canvasHeight = canvas.height;
 let isGameOn = true;
 let currentScore = 0;
 
-const keyPointNames = [
+const keypointNames = [
   "nose",
   "left_eye_inner",
   "left_eye",
@@ -90,11 +90,11 @@ function hexStringToHex(hexString) {
   return parseInt(hexString, 16);
 }
 
-function getKeyPointColor(keyPointName) {
-  if (keyPointName.indexOf("left") > -1) {
+function getKeypointColor(keypointName) {
+  if (keypointName.indexOf("left") > -1) {
     return colors[0];
   }
-  if (keyPointName.indexOf("right") > -1) {
+  if (keypointName.indexOf("right") > -1) {
     return colors[1];
   }
 
@@ -102,14 +102,14 @@ function getKeyPointColor(keyPointName) {
 }
 
 function createPostureObjects() {
-  keyPointNames.forEach((keyPointName) => {
+  keypointNames.forEach((keypointName) => {
     const geometry = new THREE.SphereGeometry(0.1, 32, 16);
-    const color = hexStringToHex(getKeyPointColor(keyPointName));
+    const color = hexStringToHex(getKeypointColor(keypointName));
     const material = new THREE.MeshMatcapMaterial({ color });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.visible = false;
     scene.add(sphere);
-    //poseObjectsMap.set(keyPointName, sphere);
+    //poseObjectsMap.set(keypointName, sphere);
   });
   createHead();
   createArm("left");
@@ -120,29 +120,27 @@ function createPostureObjects() {
  * param: handedness - left or right
  */
 function createArm(handedness) {
-  let elbowKeyPointName = `${handedness}_elbow`;
-  let wristKeyPointName = `${handedness}_wrist`;
-
+  const bodyPartName = `${handedness}_arm`;
   const height = 5;
   const radialSegments = 32;
   const geometry = new THREE.CylinderGeometry(0.4, 0.4, height, radialSegments);
-  const color = hexStringToHex(getKeyPointColor(elbowKeyPointName));
+  const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const cylinder = new THREE.Mesh(geometry, material);
   cylinder.visible = false;
   scene.add(cylinder);
-  poseObjectsMap.set(elbowKeyPointName, cylinder);
-  //poseObjectsMap.set(wristKeyPointName, cylinder);
+  poseObjectsMap.set(bodyPartName, cylinder);
 }
 
 function createHead() {
+  const bodyPartName = `head`;
   const geometry = new THREE.SphereGeometry(0.4, 32, 16);
-  const color = hexStringToHex(getKeyPointColor("nose"));
+  const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const sphere = new THREE.Mesh(geometry, material);
   sphere.visible = false;
   scene.add(sphere);
-  poseObjectsMap.set("nose", sphere);
+  poseObjectsMap.set(bodyPartName, sphere);
 }
 
 async function getVideoCamera() {
@@ -176,28 +174,20 @@ async function getDetector() {
   }
 }
 
-function drawKeyPoint(keyPoint) {
-  // If score is null, just show the keyPoint.
-  const keyPointScore = keyPoint?.score != null ? keyPoint.score : 1;
+function keypointPassesThreshold() {
+  // If score is null, just show the keypoint.
+  const keypointScore = keypoint?.score != null ? keypoint.score : 1;
   const scoreThreshold = 0.85;
 
-  if (keyPointScore < scoreThreshold) {
-    return;
-  }
-
-  const object = poseObjectsMap.get(keyPoint.name);
-  if (!object) return;
-
-  const objectX = getObjectX(keyPoint.x);
-  const objectY = getObjectY(keyPoint.y);
-  object.position.set(objectX, objectY);
-  object.visible = true;
+  return keypointScore >= scoreThreshold;
 }
 
-function drawKeyPoints(keyPoints) {
-  for (let i = 0; i < keyPoints.length; i++) {
-    drawKeyPoint(keyPoints[i]);
-  }
+function drawHead(headKeypoint) {
+  const object = poseObjectsMap.get("head");
+  const objectX = getObjectX(headKeypoint.x);
+  const objectY = getObjectY(headKeypoint.y);
+  object.position.set(objectX, objectY);
+  object.visible = true;
 }
 
 function resetPoseObjects() {
@@ -212,7 +202,9 @@ function drawResult(pose) {
   }
 
   resetPoseObjects();
-  drawKeyPoints(pose.keypoints);
+
+  const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
+  drawHead(headKeypoint);
 }
 
 function drawResults(poses) {
