@@ -60,6 +60,7 @@ function createPostureObjects() {
     const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
     const material = new THREE.MeshMatcapMaterial( { color: 0x00ff00 } );
     const cube = new THREE.Mesh( geometry, material );
+    cube.visible = false
     scene.add( cube );
     poseObjectsMap.set(keypointName, cube)
   })
@@ -115,13 +116,15 @@ function drawKeypoint(keypoint) {
   const score = keypoint?.score != null ? keypoint.score : 1;
   const scoreThreshold = 0.85;
 
-  if (score >= scoreThreshold) {
-    const object = poseObjectsMap.get(keypoint.name)
-    const objectX = getObjectX(keypoint.x)
-    const objectY = getObjectY(keypoint.y)
-    object.position.set(objectX, objectY)
-    renderer.render( scene, camera );
+  if (score < scoreThreshold) {
+    return
   }
+
+  const object = poseObjectsMap.get(keypoint.name)
+  const objectX = getObjectX(keypoint.x)
+  const objectY = getObjectY(keypoint.y)
+  object.position.set(objectX, objectY)
+  object.visible = true
 }
 
 function drawKeypoints(keypoints) {
@@ -130,11 +133,19 @@ function drawKeypoints(keypoints) {
   }
 }
 
+function resetPoseObjects() {
+  poseObjectsMap.forEach((object) => {
+    object.visible = false
+  })
+}
 
 function drawResult(pose) {
-  if (pose.keypoints) {
-    drawKeypoints(pose.keypoints);
+  if (!pose.keypoints) {
+    return
   }
+
+  resetPoseObjects()
+  drawKeypoints(pose.keypoints);
 }
 
 function drawResults(poses) {
@@ -143,6 +154,7 @@ function drawResults(poses) {
   }
 
   drawResult(poses[0]);
+  renderer.render( scene, camera );
 }
 
 
