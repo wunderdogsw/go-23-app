@@ -25,8 +25,8 @@ const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1
 camera.position.z = 5;
 scene.add( camera );
 
-const visibleHeight = visibleHeightAtZDepth()
 const visibleWidth = visibleWidthAtZDepth()
+const visibleHeight = visibleHeightAtZDepth()
 createPostureObjects()
 
 const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
@@ -38,6 +38,22 @@ scene.add( targetCube );
 
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.render( scene, camera );
+
+// reference: ChatGPT
+function getRandomFloatWithDecimalPlaces(min, max, decimalPlaces = 8) {
+  const factor = Math.pow(10, decimalPlaces);
+  const randomNum = Math.random() * (max - min) + min;
+  return Math.round(randomNum * factor) / factor;
+}
+
+function moveTargetCube() {
+  const margin = 0.5
+  const maxX = visibleWidth / 2 - margin
+  const x = getRandomFloatWithDecimalPlaces(- maxX, maxX)
+  const maxY = visibleHeight / 2 - margin
+  const y = getRandomFloatWithDecimalPlaces(-maxY, maxY)
+  targetCube.position.set(x, y)
+}
 
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
@@ -151,11 +167,6 @@ function getRandomInt(x) {
   return Math.floor(Math.random() * x);
 }
 
-function hitTargetCube() {
-  const color = hexStringToHex(colors[2])
-  targetCube.material.color.set(color)
-}
-
 function drawKeypoint(keypoint) {
   // If score is null, just show the keypoint.
   const score = keypoint?.score != null ? keypoint.score : 1;
@@ -172,7 +183,7 @@ function drawKeypoint(keypoint) {
   object.visible = true
 
   if (intersects(object, targetCube)) {
-    hitTargetCube()
+    moveTargetCube()
   }
 }
 
