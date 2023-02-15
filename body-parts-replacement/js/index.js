@@ -46,6 +46,7 @@ const keyPointNames = [
   "left_foot_index",
   "right_foot_index",
 ];
+const tmpPointNames = ["left_shoulder", "right_shoulder", "left_elbow", "right_elbow"];
 const colors = ["FFFF05", "750DFF", "4DEBA2", "FDB0F3", "FA58E9"];
 
 const poseObjectsMap = new Map();
@@ -93,11 +94,11 @@ function hexStringToHex(hexString) {
   return parseInt(hexString, 16);
 }
 
-function getKeypointColor(keypointName) {
-  if (keypointName.indexOf("left") > -1) {
+function getKeyPointColor(keyPointName) {
+  if (keyPointName.indexOf("left") > -1) {
     return colors[0];
   }
-  if (keypointName.indexOf("right") > -1) {
+  if (keyPointName.indexOf("right") > -1) {
     return colors[1];
   }
 
@@ -105,14 +106,15 @@ function getKeypointColor(keypointName) {
 }
 
 function createPostureObjects() {
-  keyPointNames.forEach((keypointName) => {
+  //const targetKeyPoints = keyPointNames.filter((keyPoint) => tmpPointNames.includes(keyPoint));
+  keyPointNames.forEach((keyPointName) => {
     const geometry = new THREE.SphereGeometry(0.4, 32, 16);
-    const color = hexStringToHex(getKeypointColor(keypointName));
+    const color = hexStringToHex(getKeyPointColor(keyPointName));
     const material = new THREE.MeshMatcapMaterial({ color });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.visible = false;
     scene.add(sphere);
-    poseObjectsMap.set(keypointName, sphere);
+    poseObjectsMap.set(keyPointName, sphere);
   });
 }
 
@@ -158,25 +160,25 @@ async function getDetector() {
   }
 }
 
-function drawKeypoint(keypoint) {
-  // If score is null, just show the keypoint.
-  const keypointScore = keypoint?.score != null ? keypoint.score : 1;
+function drawKeyPoint(keyPoint) {
+  // If score is null, just show the keyPoint.
+  const keyPointScore = keyPoint?.score != null ? keyPoint.score : 1;
   const scoreThreshold = 0.85;
 
-  if (keypointScore < scoreThreshold) {
+  if (keyPointScore < scoreThreshold) {
     return;
   }
 
-  const object = poseObjectsMap.get(keypoint.name);
-  const objectX = getObjectX(keypoint.x);
-  const objectY = getObjectY(keypoint.y);
+  const object = poseObjectsMap.get(keyPoint.name);
+  const objectX = getObjectX(keyPoint.x);
+  const objectY = getObjectY(keyPoint.y);
   object.position.set(objectX, objectY);
   object.visible = true;
 }
 
-function drawKeypoints(keypoints) {
-  for (let i = 0; i < keypoints.length; i++) {
-    drawKeypoint(keypoints[i]);
+function drawKeyPoints(keyPoints) {
+  for (let i = 0; i < keyPoints.length; i++) {
+    drawKeyPoint(keyPoints[i]);
   }
 }
 
@@ -192,7 +194,7 @@ function drawResult(pose) {
   }
 
   resetPoseObjects();
-  drawKeypoints(pose.keypoints);
+  drawKeyPoints(pose.keypoints);
 }
 
 function drawResults(poses) {
