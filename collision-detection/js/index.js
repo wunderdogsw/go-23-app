@@ -232,8 +232,8 @@ function updateTimer(leftTime) {
 
 function startTimer() {
   const startTime = Date.now()
+  // ugly fix with one second spare so that the timer starts on time
   const totalTime = (15 + 1) * 1000
-  // updateTimer(totalTime)
 
   timerIntervalId = setInterval(() => {
     const elapsedMilliseconds = Date.now() - startTime
