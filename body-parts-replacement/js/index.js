@@ -46,7 +46,7 @@ const keyPointNames = [
   "left_foot_index",
   "right_foot_index",
 ];
-const tmpPointNames = ["left_shoulder", "right_shoulder", "left_elbow", "right_elbow"];
+const tmpPointNames = ["left_wrist", "right_wrist", , "left_elbow", "right_elbow"];
 const colors = ["FFFF05", "750DFF", "4DEBA2", "FDB0F3", "FA58E9"];
 
 const poseObjectsMap = new Map();
@@ -106,8 +106,8 @@ function getKeyPointColor(keyPointName) {
 }
 
 function createPostureObjects() {
-  //const targetKeyPoints = keyPointNames.filter((keyPoint) => tmpPointNames.includes(keyPoint));
-  keyPointNames.forEach((keyPointName) => {
+  const targetKeyPoints = keyPointNames.filter((keyPoint) => tmpPointNames.includes(keyPoint));
+  targetKeyPoints.forEach((keyPointName) => {
     const geometry = new THREE.SphereGeometry(0.4, 32, 16);
     const color = hexStringToHex(getKeyPointColor(keyPointName));
     const material = new THREE.MeshMatcapMaterial({ color });
@@ -117,17 +117,6 @@ function createPostureObjects() {
     poseObjectsMap.set(keyPointName, sphere);
   });
 }
-
-// function animate() {
-//   requestAnimationFrame( animate );
-//
-//   cube.rotation.x += 0.01;
-//   cube.rotation.y += 0.01;
-//
-//   renderer.render( scene, camera );
-// }
-//
-// animate();
 
 async function getVideoCamera() {
   try {
@@ -170,6 +159,8 @@ function drawKeyPoint(keyPoint) {
   }
 
   const object = poseObjectsMap.get(keyPoint.name);
+  if (!object) return;
+
   const objectX = getObjectX(keyPoint.x);
   const objectY = getObjectY(keyPoint.y);
   object.position.set(objectX, objectY);
