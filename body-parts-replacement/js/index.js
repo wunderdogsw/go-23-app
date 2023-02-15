@@ -5,9 +5,6 @@ const canvas = document.querySelector("#canvas");
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 
-const timer = document.querySelector("#timer");
-const score = document.querySelector("#score");
-
 let isGameOn = true;
 let currentScore = 0;
 
@@ -46,7 +43,6 @@ const keyPointNames = [
   "left_foot_index",
   "right_foot_index",
 ];
-const tmpPointNames = ["left_wrist", "right_wrist", , "left_elbow", "right_elbow"];
 const colors = ["FFFF05", "750DFF", "4DEBA2", "FDB0F3", "FA58E9"];
 
 const poseObjectsMap = new Map();
@@ -106,16 +102,47 @@ function getKeyPointColor(keyPointName) {
 }
 
 function createPostureObjects() {
-  const targetKeyPoints = keyPointNames.filter((keyPoint) => tmpPointNames.includes(keyPoint));
-  targetKeyPoints.forEach((keyPointName) => {
-    const geometry = new THREE.SphereGeometry(0.4, 32, 16);
+  keyPointNames.forEach((keyPointName) => {
+    const geometry = new THREE.SphereGeometry(0.1, 32, 16);
     const color = hexStringToHex(getKeyPointColor(keyPointName));
     const material = new THREE.MeshMatcapMaterial({ color });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.visible = false;
     scene.add(sphere);
-    poseObjectsMap.set(keyPointName, sphere);
+    //poseObjectsMap.set(keyPointName, sphere);
   });
+  createHead();
+  createArm("left");
+  createArm("right");
+}
+
+/*
+ * param: handedness - left or right
+ */
+function createArm(handedness) {
+  let elbowKeyPointName = `${handedness}_elbow`;
+  let wristKeyPointName = `${handedness}_wrist`;
+
+  const height = 5;
+  const radialSegments = 32;
+  const geometry = new THREE.CylinderGeometry(0.4, 0.4, height, radialSegments);
+  const color = hexStringToHex(getKeyPointColor(elbowKeyPointName));
+  const material = new THREE.MeshMatcapMaterial({ color });
+  const cylinder = new THREE.Mesh(geometry, material);
+  cylinder.visible = false;
+  scene.add(cylinder);
+  poseObjectsMap.set(elbowKeyPointName, cylinder);
+  //poseObjectsMap.set(wristKeyPointName, cylinder);
+}
+
+function createHead() {
+  const geometry = new THREE.SphereGeometry(0.4, 32, 16);
+  const color = hexStringToHex(getKeyPointColor("nose"));
+  const material = new THREE.MeshMatcapMaterial({ color });
+  const sphere = new THREE.Mesh(geometry, material);
+  sphere.visible = false;
+  scene.add(sphere);
+  poseObjectsMap.set("nose", sphere);
 }
 
 async function getVideoCamera() {
