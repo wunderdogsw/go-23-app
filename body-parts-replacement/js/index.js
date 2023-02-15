@@ -51,7 +51,6 @@ const colors = ["FFFF05", "750DFF", "4DEBA2", "FDB0F3", "FA58E9"];
 const poseObjectsMap = new Map();
 
 const scene = new THREE.Scene();
-// const camera = new THREE.OrthographicCamera( canvas.width / - 2, canvas.width / 2, canvas.height / 2, canvas.height / - 2, 1, 1000 );
 const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
 camera.position.z = 5;
 scene.add(camera);
@@ -60,31 +59,8 @@ const visibleWidth = visibleWidthAtZDepth();
 const visibleHeight = visibleHeightAtZDepth();
 createPostureObjects();
 
-const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-const color = hexStringToHex(colors[3]);
-const material = new THREE.MeshMatcapMaterial({ color });
-const targetCube = new THREE.Mesh(geometry, material);
-targetCube.position.set(-visibleWidth / 2 + 0.5, visibleHeight / 2 - 0.5);
-scene.add(targetCube);
-
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.render(scene, camera);
-
-// reference: ChatGPT
-function getRandomFloatWithDecimalPlaces(min, max, decimalPlaces = 8) {
-  const factor = Math.pow(10, decimalPlaces);
-  const randomNum = Math.random() * (max - min) + min;
-  return Math.round(randomNum * factor) / factor;
-}
-
-function moveTargetCube() {
-  const margin = 0.5;
-  const maxX = visibleWidth / 2 - margin;
-  const x = getRandomFloatWithDecimalPlaces(-maxX, maxX);
-  const maxY = visibleHeight / 2 - margin;
-  const y = getRandomFloatWithDecimalPlaces(-maxY, maxY);
-  targetCube.position.set(x, y);
-}
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
 function visibleHeightAtZDepth(depth = 0) {
@@ -208,12 +184,6 @@ function drawKeypoint(keypoint) {
   const objectY = getObjectY(keypoint.y);
   object.position.set(objectX, objectY);
   object.visible = true;
-
-  if (isGameOn && intersects(object, targetCube)) {
-    moveTargetCube();
-    currentScore++;
-    score.innerHTML = currentScore;
-  }
 }
 
 function drawKeypoints(keypoints) {
@@ -246,40 +216,11 @@ function drawResults(poses) {
   renderer.render(scene, camera);
 }
 
-let timerIntervalId;
-function updateTimer(leftTime) {
-  const seconds = leftTime / 1000;
-  timer.innerHTML = seconds.toFixed(0).toString();
-}
-
-function startTimer() {
-  const startTime = Date.now();
-  // ugly fix with one second spare so that the timer starts on time
-  const totalTime = (15 + 1) * 1000;
-
-  timerIntervalId = setInterval(() => {
-    const elapsedMilliseconds = Date.now() - startTime;
-    const leftTime = totalTime - elapsedMilliseconds;
-
-    if (leftTime <= 0) {
-      clearInterval(timerIntervalId);
-      isGameOn = false;
-      timer.innerHTML = "Game Over";
-      return;
-    }
-
-    updateTimer(leftTime);
-  }, 500);
-}
-
 function render(detector) {
   async function posture() {
     const estimationConfig = {};
     const poses = await detector.estimatePoses(video, estimationConfig);
     drawResults(poses);
-    if (!timerIntervalId) {
-      startTimer();
-    }
     requestAnimationFrame(posture);
   }
 
