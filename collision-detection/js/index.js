@@ -25,6 +25,8 @@ const keyPointNames = [
   "left_knee", "right_knee", "left_ankle",  "right_ankle", "left_heel",
   "right_heel", "left_foot_index", "right_foot_index"
 ]
+const colors = ['FFFF05', '750DFF', '4DEBA2', 'FDB0F3', 'FA58E9']
+
 const poseObjectsMap = new Map()
 createPostureObjects()
 
@@ -55,14 +57,35 @@ function getObjectY(canvasY) {
   return (0.5 - canvasY / canvasHeight) * visibleHeight
 }
 
+
+function getRandomInt(x) {
+  return Math.floor(Math.random() * x);
+}
+
+function hexStringToHex(hexString) {
+  return parseInt(hexString, 16)
+}
+
+function getKeypointColor(keypointName) {
+  if (keypointName.indexOf('left') > -1) {
+    return colors[0]
+  }
+  if (keypointName.indexOf('right') > -1) {
+    return colors[1]
+  }
+
+  return colors[4]
+}
+
 function createPostureObjects() {
   keyPointNames.forEach((keypointName) => {
-    const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-    const material = new THREE.MeshMatcapMaterial( { color: 0x00ff00 } );
-    const cube = new THREE.Mesh( geometry, material );
-    cube.visible = false
-    scene.add( cube );
-    poseObjectsMap.set(keypointName, cube)
+    const geometry = new THREE.SphereGeometry( 0.4, 32, 16 );
+    const color = hexStringToHex(getKeypointColor(keypointName))
+    const material = new THREE.MeshMatcapMaterial( { color } );
+    const sphere = new THREE.Mesh( geometry, material );
+    sphere.visible = false
+    scene.add( sphere );
+    poseObjectsMap.set(keypointName, sphere)
   })
 }
 
