@@ -5,6 +5,12 @@ const canvas = document.querySelector('#canvas')
 const canvasWidth = canvas.width
 const canvasHeight = canvas.height
 
+const timer = document.querySelector('#timer')
+const score = document.querySelector('#score')
+
+let isGameOn = true
+let currentScore = 0
+
 const keyPointNames = [
   "nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
   "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
@@ -17,7 +23,6 @@ const keyPointNames = [
 const colors = ['FFFF05', '750DFF', '4DEBA2', 'FDB0F3', 'FA58E9']
 
 const poseObjectsMap = new Map()
-
 
 const scene = new THREE.Scene()
 // const camera = new THREE.OrthographicCamera( canvas.width / - 2, canvas.width / 2, canvas.height / 2, canvas.height / - 2, 1, 1000 );
@@ -169,10 +174,10 @@ function getRandomInt(x) {
 
 function drawKeypoint(keypoint) {
   // If score is null, just show the keypoint.
-  const score = keypoint?.score != null ? keypoint.score : 1;
+  const keypointScore = keypoint?.score != null ? keypoint.score : 1;
   const scoreThreshold = 0.85;
 
-  if (score < scoreThreshold) {
+  if (keypointScore < scoreThreshold) {
     return
   }
 
@@ -182,8 +187,10 @@ function drawKeypoint(keypoint) {
   object.position.set(objectX, objectY)
   object.visible = true
 
-  if (intersects(object, targetCube)) {
+  if (isGameOn && intersects(object, targetCube)) {
     moveTargetCube()
+    currentScore++
+    score.innerHTML = currentScore
   }
 }
 
@@ -217,12 +224,41 @@ function drawResults(poses) {
   renderer.render( scene, camera );
 }
 
+let timerIntervalId
+function updateTimer(leftTime) {
+  const seconds = leftTime / 1000
+  timer.innerHTML = seconds.toFixed(0).toString()
+}
+
+function startTimer() {
+  const startTime = Date.now()
+  const totalTime = (15 + 1) * 1000
+  // updateTimer(totalTime)
+
+  timerIntervalId = setInterval(() => {
+    const elapsedMilliseconds = Date.now() - startTime
+    const leftTime = totalTime - elapsedMilliseconds
+
+    if (leftTime <= 0) {
+      clearInterval(timerIntervalId)
+      isGameOn = false
+      timer.innerHTML = "Game Over"
+      return
+    }
+
+    updateTimer(leftTime)
+  }, 500)
+}
+
 
 function render(detector) {
   async function posture() {
     const estimationConfig = {}
     const poses = await detector.estimatePoses(video, estimationConfig);
     drawResults(poses)
+    if (!timerIntervalId) {
+      startTimer()
+    }
     requestAnimationFrame(posture)
   }
 
