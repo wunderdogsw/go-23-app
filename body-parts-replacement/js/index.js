@@ -158,18 +158,6 @@ async function getDetector() {
   }
 }
 
-// simple bounding box intersection. reference: ChatGPT
-function intersects(object1, object2) {
-  const box1 = new THREE.Box3().setFromObject(object1);
-  const box2 = new THREE.Box3().setFromObject(object2);
-
-  return box1.intersectsBox(box2);
-}
-
-function getRandomInt(x) {
-  return Math.floor(Math.random() * x);
-}
-
 function drawKeypoint(keypoint) {
   // If score is null, just show the keypoint.
   const keypointScore = keypoint?.score != null ? keypoint.score : 1;
