@@ -54,7 +54,7 @@ scene.add(camera);
 
 const visibleWidth = visibleWidthAtZDepth();
 const visibleHeight = visibleHeightAtZDepth();
-createPostureObjects();
+//createPostureObjects();
 
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.render(scene, camera);
@@ -101,21 +101,13 @@ function getKeypointColor(keypointName) {
   return colors[4];
 }
 
-function createPostureObjects() {
-  // keypointNames.forEach((keypointName) => {
-  //   const geometry = new THREE.SphereGeometry(0.1, 32, 16);
-  //   const color = hexStringToHex(getKeypointColor(keypointName));
-  //   const material = new THREE.MeshMatcapMaterial({ color });
-  //   const sphere = new THREE.Mesh(geometry, material);
-  //   sphere.visible = false;
-  //   scene.add(sphere);
-  //   //poseObjectsMap.set(keypointName, sphere);
-  // });
-  createDebug();
-  createHead();
-  createArm("left");
-  createArm("right");
-}
+// function createPostureObjects() {
+//   poseObjectsMap.clear();
+//   createDebug();
+//   createHead();
+//   createArm("left");
+//   createArm("right");
+// }
 
 /*
  * param: handedness - left or right
@@ -130,7 +122,8 @@ function createArm(handedness) {
   const cylinder = new THREE.Mesh(geometry, material);
   //cylinder.visible = false;
   scene.add(cylinder);
-  poseObjectsMap.set(bodyPartName, cylinder);
+  //poseObjectsMap.set(bodyPartName, cylinder);
+  return cylinder;
 }
 
 function createDebug() {
@@ -141,7 +134,8 @@ function createDebug() {
   const sphere = new THREE.Mesh(geometry, material);
   //sphere.visible = false;
   scene.add(sphere);
-  poseObjectsMap.set(bodyPartName, sphere);
+  //poseObjectsMap.set(bodyPartName, sphere);
+  return sphere;
 }
 
 function createHead() {
@@ -152,7 +146,7 @@ function createHead() {
   const sphere = new THREE.Mesh(geometry, material);
   //sphere.visible = false;
   scene.add(sphere);
-  poseObjectsMap.set(bodyPartName, sphere);
+  return sphere;
 }
 
 async function getVideoCamera() {
@@ -194,13 +188,28 @@ function keypointPassesThreshold(keypoint) {
   return keypointScore >= scoreThreshold;
 }
 
+function drawDebug(debugKeypoint) {
+  if (!debugKeypoint || !keypointPassesThreshold(debugKeypoint)) return;
+
+  const debug = createHead();
+  poseObjectsMap.set("debug", debug);
+
+  const debugX = getObjectX(debugKeypoint.x);
+  const debugY = getObjectY(debugKeypoint.y);
+  debug.position.set(debugX, debugY);
+  //debug.visible = true;
+}
+
 function drawHead(headKeypoint) {
   if (!headKeypoint || !keypointPassesThreshold(headKeypoint)) return;
-  const head = poseObjectsMap.get("head");
+
+  const head = createHead();
+  poseObjectsMap.set("head", head);
+
   const headX = getObjectX(headKeypoint.x);
   const headY = getObjectY(headKeypoint.y);
   head.position.set(headX, headY);
-  head.visible = true;
+  //head.visible = true;
 }
 
 function drawArm(elbowKeypoint, wristKeypoint, handedness) {
@@ -213,7 +222,9 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
     return;
   }
 
-  const arm = poseObjectsMap.get(`${handedness}_arm`);
+  const arm = createArm(handedness);
+  poseObjectsMap.set(`${handedness}_arm`, arm);
+
   console.log("draw", { arm, elbowKeypoint, wristKeypoint, handedness });
 
   // Define the points
@@ -279,8 +290,10 @@ function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
 
 function resetPoseObjects() {
   poseObjectsMap.forEach((object) => {
+    scene.remove(object);
     //object.visible = false;
   });
+  poseObjectsMap.clear();
 }
 
 function drawResult(pose) {
@@ -288,16 +301,18 @@ function drawResult(pose) {
     return;
   }
 
-  //resetPoseObjects();
-
+  resetPoseObjects();
+  //poseObjectsMap.clear();
+  //createPostureObjects(); // I probably don't need the objects in a set but I'm keeping it for now
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
+  const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
+  const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
+  drawDebug(rightElbowKeypoint);
+  drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
   const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
   const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
   drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
-  const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
-  const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
-  drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
 }
 
 function drawResults(poses) {
