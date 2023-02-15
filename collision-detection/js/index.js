@@ -5,17 +5,6 @@ const canvas = document.querySelector('#canvas')
 const canvasWidth = canvas.width
 const canvasHeight = canvas.height
 
-const scene = new THREE.Scene()
-// const camera = new THREE.OrthographicCamera( canvas.width / - 2, canvas.width / 2, canvas.height / 2, canvas.height / - 2, 1, 1000 );
-const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
-camera.position.z = 5;
-scene.add( camera );
-
-const renderer = new THREE.WebGLRenderer({ canvas });
-renderer.render( scene, camera );
-
-const visibleHeight = visibleHeightAtZDepth()
-const visibleWidth = visibleWidthAtZDepth()
 const keyPointNames = [
   "nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
   "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
@@ -28,7 +17,28 @@ const keyPointNames = [
 const colors = ['FFFF05', '750DFF', '4DEBA2', 'FDB0F3', 'FA58E9']
 
 const poseObjectsMap = new Map()
+
+
+const scene = new THREE.Scene()
+// const camera = new THREE.OrthographicCamera( canvas.width / - 2, canvas.width / 2, canvas.height / 2, canvas.height / - 2, 1, 1000 );
+const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+camera.position.z = 5;
+scene.add( camera );
+
+const visibleHeight = visibleHeightAtZDepth()
+const visibleWidth = visibleWidthAtZDepth()
 createPostureObjects()
+
+const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+const color = hexStringToHex(colors[3])
+const material = new THREE.MeshMatcapMaterial( { color } );
+const targetCube = new THREE.Mesh( geometry, material );
+targetCube.position.set(- visibleWidth / 2 + 0.5, visibleHeight / 2 - 0.5)
+scene.add( targetCube );
+
+const renderer = new THREE.WebGLRenderer({ canvas });
+renderer.render( scene, camera );
+
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
 function visibleHeightAtZDepth( depth = 0 ) {
@@ -55,11 +65,6 @@ function getObjectX(canvasX) {
 
 function getObjectY(canvasY) {
   return (0.5 - canvasY / canvasHeight) * visibleHeight
-}
-
-
-function getRandomInt(x) {
-  return Math.floor(Math.random() * x);
 }
 
 function hexStringToHex(hexString) {
@@ -134,6 +139,23 @@ async function getDetector() {
   }
 }
 
+// simple bounding box intersection. reference: ChatGPT
+function intersects(object1, object2) {
+  const box1 = new THREE.Box3().setFromObject(object1);
+  const box2 = new THREE.Box3().setFromObject(object2);
+
+  return box1.intersectsBox(box2);
+}
+
+function getRandomInt(x) {
+  return Math.floor(Math.random() * x);
+}
+
+function hitTargetCube() {
+  const color = hexStringToHex(colors[2])
+  targetCube.material.color.set(color)
+}
+
 function drawKeypoint(keypoint) {
   // If score is null, just show the keypoint.
   const score = keypoint?.score != null ? keypoint.score : 1;
@@ -148,6 +170,10 @@ function drawKeypoint(keypoint) {
   const objectY = getObjectY(keypoint.y)
   object.position.set(objectX, objectY)
   object.visible = true
+
+  if (intersects(object, targetCube)) {
+    hitTargetCube()
+  }
 }
 
 function drawKeypoints(keypoints) {
