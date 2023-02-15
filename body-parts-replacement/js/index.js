@@ -111,6 +111,7 @@ function createPostureObjects() {
     scene.add(sphere);
     //poseObjectsMap.set(keypointName, sphere);
   });
+  createDebug();
   createHead();
   createArm("left");
   createArm("right");
@@ -130,6 +131,17 @@ function createArm(handedness) {
   cylinder.visible = false;
   scene.add(cylinder);
   poseObjectsMap.set(bodyPartName, cylinder);
+}
+
+function createDebug() {
+  const bodyPartName = `debug`;
+  const geometry = new THREE.SphereGeometry(0.1, 16, 8);
+  const color = hexStringToHex(getKeypointColor(bodyPartName));
+  const material = new THREE.MeshMatcapMaterial({ color: colors[3] });
+  const sphere = new THREE.Mesh(geometry, material);
+  //sphere.visible = false;
+  scene.add(sphere);
+  poseObjectsMap.set(bodyPartName, sphere);
 }
 
 function createHead() {
@@ -174,7 +186,7 @@ async function getDetector() {
   }
 }
 
-function keypointPassesThreshold() {
+function keypointPassesThreshold(keypoint) {
   // If score is null, just show the keypoint.
   const keypointScore = keypoint?.score != null ? keypoint.score : 1;
   const scoreThreshold = 0.85;
@@ -183,21 +195,86 @@ function keypointPassesThreshold() {
 }
 
 function drawHead(headKeypoint) {
-  const object = poseObjectsMap.get("head");
-  const objectX = getObjectX(headKeypoint.x);
-  const objectY = getObjectY(headKeypoint.y);
-  object.position.set(objectX, objectY);
-  object.visible = true;
+  if (!headKeypoint || !keypointPassesThreshold(headKeypoint)) return;
+  const head = poseObjectsMap.get("head");
+  const headX = getObjectX(headKeypoint.x);
+  const headY = getObjectY(headKeypoint.y);
+  head.position.set(headX, headY);
+  head.visible = true;
 }
 
 function drawArm(elbowKeypoint, wristKeypoint, handedness) {
-  const object = poseObjectsMap.get(`${handedness}_arm`);
-  // TODO: translate elbow and wrist into a direction somehow
-  const objectX = getObjectX(elbowKeypoint.x);
-  const objectY = getObjectY(elbowKeypoint.y);
-  //
-  object.position.set(objectX, objectY);
-  object.visible = true;
+  if (
+    !elbowKeypoint ||
+    !wristKeypoint ||
+    !keypointPassesThreshold(elbowKeypoint) ||
+    !keypointPassesThreshold(wristKeypoint)
+  ) {
+    return;
+  }
+
+  const arm = poseObjectsMap.get(`${handedness}_arm`);
+  console.log("draw", { arm, elbowKeypoint, wristKeypoint, handedness });
+
+  // Define the points
+  const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, elbowKeypoint.z);
+  const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, wristKeypoint.z);
+
+  // Calculate the height of the cylinder
+  var height = point1.distanceTo(point2);
+
+  // Calculate the midpoint between the two points
+  var midpoint = point1.clone().add(point2).divideScalar(2);
+
+  // Position and orient the cylinder
+  console.log({ position: arm.position, point2 }); //, midpoint
+
+  const forcedPosition1 = new THREE.Vector3(18, 50, -0.3);
+  const forcedPosition2 = new THREE.Vector3(17, 60, -0.6);
+
+  arm.position.copy(forcedPosition1);
+  arm.lookAt(forcedPosition2);
+
+  //arm.rotateX(Math.PI / 2); // orient along z-axis - required
+
+  arm.visible = true;
+
+  const debug = poseObjectsMap.get(`debug`);
+  debug.position.copy(midpoint);
+  debug.visible = true;
+}
+
+// Thank you chatGPT
+function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
+  if (
+    !elbowKeypoint ||
+    !wristKeypoint ||
+    !keypointPassesThreshold(elbowKeypoint) ||
+    !keypointPassesThreshold(wristKeypoint)
+  ) {
+    return;
+  }
+  console.log("relocate", { elbowKeypoint, wristKeypoint, handedness });
+
+  const arm = poseObjectsMap.get(`${handedness}_arm`);
+
+  // Define the points
+  const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, elbowKeypoint.z);
+  const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, wristKeypoint.z);
+
+  // Calculate the direction from point1 to point2
+  const direction = new THREE.Vector3().subVectors(point2, point1).normalize();
+
+  // Set the position of the cylinder to the midpoint between point1 and point2
+  const midpoint = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
+  arm.position.copy(midpoint);
+
+  // Set the quaternion of the cylinder to rotate it to the correct orientation
+  arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+  arm.lookAt(point2);
+  arm.visible = true;
+  console.log({ arm, direction });
 }
 
 function resetPoseObjects() {
@@ -211,7 +288,7 @@ function drawResult(pose) {
     return;
   }
 
-  resetPoseObjects();
+  //resetPoseObjects();
 
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
