@@ -102,15 +102,15 @@ function getKeypointColor(keypointName) {
 }
 
 function createPostureObjects() {
-  keypointNames.forEach((keypointName) => {
-    const geometry = new THREE.SphereGeometry(0.1, 32, 16);
-    const color = hexStringToHex(getKeypointColor(keypointName));
-    const material = new THREE.MeshMatcapMaterial({ color });
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.visible = false;
-    scene.add(sphere);
-    //poseObjectsMap.set(keypointName, sphere);
-  });
+  // keypointNames.forEach((keypointName) => {
+  //   const geometry = new THREE.SphereGeometry(0.1, 32, 16);
+  //   const color = hexStringToHex(getKeypointColor(keypointName));
+  //   const material = new THREE.MeshMatcapMaterial({ color });
+  //   const sphere = new THREE.Mesh(geometry, material);
+  //   sphere.visible = false;
+  //   scene.add(sphere);
+  //   //poseObjectsMap.set(keypointName, sphere);
+  // });
   createDebug();
   createHead();
   createArm("left");
@@ -128,7 +128,7 @@ function createArm(handedness) {
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const cylinder = new THREE.Mesh(geometry, material);
-  cylinder.visible = false;
+  //cylinder.visible = false;
   scene.add(cylinder);
   poseObjectsMap.set(bodyPartName, cylinder);
 }
@@ -150,7 +150,7 @@ function createHead() {
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const sphere = new THREE.Mesh(geometry, material);
-  sphere.visible = false;
+  //sphere.visible = false;
   scene.add(sphere);
   poseObjectsMap.set(bodyPartName, sphere);
 }
@@ -237,10 +237,10 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
 
   //arm.rotateX(Math.PI / 2); // orient along z-axis - required
 
-  arm.visible = true;
+  arm.visible = false;
 
   const debug = poseObjectsMap.get(`debug`);
-  debug.position.copy(midpoint);
+  //debug.position.copy(midpoint);
   debug.visible = true;
 }
 
@@ -279,7 +279,7 @@ function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
 
 function resetPoseObjects() {
   poseObjectsMap.forEach((object) => {
-    object.visible = false;
+    //object.visible = false;
   });
 }
 
