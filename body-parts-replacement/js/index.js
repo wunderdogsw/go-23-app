@@ -191,13 +191,14 @@ function keypointPassesThreshold(keypoint) {
 function drawDebug(debugKeypoint) {
   if (!debugKeypoint || !keypointPassesThreshold(debugKeypoint)) return;
 
-  const debug = createHead();
+  const debug = createDebug();
   poseObjectsMap.set("debug", debug);
 
   const debugX = getObjectX(debugKeypoint.x);
   const debugY = getObjectY(debugKeypoint.y);
   debug.position.set(debugX, debugY);
   //debug.visible = true;
+  console.log("debug.position", debug.position);
 }
 
 function drawHead(headKeypoint) {
@@ -209,6 +210,7 @@ function drawHead(headKeypoint) {
   const headX = getObjectX(headKeypoint.x);
   const headY = getObjectY(headKeypoint.y);
   head.position.set(headX, headY);
+  //console.log(head.position);
   //head.visible = true;
 }
 
@@ -225,7 +227,7 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
   const arm = createArm(handedness);
   poseObjectsMap.set(`${handedness}_arm`, arm);
 
-  console.log("draw", { arm, elbowKeypoint, wristKeypoint, handedness });
+  console.log("draw arm", { arm, elbowKeypoint, wristKeypoint, handedness });
 
   // Define the points
   const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, elbowKeypoint.z);
@@ -238,13 +240,15 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
   var midpoint = point1.clone().add(point2).divideScalar(2);
 
   // Position and orient the cylinder
-  console.log({ position: arm.position, point2 }); //, midpoint
+  console.log({ position: arm.position, point1, point2, height, midpoint }); //, midpoint
 
-  const forcedPosition1 = new THREE.Vector3(18, 50, -0.3);
-  const forcedPosition2 = new THREE.Vector3(17, 60, -0.6);
+  const forcedPosition1 = new THREE.Vector3(0, 2, -0.3);
+  const forcedPosition2 = new THREE.Vector3(1, 3, -0.6);
 
-  arm.position.copy(forcedPosition1);
-  arm.lookAt(forcedPosition2);
+  arm.position.copy(midpoint);
+  arm.lookAt(point2);
+  //arm.position.copy(forcedPosition1);
+  //arm.lookAt(forcedPosition2);
 
   //arm.rotateX(Math.PI / 2); // orient along z-axis - required
 
@@ -252,7 +256,7 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
 
   const debug = poseObjectsMap.get(`debug`);
   //debug.position.copy(midpoint);
-  debug.visible = true;
+  //debug.visible = true;
 }
 
 // Thank you chatGPT
@@ -278,7 +282,7 @@ function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
 
   // Set the position of the cylinder to the midpoint between point1 and point2
   const midpoint = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
-  arm.position.copy(midpoint);
+  //arm.position.copy(midpoint);
 
   // Set the quaternion of the cylinder to rotate it to the correct orientation
   arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
