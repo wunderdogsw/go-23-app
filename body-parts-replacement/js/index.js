@@ -190,6 +190,16 @@ function drawHead(headKeypoint) {
   object.visible = true;
 }
 
+function drawArm(elbowKeypoint, wristKeypoint, handedness) {
+  const object = poseObjectsMap.get(`${handedness}_arm`);
+  // TODO: translate elbow and wrist into a direction somehow
+  const objectX = getObjectX(elbowKeypoint.x);
+  const objectY = getObjectY(elbowKeypoint.y);
+  //
+  object.position.set(objectX, objectY);
+  object.visible = true;
+}
+
 function resetPoseObjects() {
   poseObjectsMap.forEach((object) => {
     object.visible = false;
@@ -205,6 +215,12 @@ function drawResult(pose) {
 
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
+  const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
+  const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
+  drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
+  const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
+  const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
+  drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
 }
 
 function drawResults(poses) {
