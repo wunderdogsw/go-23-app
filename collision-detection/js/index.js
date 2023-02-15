@@ -12,17 +12,21 @@ camera.position.z = 5;
 scene.add( camera );
 
 const renderer = new THREE.WebGLRenderer({ canvas });
+renderer.render( scene, camera );
+
 const visibleHeight = visibleHeightAtZDepth()
 const visibleWidth = visibleWidthAtZDepth()
-
-const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-const material = new THREE.MeshMatcapMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-setPositionOnCanvas(cube, 100, 50)
-
-scene.add( cube )
-
-renderer.render( scene, camera );
+const keyPointNames = [
+  "nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
+  "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
+  "mouth_right", "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+  "left_wrist", "right_wrist", "left_pinky", "right_pinky", "left_index",
+  "right_index", "left_thumb", "right_thumb", "left_hip",  "right_hip",
+  "left_knee", "right_knee", "left_ankle",  "right_ankle", "left_heel",
+  "right_heel", "left_foot_index", "right_foot_index"
+]
+const poseObjectsMap = new Map()
+createPostureObjects()
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
 function visibleHeightAtZDepth( depth = 0 ) {
@@ -43,11 +47,22 @@ function visibleWidthAtZDepth( depth = 0 ) {
   return height * camera.aspect;
 }
 
-function setPositionOnCanvas(object, x, y) {
-  // calculation => get distance from center relative to canvas, then multiply by total visible distance
-  const objectX = (x / canvasWidth - 0.5) * visibleWidth
-  const objectY = (0.5 - y / canvasHeight) * visibleHeight
-  object.position.set(objectX, objectY)
+function getObjectX(canvasX) {
+  return (canvasX / canvasWidth - 0.5) * visibleWidth
+}
+
+function getObjectY(canvasY) {
+  return (0.5 - canvasY / canvasHeight) * visibleHeight
+}
+
+function createPostureObjects() {
+  keyPointNames.forEach((keypointName) => {
+    const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+    const material = new THREE.MeshMatcapMaterial( { color: 0x00ff00 } );
+    const cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+    poseObjectsMap.set(keypointName, cube)
+  })
 }
 
 // function animate() {
@@ -101,13 +116,10 @@ function drawKeypoint(keypoint) {
   const scoreThreshold = 0.85;
 
   if (score >= scoreThreshold) {
-    const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    const cube = new THREE.Mesh( geometry, material );
-    cube.position.set(keypoint.x, keypoint.y, 0)
-    scene.add( cube );
-
-    camera.position.z = 5;
+    const object = poseObjectsMap.get(keypoint.name)
+    const objectX = getObjectX(keypoint.x)
+    const objectY = getObjectY(keypoint.y)
+    object.position.set(objectX, objectY)
     renderer.render( scene, camera );
   }
 }
@@ -120,15 +132,17 @@ function drawKeypoints(keypoints) {
 
 
 function drawResult(pose) {
-  if (pose.keypoints != null) {
+  if (pose.keypoints) {
     drawKeypoints(pose.keypoints);
   }
 }
 
 function drawResults(poses) {
-  for (const pose of poses) {
-    drawResult(pose);
+  if (!poses.length) {
+    return
   }
+
+  drawResult(poses[0]);
 }
 
 
@@ -146,7 +160,7 @@ function render(detector) {
 async function init() {
   await getVideoCamera()
   const detector = await getDetector()
-  // render(detector)
+  render(detector)
 }
 
 init()
