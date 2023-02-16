@@ -250,16 +250,25 @@ function startTimer() {
   }, 500)
 }
 
+function showError() {
+  timer.innerHTML = 'Error, please reload :('
+}
 
 function render(detector) {
   async function posture() {
-    const estimationConfig = {}
-    const poses = await detector.estimatePoses(video, estimationConfig);
-    drawResults(poses)
-    if (!timerIntervalId) {
-      startTimer()
+    try {
+      const estimationConfig = {}
+      const poses = await detector.estimatePoses(video, estimationConfig);
+      drawResults(poses)
+      if (!timerIntervalId) {
+        startTimer()
+      }
+      requestAnimationFrame(posture)
     }
-    requestAnimationFrame(posture)
+    catch (error) {
+      showError()
+      console.error(error)
+    }
   }
 
   posture()
