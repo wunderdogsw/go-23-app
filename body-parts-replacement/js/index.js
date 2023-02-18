@@ -98,14 +98,6 @@ function getKeypointColor(keypointName) {
   return colors[4];
 }
 
-// function createPostureObjects() {
-//   poseObjectsMap.clear();
-//   createDebug();
-//   createHead();
-//   createArm("left");
-//   createArm("right");
-// }
-
 /*
  * param: handedness - left or right
  */
@@ -140,7 +132,6 @@ function createArm(handedness, startPoint, endPoint) {
   cylinder.quaternion.copy(quaternion);
   cylinder.scale.set(1, 1, 1);
 
-  //poseObjectsMap.set(bodyPartName, cylinder);
   return cylinder;
 }
 
@@ -217,7 +208,6 @@ function drawDebug(debugKeypoint) {
 
   const debug = createDebug(debugKeypoint);
   scene.add(debug);
-  poseObjectsMap.set("debug", debug);
 }
 
 function drawHead(headKeypoint) {
@@ -225,10 +215,6 @@ function drawHead(headKeypoint) {
 
   const head = createHead(headKeypoint);
   scene.add(head);
-  //poseObjectsMap.set("head", head);
-
-  //console.log(head.position);
-  //head.visible = true;
 }
 
 function drawArm(elbowKeypoint, wristKeypoint, handedness) {
@@ -245,46 +231,7 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
   scene.add(arm);
 }
 
-// // Thank you chatGPT
-// // Well it didn't really work
-// function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
-//   if (
-//     !elbowKeypoint ||
-//     !wristKeypoint ||
-//     !keypointPassesThreshold(elbowKeypoint) ||
-//     !keypointPassesThreshold(wristKeypoint)
-//   ) {
-//     return;
-//   }
-//   console.log("relocate", { elbowKeypoint, wristKeypoint, handedness });
-
-//   const arm = poseObjectsMap.get(`${handedness}_arm`);
-
-//   // Define the points
-//   const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, 0); //elbowKeypoint.z);
-//   const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, 0); // wristKeypoint.z);
-
-//   // Calculate the direction from point1 to point2
-//   const direction = new THREE.Vector3().subVectors(point2, point1).normalize();
-
-//   // Set the position of the cylinder to the midpoint between point1 and point2
-//   const midpoint = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
-//   //arm.position.copy(midpoint);
-
-//   // Set the quaternion of the cylinder to rotate it to the correct orientation
-//   arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
-
-//   arm.lookAt(point2);
-//   arm.visible = true;
-//   console.log({ arm, direction });
-// }
-
-function resetPoseObjects() {
-  // poseObjectsMap.forEach((object) => {
-  //   scene.remove(object);
-  //   //object.visible = false;
-  // });
-  // poseObjectsMap.clear();
+function resetCanvas() {
   scene.clear();
 }
 
@@ -293,9 +240,7 @@ function drawResult(pose) {
     return;
   }
 
-  resetPoseObjects();
-  //poseObjectsMap.clear();
-  //createPostureObjects(); // I probably don't need the objects in a set but I'm keeping it for now
+  resetCanvas();
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
   // const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
@@ -318,6 +263,7 @@ function drawResults(poses) {
     return;
   }
 
+  // TODO: use a loop for multiple people?
   drawResult(poses[0]);
   renderer.render(scene, camera);
 }
