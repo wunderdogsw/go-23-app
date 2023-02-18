@@ -42,8 +42,6 @@ const keypointNames = [
 ];
 const colors = ["FFFF05", "750DFF", "4DEBA2", "FDB0F3", "FA58E9"];
 
-const poseObjectsMap = new Map();
-
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
 camera.position.z = 5;
@@ -51,7 +49,6 @@ scene.add(camera);
 
 const visibleWidth = visibleWidthAtZDepth();
 const visibleHeight = visibleHeightAtZDepth();
-//createPostureObjects();
 
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.render(scene, camera);
@@ -125,6 +122,53 @@ function createArm(handedness, startPoint, endPoint) {
   const width = 0.4;
   const radialSegments = 32;
   const geometry = new THREE.CylinderGeometry(width, width, height, radialSegments);
+  const color = hexStringToHex(getKeypointColor(bodyPartName));
+  const material = new THREE.MeshMatcapMaterial({ color });
+  const cylinder = new THREE.Mesh(geometry, material);
+
+  // Calculate the midpoint between the two points
+  const midpoint = new THREE.Vector3().addVectors(pointA, pointB).multiplyScalar(0.5);
+
+  cylinder.position.copy(midpoint);
+  cylinder.quaternion.copy(quaternion);
+  cylinder.scale.set(1, 1, 1);
+
+  return cylinder;
+}
+
+function createTorso(leftShoulderKeypoint, rightShoulderKeypoint, leftHipKeypoint, rightHipKeypoint) {
+  const bodyPartName = `torso`;
+
+  const midpointShoulders = {
+    x: (leftShoulderKeypoint.x + rightShoulderKeypoint.x) / 2,
+    y: (leftShoulderKeypoint.y + rightShoulderKeypoint.y) / 2,
+  };
+  const midpointHips = {
+    x: (leftHipKeypoint.x + rightHipKeypoint.x) / 2,
+    y: (leftHipKeypoint.y + rightHipKeypoint.y) / 2,
+  };
+
+  // Define the start and end points
+  const startX = getObjectX(midpointShoulders.x);
+  const startY = getObjectY(midpointShoulders.y);
+  const endX = getObjectX(midpointHips.x);
+  const endY = getObjectY(midpointHips.y);
+
+  const pointA = new THREE.Vector3(startX, startY, 0); // Starting point
+  const pointB = new THREE.Vector3(endX, endY, 0); // Ending point
+
+  // Calculate the distance between the two points
+  const height = pointA.distanceTo(pointB);
+
+  // Calculate the axis of the cylinder
+  const direction = new THREE.Vector3().subVectors(pointB, pointA).normalize();
+
+  // Calculate the quaternion rotation to align the cylinder with the axis
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+  const width = 1; // same as head
+  const radialSegments = 32;
+  const geometry = new THREE.CylinderGeometry(0, width, height, radialSegments);
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const cylinder = new THREE.Mesh(geometry, material);
@@ -235,6 +279,24 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
   scene.add(arm);
 }
 
+function drawTorso(leftShoulderKeypoint, rightShoulderKeypoint, leftHipKeypoint, rightHipKeypoint) {
+  if (
+    !leftShoulderKeypoint ||
+    !rightShoulderKeypoint ||
+    !leftHipKeypoint ||
+    !rightHipKeypoint ||
+    !keypointPassesThreshold(leftShoulderKeypoint) ||
+    !keypointPassesThreshold(rightShoulderKeypoint) ||
+    !keypointPassesThreshold(leftHipKeypoint) ||
+    !keypointPassesThreshold(rightHipKeypoint)
+  ) {
+    return;
+  }
+
+  const torso = createTorso(leftShoulderKeypoint, rightShoulderKeypoint, leftHipKeypoint, rightHipKeypoint);
+  scene.add(torso);
+}
+
 function resetCanvas() {
   scene.clear();
 }
@@ -244,22 +306,26 @@ function drawResult(pose) {
     return;
   }
 
-  resetCanvas();
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
+  const leftShoulderKeypoint = pose.keypoints[keypointNames.indexOf("left_shoulder")];
+  const leftHipKeypoint = pose.keypoints[keypointNames.indexOf("left_hip")];
+  const rightShoulderKeypoint = pose.keypoints[keypointNames.indexOf("right_shoulder")];
+  const rightHipKeypoint = pose.keypoints[keypointNames.indexOf("right_hip")];
+  drawTorso(leftShoulderKeypoint, rightShoulderKeypoint, leftHipKeypoint, rightHipKeypoint);
   const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
   const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
-  const leftShoulderKeypoint = pose.keypoints[keypointNames.indexOf("left_shoulder")];
   drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
   drawArm(leftElbowKeypoint, leftShoulderKeypoint, "left");
   const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
   const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
-  const rightShoulderKeypoint = pose.keypoints[keypointNames.indexOf("right_shoulder")];
   drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
   drawArm(rightElbowKeypoint, rightShoulderKeypoint, "right");
-  // drawDebug(rightWristKeypoint);
-  // drawDebug(rightElbowKeypoint);
+
+  // drawDebug(leftShoulderKeypoint);
   // drawDebug(rightShoulderKeypoint);
+  // drawDebug(leftHipKeypoint);
+  // drawDebug(rightHipKeypoint);
 }
 
 function drawResults(poses) {
@@ -267,8 +333,11 @@ function drawResults(poses) {
     return;
   }
 
-  // TODO: use a loop for multiple people?
-  drawResult(poses[0]);
+  resetCanvas();
+  // It seems only one pose is returned
+  for (let ix = 0; ix < poses.length; ix++) {
+    drawResult(poses[ix]);
+  }
   renderer.render(scene, camera);
 }
 
