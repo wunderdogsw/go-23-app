@@ -99,7 +99,7 @@ function getKeypointColor(keypointName) {
 }
 
 /*
- * param: handedness - left or right
+ * Thank you ChatGPT
  */
 function createArm(handedness, startPoint, endPoint) {
   const bodyPartName = `${handedness}_arm`;
@@ -128,7 +128,11 @@ function createArm(handedness, startPoint, endPoint) {
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const cylinder = new THREE.Mesh(geometry, material);
-  cylinder.position.copy(pointA);
+
+  // Calculate the midpoint between the two points
+  const midpoint = new THREE.Vector3().addVectors(pointA, pointB).multiplyScalar(0.5);
+
+  cylinder.position.copy(midpoint);
   cylinder.quaternion.copy(quaternion);
   cylinder.scale.set(1, 1, 1);
 
@@ -158,7 +162,7 @@ function createDebug(debugKeypoint) {
 
   const geometry = new THREE.SphereGeometry(0.1, 16, 8);
   const color = hexStringToHex(getKeypointColor(bodyPartName));
-  const material = new THREE.MeshMatcapMaterial({ color: colors[3] });
+  const material = new THREE.MeshMatcapMaterial(); //({ color: colors[3] });
   const sphere = new THREE.Mesh(geometry, material);
   sphere.position.set(debugX, debugY);
   return sphere;
@@ -243,19 +247,19 @@ function drawResult(pose) {
   resetCanvas();
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
-  // const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
-  // const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
-  // const leftShoulderKeypoint = pose.keypoints[keypointNames.indexOf("left_shoulder")];
-  // drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
-  // drawArm(leftElbowKeypoint, leftShoulderKeypoint, "left");
+  const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
+  const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
+  const leftShoulderKeypoint = pose.keypoints[keypointNames.indexOf("left_shoulder")];
+  drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
+  drawArm(leftElbowKeypoint, leftShoulderKeypoint, "left");
   const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
   const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
   const rightShoulderKeypoint = pose.keypoints[keypointNames.indexOf("right_shoulder")];
-  //drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
-  //drawArm(rightElbowKeypoint, rightShoulderKeypoint, "right");
-  drawDebug(rightWristKeypoint);
-  drawDebug(rightElbowKeypoint);
-  drawDebug(rightShoulderKeypoint);
+  drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
+  drawArm(rightElbowKeypoint, rightShoulderKeypoint, "right");
+  // drawDebug(rightWristKeypoint);
+  // drawDebug(rightElbowKeypoint);
+  // drawDebug(rightShoulderKeypoint);
 }
 
 function drawResults(poses) {
