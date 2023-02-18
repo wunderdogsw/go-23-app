@@ -5,9 +5,6 @@ const canvas = document.querySelector("#canvas");
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 
-let isGameOn = true;
-let currentScore = 0;
-
 const keypointNames = [
   "nose",
   "left_eye_inner",
@@ -112,40 +109,67 @@ function getKeypointColor(keypointName) {
 /*
  * param: handedness - left or right
  */
-function createArm(handedness) {
+function createArm(handedness, startPoint, endPoint) {
   const bodyPartName = `${handedness}_arm`;
-  const height = 5;
+
+  // Define the start and end points
+  const startX = getObjectX(startPoint.x);
+  const startY = getObjectY(startPoint.y);
+  const endX = getObjectX(endPoint.x);
+  const endY = getObjectY(endPoint.y);
+
+  const pointA = new THREE.Vector3(startX, startY, 0); // Starting point
+  const pointB = new THREE.Vector3(endX, endY, 0); // Ending point
+
+  // Calculate the distance between the two points
+  const height = pointA.distanceTo(pointB);
+
+  // Calculate the axis of the cylinder
+  const direction = new THREE.Vector3().subVectors(pointB, pointA).normalize();
+
+  // Calculate the quaternion rotation to align the cylinder with the axis
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+  const width = 0.4;
   const radialSegments = 32;
-  const geometry = new THREE.CylinderGeometry(0.4, 0.4, height, radialSegments);
+  const geometry = new THREE.CylinderGeometry(width, width, height, radialSegments);
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color });
   const cylinder = new THREE.Mesh(geometry, material);
-  //cylinder.visible = false;
-  scene.add(cylinder);
+  cylinder.position.copy(pointA);
+  cylinder.quaternion.copy(quaternion);
+  cylinder.scale.set(1, 1, 1);
+
   //poseObjectsMap.set(bodyPartName, cylinder);
   return cylinder;
 }
 
-function createDebug() {
+function createHead(centerPoint) {
+  const bodyPartName = `head`;
+
+  const headX = getObjectX(centerPoint.x);
+  const headY = getObjectY(centerPoint.y);
+
+  const width = 1;
+  const geometry = new THREE.SphereGeometry(width, 32, 16);
+  const color = hexStringToHex(getKeypointColor(bodyPartName));
+  const material = new THREE.MeshMatcapMaterial({ color });
+  const sphere = new THREE.Mesh(geometry, material);
+  sphere.position.set(headX, headY);
+
+  return sphere;
+}
+
+function createDebug(debugKeypoint) {
   const bodyPartName = `debug`;
+  const debugX = getObjectX(debugKeypoint.x);
+  const debugY = getObjectY(debugKeypoint.y);
+
   const geometry = new THREE.SphereGeometry(0.1, 16, 8);
   const color = hexStringToHex(getKeypointColor(bodyPartName));
   const material = new THREE.MeshMatcapMaterial({ color: colors[3] });
   const sphere = new THREE.Mesh(geometry, material);
-  //sphere.visible = false;
-  scene.add(sphere);
-  //poseObjectsMap.set(bodyPartName, sphere);
-  return sphere;
-}
-
-function createHead() {
-  const bodyPartName = `head`;
-  const geometry = new THREE.SphereGeometry(0.4, 32, 16);
-  const color = hexStringToHex(getKeypointColor(bodyPartName));
-  const material = new THREE.MeshMatcapMaterial({ color });
-  const sphere = new THREE.Mesh(geometry, material);
-  //sphere.visible = false;
-  scene.add(sphere);
+  sphere.position.set(debugX, debugY);
   return sphere;
 }
 
@@ -191,25 +215,18 @@ function keypointPassesThreshold(keypoint) {
 function drawDebug(debugKeypoint) {
   if (!debugKeypoint || !keypointPassesThreshold(debugKeypoint)) return;
 
-  const debug = createDebug();
+  const debug = createDebug(debugKeypoint);
+  scene.add(debug);
   poseObjectsMap.set("debug", debug);
-
-  const debugX = getObjectX(debugKeypoint.x);
-  const debugY = getObjectY(debugKeypoint.y);
-  debug.position.set(debugX, debugY);
-  //debug.visible = true;
-  console.log("debug.position", debug.position);
 }
 
 function drawHead(headKeypoint) {
   if (!headKeypoint || !keypointPassesThreshold(headKeypoint)) return;
 
-  const head = createHead();
-  poseObjectsMap.set("head", head);
+  const head = createHead(headKeypoint);
+  scene.add(head);
+  //poseObjectsMap.set("head", head);
 
-  const headX = getObjectX(headKeypoint.x);
-  const headY = getObjectY(headKeypoint.y);
-  head.position.set(headX, headY);
   //console.log(head.position);
   //head.visible = true;
 }
@@ -224,80 +241,51 @@ function drawArm(elbowKeypoint, wristKeypoint, handedness) {
     return;
   }
 
-  const arm = createArm(handedness);
-  poseObjectsMap.set(`${handedness}_arm`, arm);
-
-  console.log("draw arm", { arm, elbowKeypoint, wristKeypoint, handedness });
-
-  // Define the points
-  const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, elbowKeypoint.z);
-  const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, wristKeypoint.z);
-
-  // Calculate the height of the cylinder
-  var height = point1.distanceTo(point2);
-
-  // Calculate the midpoint between the two points
-  var midpoint = point1.clone().add(point2).divideScalar(2);
-
-  // Position and orient the cylinder
-  console.log({ position: arm.position, point1, point2, height, midpoint }); //, midpoint
-
-  const forcedPosition1 = new THREE.Vector3(0, 2, -0.3);
-  const forcedPosition2 = new THREE.Vector3(1, 3, -0.6);
-
-  arm.position.copy(midpoint);
-  arm.lookAt(point2);
-  //arm.position.copy(forcedPosition1);
-  //arm.lookAt(forcedPosition2);
-
-  //arm.rotateX(Math.PI / 2); // orient along z-axis - required
-
-  arm.visible = false;
-
-  const debug = poseObjectsMap.get(`debug`);
-  //debug.position.copy(midpoint);
-  //debug.visible = true;
+  const arm = createArm(handedness, elbowKeypoint, wristKeypoint);
+  scene.add(arm);
 }
 
-// Thank you chatGPT
-function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
-  if (
-    !elbowKeypoint ||
-    !wristKeypoint ||
-    !keypointPassesThreshold(elbowKeypoint) ||
-    !keypointPassesThreshold(wristKeypoint)
-  ) {
-    return;
-  }
-  console.log("relocate", { elbowKeypoint, wristKeypoint, handedness });
+// // Thank you chatGPT
+// // Well it didn't really work
+// function relocateArm(elbowKeypoint, wristKeypoint, handedness) {
+//   if (
+//     !elbowKeypoint ||
+//     !wristKeypoint ||
+//     !keypointPassesThreshold(elbowKeypoint) ||
+//     !keypointPassesThreshold(wristKeypoint)
+//   ) {
+//     return;
+//   }
+//   console.log("relocate", { elbowKeypoint, wristKeypoint, handedness });
 
-  const arm = poseObjectsMap.get(`${handedness}_arm`);
+//   const arm = poseObjectsMap.get(`${handedness}_arm`);
 
-  // Define the points
-  const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, elbowKeypoint.z);
-  const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, wristKeypoint.z);
+//   // Define the points
+//   const point1 = new THREE.Vector3(elbowKeypoint.x, elbowKeypoint.y, 0); //elbowKeypoint.z);
+//   const point2 = new THREE.Vector3(wristKeypoint.x, wristKeypoint.y, 0); // wristKeypoint.z);
 
-  // Calculate the direction from point1 to point2
-  const direction = new THREE.Vector3().subVectors(point2, point1).normalize();
+//   // Calculate the direction from point1 to point2
+//   const direction = new THREE.Vector3().subVectors(point2, point1).normalize();
 
-  // Set the position of the cylinder to the midpoint between point1 and point2
-  const midpoint = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
-  //arm.position.copy(midpoint);
+//   // Set the position of the cylinder to the midpoint between point1 and point2
+//   const midpoint = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
+//   //arm.position.copy(midpoint);
 
-  // Set the quaternion of the cylinder to rotate it to the correct orientation
-  arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+//   // Set the quaternion of the cylinder to rotate it to the correct orientation
+//   arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
 
-  arm.lookAt(point2);
-  arm.visible = true;
-  console.log({ arm, direction });
-}
+//   arm.lookAt(point2);
+//   arm.visible = true;
+//   console.log({ arm, direction });
+// }
 
 function resetPoseObjects() {
-  poseObjectsMap.forEach((object) => {
-    scene.remove(object);
-    //object.visible = false;
-  });
-  poseObjectsMap.clear();
+  // poseObjectsMap.forEach((object) => {
+  //   scene.remove(object);
+  //   //object.visible = false;
+  // });
+  // poseObjectsMap.clear();
+  scene.clear();
 }
 
 function drawResult(pose) {
@@ -310,13 +298,19 @@ function drawResult(pose) {
   //createPostureObjects(); // I probably don't need the objects in a set but I'm keeping it for now
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
   drawHead(headKeypoint);
+  // const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
+  // const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
+  // const leftShoulderKeypoint = pose.keypoints[keypointNames.indexOf("left_shoulder")];
+  // drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
+  // drawArm(leftElbowKeypoint, leftShoulderKeypoint, "left");
   const rightWristKeypoint = pose.keypoints[keypointNames.indexOf("right_wrist")];
   const rightElbowKeypoint = pose.keypoints[keypointNames.indexOf("right_elbow")];
+  const rightShoulderKeypoint = pose.keypoints[keypointNames.indexOf("right_shoulder")];
+  //drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
+  //drawArm(rightElbowKeypoint, rightShoulderKeypoint, "right");
+  drawDebug(rightWristKeypoint);
   drawDebug(rightElbowKeypoint);
-  drawArm(rightElbowKeypoint, rightWristKeypoint, "right");
-  const leftWristKeypoint = pose.keypoints[keypointNames.indexOf("left_wrist")];
-  const leftElbowKeypoint = pose.keypoints[keypointNames.indexOf("left_elbow")];
-  drawArm(leftElbowKeypoint, leftWristKeypoint, "left");
+  drawDebug(rightShoulderKeypoint);
 }
 
 function drawResults(poses) {
