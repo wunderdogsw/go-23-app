@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import Cone from './Cone.js';
+import Sphere from './Sphere.js';
 
 // Create an empty scene
 var scene = new THREE.Scene();
@@ -10,7 +12,7 @@ var camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 4;
+camera.position.z = 6;
 
 // Create a renderer with Antialiasing
 var renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
@@ -32,33 +34,48 @@ const horizontalTexture = new THREE.TextureLoader().load(
   '../assets/hStripes.jpeg'
 );
 
-const cubeGe = new THREE.BoxGeometry(1, 1, 1);
-const cubeMaterial = new THREE.MeshStandardMaterial({
-  //color: '#433F81',
-  map: verticalTexture,
-});
-const cube = new THREE.Mesh(cubeGe, cubeMaterial);
+const hVideo = document.getElementById('hVideo');
+const sVideo = document.getElementById('sVideo');
 
-// Add cube to Scene
-scene.add(cube);
+const hVTexture = new THREE.VideoTexture(hVideo);
+const sVTexture = new THREE.VideoTexture(sVideo);
 
-const sphereGe = new THREE.SphereGeometry(0.6);
-const sphereMaterial = new THREE.MeshStandardMaterial({
-  map: horizontalTexture,
-});
-const sphere = new THREE.Mesh(sphereGe, sphereMaterial);
-sphere.position.x = -2;
+// Cone with static texture
+const coneStaticTexture = Cone(verticalTexture);
+coneStaticTexture.position.x = 5;
+scene.add(coneStaticTexture);
 
-scene.add(sphere);
+// Cone with video
+const coneVideoTexture = Cone(hVTexture);
+scene.add(coneVideoTexture);
+
+// Sphere with static texture
+const sphereStaticTexture = Sphere(horizontalTexture);
+sphereStaticTexture.position.x = 2;
+scene.add(sphereStaticTexture);
+
+// Sphere with video
+const sphereVideoTexture = Sphere(sVTexture);
+sphereVideoTexture.position.x = -2;
+scene.add(sphereVideoTexture);
 
 // Render Loop
 var render = function () {
   requestAnimationFrame(render);
 
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  sphere.rotateX(0.01);
-  sphere.rotateY(0.01);
+  coneStaticTexture.rotateX(0.01);
+  coneStaticTexture.rotateY(0.01);
+  sphereStaticTexture.rotateX(0.01);
+  sphereStaticTexture.rotateY(0.01);
+
+  coneVideoTexture.rotateX(0.01);
+  coneVideoTexture.rotateY(-0.01);
+
+  sphereVideoTexture.rotateX(-0.01);
+  sphereVideoTexture.rotateY(-0.01);
+
+  sVTexture.needsUpdate = true;
+  hVTexture.needsUpdate = true;
 
   // Render the scene
   renderer.render(scene, camera);
