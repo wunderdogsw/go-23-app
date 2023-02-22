@@ -134,6 +134,10 @@ world.addBody(sphereVideoBody);
 function createContactMaterials(materials1, materials2) {
   materials1.forEach((material1) => {
     materials2.forEach((material2) => {
+      if (material1 === material2) {
+        return
+      }
+
       const contactMaterial = new CANNON.ContactMaterial(material1, material2, { friction: 0.0, restitution: 1.0 })
       world.addContactMaterial(contactMaterial)
     })
