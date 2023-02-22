@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-import Cone from './Cone.js';
 import Sphere from './Sphere.js';
 
 function getRandomInteger(x, y) {
@@ -99,15 +98,6 @@ const sVideo = document.getElementById('sVideo');
 const hVTexture = new THREE.VideoTexture(hVideo);
 const sVTexture = new THREE.VideoTexture(sVideo);
 
-// Cone with static texture
-const coneStaticTexture = Cone(verticalTexture);
-coneStaticTexture.position.x = 5;
-// scene.add(coneStaticTexture); // TODO
-
-// Cone with video
-const coneVideoTexture = Cone(hVTexture);
-// scene.add(coneVideoTexture); // TODO
-
 // Sphere with static texture
 const sphereStaticTexture = Sphere(horizontalTexture, 2, 2);
 scene.add(sphereStaticTexture);
@@ -161,17 +151,11 @@ const render = function () {
   requestAnimationFrame(render);
   world.step(1 / 60);
 
-  coneStaticTexture.rotateX(0.01);
-  coneStaticTexture.rotateY(0.01);
-
   sphereStaticTexture.rotateX(0.01);
   sphereStaticTexture.rotateY(0.01);
 
   sphereStaticTexture.position.copy(sphereStaticBody.position);
   sphereStaticTexture.quaternion.copy(sphereStaticBody.quaternion);
-
-  coneVideoTexture.rotateX(0.01);
-  coneVideoTexture.rotateY(-0.01);
 
   sphereVideoTexture.rotateX(-0.01);
   sphereVideoTexture.rotateY(-0.01);
