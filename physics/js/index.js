@@ -14,7 +14,7 @@ function getRandomVector(range = 3) {
 
 // Create physics
 const world = new CANNON.World();
-world.gravity.set(0, -6, 0);
+world.gravity.set(0, 0, 0);
 // world.broadphase = new CANNON.NaiveBroadphase();
 
 // Create a plane
@@ -25,6 +25,24 @@ groundBody.addShape(groundShape);
 groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2); // rotate the plane to align with y-axis
 groundBody.position.set(0, -3, 0);
 world.add(groundBody)
+
+// Create a box shape for the ceiling
+const ceilingMaterial = new CANNON.Material()
+const ceilingShape = new CANNON.Box(new CANNON.Vec3(20, 1, 0.5));
+
+// Create a rigid body for the ceiling
+const ceilingBody = new CANNON.Body({
+  mass: 0,
+  shape: ceilingShape,
+  material: ceilingMaterial
+});
+
+// Set the position and orientation of the ceiling body
+ceilingBody.position.set(0, 5, 0);
+ceilingBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), 0);
+
+// Add the ceiling body to the world
+world.addBody(ceilingBody);
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -67,11 +85,11 @@ const sVTexture = new THREE.VideoTexture(sVideo);
 // Cone with static texture
 const coneStaticTexture = Cone(verticalTexture);
 coneStaticTexture.position.x = 5;
-scene.add(coneStaticTexture);
+// scene.add(coneStaticTexture); // TODO
 
 // Cone with video
 const coneVideoTexture = Cone(hVTexture);
-scene.add(coneVideoTexture);
+// scene.add(coneVideoTexture); // TODO
 
 // Sphere with static texture
 const sphereStaticTexture = Sphere(horizontalTexture, 2, 2);
@@ -105,12 +123,21 @@ const sphereVideoBody = new CANNON.Body({
 sphereVideoBody.linearDamping = 0.01;
 world.addBody(sphereVideoBody);
 
-// Contact material
-const sphereStaticContactMaterial = new CANNON.ContactMaterial(groundMaterial, sphereStaticMaterial, { friction: 0.0, restitution: 0.8 });
-const sphereVideoContactMaterial = new CANNON.ContactMaterial(groundMaterial, sphereVideoMaterial, { friction: 0.0, restitution: 0.5 });
-world.addContactMaterial(sphereStaticContactMaterial);
-world.addContactMaterial(sphereVideoContactMaterial);
+// Contact materials
+function createContactMaterials(materials1, materials2) {
+  materials1.forEach((material1) => {
+    materials2.forEach((material2) => {
+      const contactMaterial = new CANNON.ContactMaterial(material1, material2, { friction: 0.0, restitution: 1.0 })
+      world.addContactMaterial(contactMaterial)
+    })
+  })
+}
 
+const bodyMaterials = [groundMaterial, ceilingMaterial]
+const shapeMaterials = [sphereStaticMaterial, sphereVideoMaterial]
+
+createContactMaterials(bodyMaterials, shapeMaterials)
+createContactMaterials(shapeMaterials, shapeMaterials)
 
 // Render Loop
 const render = function () {
@@ -134,7 +161,6 @@ const render = function () {
 
   sphereVideoTexture.position.copy(sphereVideoBody.position);
   sphereVideoTexture.quaternion.copy(sphereVideoBody.quaternion);
-
 
   sVTexture.needsUpdate = true;
   hVTexture.needsUpdate = true;
