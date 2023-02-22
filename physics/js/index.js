@@ -16,10 +16,11 @@ const world = new CANNON.World();
 world.gravity.set(0, 0, 0);
 // world.broadphase = new CANNON.NaiveBroadphase();
 
-// Create a plane
+// materials
 const ballMaterial = new CANNON.Material('ballMaterial');
 const groundMaterial = new CANNON.Material('groundMaterial');
 
+// Create a plane
 const groundShape = new CANNON.Plane();
 const groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
 groundBody.addShape(groundShape);
