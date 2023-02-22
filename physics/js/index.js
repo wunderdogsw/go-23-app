@@ -23,30 +23,47 @@ const groundMaterial = new CANNON.Material()
 const groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
 groundBody.addShape(groundShape);
 groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2); // rotate the plane to align with y-axis
-groundBody.position.set(0, -3, 0);
+groundBody.position.set(0, -4.2, 0);
 world.add(groundBody)
+
+// tons of ChatGPT code all over the place here, long live the singularity!
 
 // Create a box shape for the ceiling
 const ceilingMaterial = new CANNON.Material()
 const ceilingShape = new CANNON.Box(new CANNON.Vec3(20, 1, 0.5));
-
-// Create a rigid body for the ceiling
 const ceilingBody = new CANNON.Body({
   mass: 0,
   shape: ceilingShape,
   material: ceilingMaterial
 });
-
-// Set the position and orientation of the ceiling body
 ceilingBody.position.set(0, 5, 0);
 ceilingBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), 0);
-
-// Add the ceiling body to the world
 world.addBody(ceilingBody);
+
+const leftWallMaterial = new CANNON.Material()
+const leftWallShape = new CANNON.Box(new CANNON.Vec3(0.1, 10, 10));
+const leftWallBody = new CANNON.Body({
+  mass: 0, // Walls are typically static, so they have zero mass
+  shape: leftWallShape,
+  material: leftWallMaterial
+});
+leftWallBody.position.set(8, 0, 0);
+world.addBody(leftWallBody);
+
+const rightWallMaterial = new CANNON.Material()
+const rightWallShape = new CANNON.Box(new CANNON.Vec3(0.1, 10, 10));
+const rightWallBody = new CANNON.Body({
+  mass: 0, // Walls are typically static, so they have zero mass
+  shape: rightWallShape,
+  material: rightWallMaterial
+});
+rightWallBody.position.set(-8, 0, 0);
+world.addBody(rightWallBody);
 
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
+
 // Create a basic perspective camera
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -133,7 +150,7 @@ function createContactMaterials(materials1, materials2) {
   })
 }
 
-const bodyMaterials = [groundMaterial, ceilingMaterial]
+const bodyMaterials = [groundMaterial, ceilingMaterial, leftWallMaterial, rightWallMaterial]
 const shapeMaterials = [sphereStaticMaterial, sphereVideoMaterial]
 
 createContactMaterials(bodyMaterials, shapeMaterials)
