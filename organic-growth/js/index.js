@@ -4,50 +4,44 @@ function resetCanvas() {
   scene.clear();
 }
 
-function drawResult(pose) {
+function drawInitialSphere(pose) {
   if (!pose.keypoints) {
     return;
   }
 
   const headKeypoint = pose.keypoints[keypointNames.indexOf("nose")];
-  console.log("starting draw!");
 
   // Add the first sphere to the scene
   const sphere = createInitialSphere(headKeypoint);
   scene.add(sphere);
   console.log("Added initial sphere", sphere.position);
 
-  // Add new spheres to the scene
-  let numSpheres = 1;
-  for (let i = 1; i < 10; i++) {
-    // Compute the new radius and position
-    const radius = Math.pow(2, i) / 10;
-    const angle = Math.random() * Math.PI * 2;
-    const x = sphere.position.x + radius * Math.cos(angle);
-    const y = sphere.position.y + radius * Math.sin(angle);
-    const z = sphere.position.z;
-
-    // Create the new sphere and add it to the scene
-    const newSphere = createSphere();
-    // const newX = getObjectX(x);
-    // const newY = getObjectY(y);
-    newSphere.position.set(sphere.position.x * 1.1, sphere.position.y * 0.9, z);
+  let sphereCount = 1;
+  async function grow(cloneFrom) {
+    const newSphere = drawOrganicSphere(cloneFrom);
     setTimeout(() => {
-      scene.add(newSphere);
-      console.log("Added new sphere", newSphere.position, x, y);
-    }, i * 500); // Delay execution of each iteration
-
-    numSpheres++;
+      if (sphereCount < 10) {
+        requestAnimationFrame(() => grow(newSphere));
+        sphereCount++;
+      }
+    }, 500);
   }
+
+  grow(sphere);
+}
+
+function drawOrganicSphere(cloneFrom) {
+  const newSphere = createSphere(cloneFrom);
+  scene.add(newSphere);
+  console.log("Added new sphere", newSphere.position);
+  return newSphere;
 }
 
 function createInitialSphere(centerPoint) {
-  const bodyPartName = `head`;
-
   const pointX = getObjectX(centerPoint.x);
   const pointY = getObjectY(centerPoint.y);
 
-  const width = 0.3;
+  const width = 0.1;
   const geometry = new THREE.SphereGeometry(width, 32, 16);
   const color = hexStringToHex(colors[0]);
   const material = new THREE.MeshMatcapMaterial({ color });
@@ -58,20 +52,25 @@ function createInitialSphere(centerPoint) {
 }
 
 let currentColorIndex = 0;
-function createSphere() {
+function createSphere(cloneFrom) {
+  currentColorIndex++;
   if (currentColorIndex === colors.length) {
     currentColorIndex = 0;
-  } else {
-    currentColorIndex++;
   }
 
-  const width = 1;
-  const geometry = new THREE.SphereGeometry(width, 32, 16);
   const color = hexStringToHex(colors[currentColorIndex]);
-  const material = new THREE.MeshMatcapMaterial({ color });
-  const sphere = new THREE.Mesh(geometry, material);
+  const material2 = new THREE.MeshBasicMaterial({ color });
+  const newSphere = cloneFrom.clone(); // create a copy of sphere
+  newSphere.material = material2;
+  const positionX = getRandomShift(newSphere.position.x);
+  const positionY = getRandomShift(newSphere.position.y);
+  newSphere.position.set(positionX, positionY, newSphere.position.z);
 
-  return sphere;
+  return newSphere;
+}
+
+function getRandomShift(originalValue) {
+  return originalValue * Math.random() * 0.4 - 0.2;
 }
 
 /****************************************************/
@@ -203,11 +202,8 @@ function drawResults(poses) {
     return;
   }
 
-  resetCanvas();
-  // It seems only one pose is returned
-  for (let ix = 0; ix < poses.length; ix++) {
-    drawResult(poses[ix]);
-  }
+  //resetCanvas();
+  drawInitialSphere(poses[0]);
   renderer.render(scene, camera);
 }
 
