@@ -6,7 +6,6 @@
 
     <!-- You must explicitly require a TF.js backend if you're not using the TF.js union bundle. -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
     <script type="importmap">
@@ -21,14 +20,13 @@
     <style>
       body {
         align-items: center;
-        /* display: flex; */
+        display: flex;
         flex-direction: column;
         justify-content: center;
       }
 
       #video {
-        /* display: none; */
-        transform: scaleX(-1);
+        display: none;
       }
 
       #canvas {
@@ -37,7 +35,7 @@
 
       #status {
         display: flex;
-        font-size: 4rem;
+        font-size: 3rem;
         justify-content: space-between;
         padding: 1rem 0;
         width: 640px;
@@ -45,8 +43,38 @@
     </style>
   </head>
   <body>
-    <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <script type="module" src="js/index.js"></script>
+    <video
+      id="hVideo"
+      muted
+      autoplay="autoplay"
+      loop
+      src='assets/hVideo.mp4'
+      type="video/mp4"
+      crossorigin="anonymous"
+      playsinline
+      webkit-playsinline
+      style="display: none"
+    ></video>
+
+    <video
+      id="sVideo"
+      muted
+      loop
+      autoplay="autoplay"
+      src='assets/sVideo.mp4'
+      type="video/mp4"
+      crossorigin="anonymous"
+      playsinline
+      webkit-playsinline
+      style="display: none"
+    ></video>
+    <script>
+      document.getElementById('hVideo').play();
+      document.getElementById('sVideo').play();
+    </script>
+
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script type="module" src='js/index.js'></script>
   </body>
 </html>

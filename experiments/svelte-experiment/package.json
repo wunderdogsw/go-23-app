@@ -7,9 +7,9 @@
     "dev": "../node_modules/.bin/vite",
     "build": "../node_modules/.bin/vite build",
     "preview": "../node_modules/.bin/vite preview",
-    "check": "../node_modules/.bin/svelte-check --tsconfig ./tsconfig.json",
-    "prettier:check": "npx prettier --check ..",
-    "prettier:fix": "npx prettier --write .."
+    "check": "../node_modules/.bin/svelte-check --tsconfig tsconfig.json",
+    "prettier:check": "npx prettier --check ../..",
+    "prettier:fix": "npx prettier --write ../.."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
