@@ -3,6 +3,9 @@ import Cone from './Cone.js';
 import Sphere from './Sphere.js';
 import Bubble from './Bubble.js';
 
+import { getVideoCamera } from './media.js';
+import { getSegementer } from './bodyDetection.js'
+
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
@@ -63,9 +66,14 @@ scene.add(sphereVideoTexture);
 const bubble = Bubble({x: -4})
 scene.add(bubble)
 
+let video;
+let segmenter;
+
 // Render Loop
-const render = function () {
+const render = async function () {
   requestAnimationFrame(render);
+
+  const people = !!segmenter ? await segmenter.segmentPeople(video) : [];
 
   coneStaticTexture.rotateX(0.01);
   coneStaticTexture.rotateY(0.01);
@@ -86,3 +94,6 @@ const render = function () {
 };
 
 render();
+
+video = await getVideoCamera()
+segmenter = await getSegementer()
