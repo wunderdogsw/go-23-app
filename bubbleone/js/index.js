@@ -39,12 +39,27 @@ let segmenter;
 
 const bubbles = []
 for (let i = 0; i < 100; i++) {
-  const bubble = Bubble({radius: 0.2, x: 1000, y: 1000})
+  const bubble = Bubble({ radius: 0.2 })
+  bubble.visible = false
   scene.add(bubble)
   bubbles.push(bubble)
 }
 
-function renderBubblePerson(personData) {
+function hideBubbles(fromIndex) {
+  for (let i = fromIndex; i < bubbles.length; i++) {
+    const bubble = bubbles[i];
+    bubble.visible = false
+  }
+}
+
+function renderBubble(bubble, x, y) {
+  const objectX = getObjectX(x, 640, visibleWidth);
+  const objectY = getObjectY(y, 480, visibleHeight);
+  bubble.position.set(objectX, objectY);
+  bubble.visible = true;
+}
+
+function renderBubblePerson(personData, threshold = 0.9) {
   let bubbleIndex = 0
 
   for (let y = 0; y < personData.length; y++) {
@@ -52,17 +67,17 @@ function renderBubblePerson(personData) {
     for (let x = 0; x < row.length; x++) {
       const { probability } = row[x];
 
-      // adding all the pixels hogs resources
-      if (probability > 0.9 && bubbleIndex < bubbles.length && Math.random() < 0.001) {
-        const objectX = getObjectX(x, 640, visibleWidth);
-        const objectY = getObjectY(y, 480, visibleHeight);
+      // adding all the pixels hogs resources, so only show some of them for now
+      if (probability > threshold && bubbleIndex < bubbles.length && Math.random() < 0.001) {
         const bubble = bubbles[bubbleIndex];
-        bubble.position.set(objectX, objectY);
+        renderBubble(bubble, x, y);
         bubbleIndex++;
       }
     }
   }
 
+  // whatever bubbles weren't used should become invisible
+  hideBubbles(bubbleIndex)
 }
 
 // Render Loop
