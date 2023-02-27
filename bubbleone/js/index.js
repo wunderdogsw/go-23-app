@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import Cone from './Cone.js';
-import Sphere from './Sphere.js';
 import Bubble from './Bubble.js';
 
 import { getVideoCamera } from './media.js';
-import { getSegementer } from './bodyDetection.js'
+import { getPeopleData, getSegementer } from './bodyDetection.js'
+import { getObjectX, getObjectY, visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -17,6 +16,9 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 camera.position.z = 6;
+
+const visibleHeight = visibleHeightAtZDepth(camera)
+const visibleWidth = visibleWidthAtZDepth(camera, visibleHeight)
 
 // Create a renderer with Antialiasing
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
@@ -31,63 +33,44 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const verticalTexture = new THREE.TextureLoader().load(
-  '../assets/vStripes.jpeg'
-);
-const horizontalTexture = new THREE.TextureLoader().load(
-  '../assets/hStripes.jpeg'
-);
-
-const hVideo = document.getElementById('hVideo');
-const sVideo = document.getElementById('sVideo');
-
-const hVTexture = new THREE.VideoTexture(hVideo);
-const sVTexture = new THREE.VideoTexture(sVideo);
-
-// Cone with static texture
-const coneStaticTexture = Cone(verticalTexture);
-coneStaticTexture.position.x = 5;
-scene.add(coneStaticTexture);
-
-// Cone with video
-const coneVideoTexture = Cone(hVTexture);
-scene.add(coneVideoTexture);
-
-// Sphere with static texture
-const sphereStaticTexture = Sphere(horizontalTexture);
-sphereStaticTexture.position.x = 2;
-scene.add(sphereStaticTexture);
-
-// Sphere with video
-const sphereVideoTexture = Sphere(sVTexture);
-sphereVideoTexture.position.x = -2;
-scene.add(sphereVideoTexture);
-
-const bubble = Bubble({x: -4})
-scene.add(bubble)
 
 let video;
 let segmenter;
 
+const bubbles = []
+for (let i = 0; i < 100; i++) {
+  const bubble = Bubble({radius: 0.2, x: 1000, y: 1000})
+  scene.add(bubble)
+  bubbles.push(bubble)
+}
+
+function renderBubblePerson(personData) {
+  let bubbleIndex = 0
+
+  for (let y = 0; y < personData.length; y++) {
+    const row = personData[y];
+    for (let x = 0; x < row.length; x++) {
+      const { probability } = row[x];
+
+      // adding all the pixels hogs resources
+      if (probability > 0.9 && bubbleIndex < bubbles.length && Math.random() < 0.001) {
+        const objectX = getObjectX(x, 640, visibleWidth);
+        const objectY = getObjectY(y, 480, visibleHeight);
+        const bubble = bubbles[bubbleIndex];
+        bubble.position.set(objectX, objectY);
+        bubbleIndex++;
+      }
+    }
+  }
+
+}
+
 // Render Loop
 const render = async function () {
   requestAnimationFrame(render);
-
   const people = !!segmenter ? await segmenter.segmentPeople(video) : [];
-
-  coneStaticTexture.rotateX(0.01);
-  coneStaticTexture.rotateY(0.01);
-  sphereStaticTexture.rotateX(0.01);
-  sphereStaticTexture.rotateY(0.01);
-
-  coneVideoTexture.rotateX(0.01);
-  coneVideoTexture.rotateY(-0.01);
-
-  sphereVideoTexture.rotateX(-0.01);
-  sphereVideoTexture.rotateY(-0.01);
-
-  sVTexture.needsUpdate = true;
-  hVTexture.needsUpdate = true;
+  const peopleData = await getPeopleData(people);
+  peopleData.forEach(renderBubblePerson);
 
   // Render the scene
   renderer.render(scene, camera);

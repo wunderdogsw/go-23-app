@@ -55,7 +55,7 @@ async function getPersonData(person) {
       // and 255 being highest).
       // https://github.com/tensorflow/tfjs-models/tree/master/body-segmentation#how-to-run-it
       const red = pixel[0]
-      const probability = pixel[3]
+      const probability = pixel[3] / 255
       const label = maskValueToLabel(red)
       row.push({ label, probability})
     }

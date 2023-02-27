@@ -1,4 +1,4 @@
-export async function getVideoCamera() {
+export async function getVideoCamera(width = 640, height = 480) {
   try {
     const video = document.createElement('video')
 
@@ -7,7 +7,7 @@ export async function getVideoCamera() {
     }
 
     const stream = await navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia({ video: { width, height} })
     video.srcObject = stream
     video.onloadedmetadata = () => {
       video.play()
