@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import Cone from './Cone.js';
 import Sphere from './Sphere.js';
+import Bubble from './Bubble.js';
 
 // Create an empty scene
-var scene = new THREE.Scene();
+const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
 // Create a basic perspective camera
-var camera = new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
@@ -15,7 +16,7 @@ var camera = new THREE.PerspectiveCamera(
 camera.position.z = 6;
 
 // Create a renderer with Antialiasing
-var renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
 // Configure renderer clear color
 renderer.setClearColor('#000000');
@@ -59,8 +60,11 @@ const sphereVideoTexture = Sphere(sVTexture);
 sphereVideoTexture.position.x = -2;
 scene.add(sphereVideoTexture);
 
+const bubble = Bubble({x: -4})
+scene.add(bubble)
+
 // Render Loop
-var render = function () {
+const render = function () {
   requestAnimationFrame(render);
 
   coneStaticTexture.rotateX(0.01);
