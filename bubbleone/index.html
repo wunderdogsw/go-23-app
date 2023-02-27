@@ -43,12 +43,38 @@
     </style>
   </head>
   <body>
-    <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <div id="status">
-      <div>Score: <span id="score">0</span></div>
-      <div id="timer">Get ready!</div>
-    </div>
-    <script type="module" src="js/index.js"></script>
+    <video
+      id="hVideo"
+      muted
+      autoplay="autoplay"
+      loop
+      src='assets/hVideo.mp4'
+      type="video/mp4"
+      crossorigin="anonymous"
+      playsinline
+      webkit-playsinline
+      style="display: none"
+    ></video>
+
+    <video
+      id="sVideo"
+      muted
+      loop
+      autoplay="autoplay"
+      src='assets/sVideo.mp4'
+      type="video/mp4"
+      crossorigin="anonymous"
+      playsinline
+      webkit-playsinline
+      style="display: none"
+    ></video>
+    <script>
+      document.getElementById('hVideo').play();
+      document.getElementById('sVideo').play();
+    </script>
+
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script type="module" src='js/index.js'></script>
   </body>
 </html>
