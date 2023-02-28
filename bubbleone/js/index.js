@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { getCameraVideo } from './media.js';
 import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
 import { getDetector } from './bodyDetection.js'
-import { createBubbleLines, drawPoseBubbles } from './bubblePerson.js'
+import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -36,8 +36,11 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const bubbleLines = createBubbleLines()
-bubbleLines.forEach(({ group }) => scene.add(group))
+const bubbleHead = createBubbleHead();
+scene.add(bubbleHead);
+
+const bubbleLines = createBubbleLines();
+bubbleLines.forEach(({ group }) => scene.add(group));
 
 let video;
 let detector;
@@ -47,10 +50,16 @@ function renderPose(pose) {
     return
   }
 
-  drawPoseBubbles({ scene, pose, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight })
+  drawBubblesStickPerson({ pose, bubbleHead, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight })
 }
 
-function renderPoses(poses) {
+async function renderPoses() {
+  if (!(detector && video)) {
+    return
+  }
+
+  const poses = await detector.estimatePoses(video, {});
+
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
@@ -60,13 +69,7 @@ function renderPoses(poses) {
 // Render Loop
 const render = async function () {
   requestAnimationFrame(render);
-
-  if (detector && video) {
-    const poses = await detector.estimatePoses(video, {});
-    renderPoses(poses);
-  }
-
-  // Render the scene
+  await renderPoses();
   renderer.render(scene, camera);
 };
 

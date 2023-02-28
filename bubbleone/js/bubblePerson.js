@@ -5,19 +5,37 @@ import { getObjectX, getObjectY } from './utils.js'
 
 const SCORE_THRESHOLD = 0.85;
 
-function hideBubbles(bubbleLines) {
-  bubbleLines.forEach(({ group }) => group.visible = false)
-}
-
-
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 20) {
-  const group = new THREE.Group()
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 10) {
+  const group = new THREE.Group();
   group.visible = false;
 
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
-    const bubble = Bubble({ x, radius })
-    group.add(bubble)
+    const bubble = Bubble({ x, radius });
+    group.add(bubble);
+  }
+
+  return group;
+}
+
+const HEAD_BUBBLES_NUMBER = 6;
+
+export function createBubbleHead(radius = 0.2) {
+  const group = new THREE.Group();
+  group.visible = false;
+
+  const nose = Bubble({ radius })
+  group.add(nose);
+
+  const bubbleDegrees = 360 / HEAD_BUBBLES_NUMBER;
+
+  for (let i = 0; i < HEAD_BUBBLES_NUMBER; i++) {
+    const bubble = Bubble({ radius });
+    const radians = THREE.MathUtils.degToRad(bubbleDegrees * i);
+    const euler = new THREE.Euler( 0, 0, radians);
+    const vector = new THREE.Vector3(radius * 2, 0, 0).applyEuler(euler);
+    bubble.position.copy(vector);
+    group.add(bubble);
   }
 
   return group;
@@ -56,6 +74,15 @@ function findKeypointByName(name) {
   return (keypoint) => keypoint.name === name
 }
 
+function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
+  const { x, y } = keypoints.find(findKeypointByName("nose"));
+  const objectX = getObjectX(x, videoWidth, visibleWidth);
+  const objectY = getObjectY(y, videoHeight, visibleHeight);
+
+  bubbleHead.position.set(objectX, objectY);
+  bubbleHead.visible = true;
+}
+
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
   const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
   const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
@@ -84,10 +111,13 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
   group.visible = true
 }
 
-export function drawPoseBubbles({ pose, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
-  hideBubbles(bubbleLines);
+export function drawBubblesStickPerson({ pose, bubbleHead, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+  bubbleLines.forEach(({ group }) => group.visible = false)
+  bubbleHead.visible = false
 
   const { keypoints } = pose;
+
+  drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth});
 
   for (let i = 0; i < bubbleLines.length; i++) {
     const { group, startKeypointName, endKeypointName } = bubbleLines[i];
