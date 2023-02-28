@@ -23,24 +23,29 @@ function hidePoseBubbles(poseBubblesMap) {
 const NUMBER_OF_SHOULDER_BUBBLES = 20;
 
 export function createShouldersGroup() {
-  const shoulders = new THREE.Group()
+  const shouldersGroup = new THREE.Group()
 
   for (let i = 0; i < NUMBER_OF_SHOULDER_BUBBLES; i++) {
     const x = i * 0.5;
     const bubble = Bubble({ x, radius: 0.2 })
-    shoulders.add(bubble)
+    shouldersGroup.add(bubble)
   }
 
-  return shoulders;
+  shouldersGroup.visible = false;
+
+  return shouldersGroup;
 }
 
-
+function findKeypointByName(name) {
+  return (keypoint) => keypoint.name === name
+}
 
 function drawShoulders({ keypoints, shouldersGroup, videoWidth, videoHeight, visibleHeight, visibleWidth}) {
-  const leftShoulder = keypoints.find((keypoint) => keypoint.name === "left_shoulder");
-  const rightShoulder = keypoints.find((keypoint) => keypoint.name === "right_shoulder");
+  const leftShoulder = keypoints.find(findKeypointByName("left_shoulder"));
+  const rightShoulder = keypoints.find(findKeypointByName("right_shoulder"));
 
-  if (!leftShoulder && rightShoulder) {
+  if (! (leftShoulder?.score >= SCORE_THRESHOLD || rightShoulder?.score >= SCORE_THRESHOLD) ) {
+    shouldersGroup.visible = false
     return;
   }
 
@@ -60,6 +65,7 @@ function drawShoulders({ keypoints, shouldersGroup, videoWidth, videoHeight, vis
     bubble.position.copy(position);
   }
 
+  shouldersGroup.visible = true
 }
 
 const SCORE_THRESHOLD = 0.85;
