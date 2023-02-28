@@ -1,3 +1,13 @@
+export const POSE_KEYPOINT_NAMES = [
+  "nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
+  "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
+  "mouth_right", "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+  "left_wrist", "right_wrist", "left_pinky", "right_pinky", "left_index",
+  "right_index", "left_thumb", "right_thumb", "left_hip",  "right_hip",
+  "left_knee", "right_knee", "left_ankle",  "right_ankle", "left_heel",
+  "right_heel", "left_foot_index", "right_foot_index"
+]
+
 export async function getDetector() {
   try {
     const model = poseDetection.SupportedModels.BlazePose;
@@ -10,71 +20,4 @@ export async function getDetector() {
   catch(error) {
     console.error(error)
   }
-}
-
-export async function getSegementer() {
-  try {
-    const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-    const segmenterConfig = {
-      runtime: 'mediapipe', // or 'tfjs'
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation',
-      modelType: 'general'
-    }
-    return await bodySegmentation.createSegmenter(model, segmenterConfig);
-  }
-  catch (error) {
-    console.error(error)
-  }
-}
-
-const BITS_PER_PIXEL = 4;
-
-function getImageDataPixel(data, width, x, y) {
-  const index = y * width * BITS_PER_PIXEL + x * BITS_PER_PIXEL;
-  return data.slice(index, index + BITS_PER_PIXEL)
-}
-
-async function getPersonData(person) {
-  const { mask, maskValueToLabel } = person;
-  const imageData = await mask.toImageData();
-  const { width, height, data } = imageData
-
-  const personData = []
-
-  for (let y = 0; y < height; y++) {
-    const row = []
-
-    for (let x = 0; x < width; x++) {
-      const pixel = getImageDataPixel(data, width, x, y)
-
-      // The semantics of the RGBA values of the mask is as follows: the image
-      // mask is the same size as the input image, where green and blue channels
-      // are always set to 0. Different red values denote different body parts
-      // (see maskValueToLabel key below). Different alpha values denote the
-      // probability of pixel being a body part pixel (0 being lowest probability
-      // and 255 being highest).
-      // https://github.com/tensorflow/tfjs-models/tree/master/body-segmentation#how-to-run-it
-      const red = pixel[0]
-      const probability = pixel[3] / 255
-      const label = maskValueToLabel(red)
-      row.push({ label, probability})
-    }
-
-    personData.push(row)
-  }
-
-  return personData;
-}
-
- export async function getPeopleData(people) {
-  const peopleData = []
-
-  // use for look for amazing performance
-  for (let i = 0; i < people.length; i++) {
-    const person = people[i];
-    const personData = await getPersonData(person);
-    peopleData.push(personData);
-  }
-
-  return peopleData;
 }

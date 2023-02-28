@@ -1,21 +1,17 @@
-export async function getVideoCamera(width = 640, height = 480) {
-  try {
-    const video = document.createElement('video')
-
+export function getCameraVideo(width = 640, height = 480) {
+  return new Promise((resolve, reject) => {
     if (!navigator?.mediaDevices) {
-      throw Error('No mediaDevices')
+      reject('No media devices')
     }
 
-    const stream = await navigator.mediaDevices
-      .getUserMedia({ video: { width, height} })
-    video.srcObject = stream
-    video.onloadedmetadata = () => {
-      video.play()
-    }
-
-    return video
-  }
-  catch(error) {
-    console.error(error)
-  }
+    navigator.mediaDevices.getUserMedia({ video: { width, height} })
+      .then((stream) => {
+        const video = document.createElement('video')
+        video.srcObject = stream
+        video.onloadedmetadata = () => {
+          video.play()
+          resolve(video)
+        }
+      }).catch(reject)
+  })
 }

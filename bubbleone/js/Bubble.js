@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function Bubble({ radius = 1, x = 0, y = 0, z = 0 } = {}) {
+export default function Bubble({ radius = 1, x = 0, y = 0, z = 0 } = {}) {
   const geometry = new THREE.SphereGeometry(radius, 32, 32);
   const material = new THREE.MeshStandardMaterial({
     color: 0xffffff,
@@ -10,5 +10,3 @@ function Bubble({ radius = 1, x = 0, y = 0, z = 0 } = {}) {
 
   return bubble;
 }
-
-export default Bubble
