@@ -1,6 +1,8 @@
 import * as THREE from 'three';
-import Cone from './Cone.js';
-import Sphere from './Sphere.js';
+import Cone from './shapes/Cone.js';
+import Cylinder from './shapes/Cylinder.js';
+import Sphere from './shapes/Sphere.js';
+import VideoTexture from './VideoTexture.js';
 
 // Create an empty scene
 var scene = new THREE.Scene();
@@ -15,7 +17,14 @@ var camera = new THREE.PerspectiveCamera(
 camera.position.z = 6;
 
 // Create a renderer with Antialiasing
-var renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+var renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  shadowMap: {
+    enabled: true,
+    type: THREE.PCFSoftShadowMap,
+  },
+  canvas,
+});
 
 // Configure renderer clear color
 renderer.setClearColor('#000000');
@@ -27,55 +36,58 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const verticalTexture = new THREE.TextureLoader().load(
-  '../assets/vStripes.jpeg'
-);
-const horizontalTexture = new THREE.TextureLoader().load(
-  '../assets/hStripes.jpeg'
-);
-
 const hVideo = document.getElementById('hVideo');
 const sVideo = document.getElementById('sVideo');
 
-const hVTexture = new THREE.VideoTexture(hVideo);
-const sVTexture = new THREE.VideoTexture(sVideo);
+// Cone1
+const cone1 = Cone(VideoTexture(hVideo));
+scene.add(cone1);
 
-// Cone with static texture
-const coneStaticTexture = Cone(verticalTexture);
-coneStaticTexture.position.x = 5;
-scene.add(coneStaticTexture);
+// Cone2
+const cone2 = Cone(VideoTexture(hVideo));
+cone2.position.y = -2;
+scene.add(cone2);
 
-// Cone with video
-const coneVideoTexture = Cone(hVTexture);
-scene.add(coneVideoTexture);
+// Sphere1
+const sphere1 = Sphere(VideoTexture(sVideo));
+sphere1.position.x = -2;
+scene.add(sphere1);
 
-// Sphere with static texture
-const sphereStaticTexture = Sphere(horizontalTexture);
-sphereStaticTexture.position.x = 2;
-scene.add(sphereStaticTexture);
+//Sphere2
+const sphere2 = Sphere(VideoTexture(sVideo));
+sphere2.position.x = -2;
+sphere2.position.y = -2;
+scene.add(sphere2);
 
-// Sphere with video
-const sphereVideoTexture = Sphere(sVTexture);
-sphereVideoTexture.position.x = -2;
-scene.add(sphereVideoTexture);
+// Cylinder1
+const cylinder1 = Cylinder(VideoTexture(hVideo));
+cylinder1.position.x = 2;
+scene.add(cylinder1);
+
+// Cylinder2
+const cylinder2 = Cylinder(VideoTexture(hVideo));
+cylinder2.position.x = 2;
+cylinder2.position.y = -2;
+scene.add(cylinder2);
 
 // Render Loop
 var render = function () {
   requestAnimationFrame(render);
 
-  coneStaticTexture.rotateX(0.01);
-  coneStaticTexture.rotateY(0.01);
-  sphereStaticTexture.rotateX(0.01);
-  sphereStaticTexture.rotateY(0.01);
+  cone1.rotateX(0.01);
+  cone1.rotateY(-0.01);
+  cone2.rotateX(-0.02);
+  cone2.rotateY(0.02);
 
-  coneVideoTexture.rotateX(0.01);
-  coneVideoTexture.rotateY(-0.01);
+  sphere1.rotateX(-0.01);
+  sphere1.rotateY(-0.01);
+  sphere2.rotateX(0.01);
+  sphere2.rotateY(0.01);
 
-  sphereVideoTexture.rotateX(-0.01);
-  sphereVideoTexture.rotateY(-0.01);
-
-  sVTexture.needsUpdate = true;
-  hVTexture.needsUpdate = true;
+  cylinder1.rotateX(-0.01);
+  cylinder1.rotateY(0.01);
+  cylinder2.rotateX(0.01);
+  cylinder2.rotateY(-0.01);
 
   // Render the scene
   renderer.render(scene, camera);
