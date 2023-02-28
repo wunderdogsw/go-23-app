@@ -83,6 +83,13 @@ function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibl
   bubbleHead.visible = true;
 }
 
+function createVectorFromKeypoint({ keypoint, videoWidth, visibleWidth, videoHeight, visibleHeight }) {
+  const objectX = getObjectX(keypoint.x, videoWidth, visibleWidth)
+  const objectY = getObjectY(keypoint.y, videoHeight, visibleHeight)
+  return new THREE.Vector3(objectX, objectY, 0);
+}
+
+
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
   const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
   const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
@@ -92,13 +99,8 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
     return;
   }
 
-  const startX = getObjectX(startKeypoint.x, videoWidth, visibleWidth)
-  const startY = getObjectY(startKeypoint.y, videoHeight, visibleHeight)
-  const endX = getObjectX(endKeypoint.x, videoWidth, visibleWidth)
-  const endY = getObjectY(endKeypoint.y, videoHeight, visibleHeight)
-
-  const startPos = new THREE.Vector3(startX, startY, 0);
-  const endPos = new THREE.Vector3(endX, endY, 0);
+  const startPos = createVectorFromKeypoint({ keypoint: startKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const endPos = createVectorFromKeypoint({ keypoint: endKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
   const direction = endPos.clone().sub(startPos);
 
   for (let i = 0; i < group.children.length; i++) {
