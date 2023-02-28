@@ -18,7 +18,22 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 10) {
   return group;
 }
 
-const HEAD_BUBBLES_NUMBER = 6;
+function createBubblesAround(radius, number, distance) {
+  const bubbles = [];
+  const bubbleDegrees = 360 / number;
+
+  for (let i = 0; i < number; i++) {
+    const bubble = Bubble({ radius });
+    const radians = THREE.MathUtils.degToRad(bubbleDegrees * i);
+    const euler = new THREE.Euler( 0, 0, radians);
+    const vector = new THREE.Vector3(radius * distance, 0, 0).applyEuler(euler);
+    bubble.position.copy(vector);
+
+    bubbles.push(bubble);
+  }
+
+  return bubbles;
+}
 
 export function createBubbleHead(radius = 0.2) {
   const group = new THREE.Group();
@@ -27,16 +42,11 @@ export function createBubbleHead(radius = 0.2) {
   const nose = Bubble({ radius })
   group.add(nose);
 
-  const bubbleDegrees = 360 / HEAD_BUBBLES_NUMBER;
+  const bubblesAround1 = createBubblesAround(radius, 6, 2);
+  const bubblesAround2 = createBubblesAround(radius, 12, 4);
 
-  for (let i = 0; i < HEAD_BUBBLES_NUMBER; i++) {
-    const bubble = Bubble({ radius });
-    const radians = THREE.MathUtils.degToRad(bubbleDegrees * i);
-    const euler = new THREE.Euler( 0, 0, radians);
-    const vector = new THREE.Vector3(radius * 2, 0, 0).applyEuler(euler);
-    bubble.position.copy(vector);
-    group.add(bubble);
-  }
+  bubblesAround1.forEach((bubble) => group.add(bubble))
+  bubblesAround2.forEach((bubble) => group.add(bubble))
 
   return group;
 }
@@ -74,19 +84,17 @@ function findKeypointByName(name) {
   return (keypoint) => keypoint.name === name
 }
 
-function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
-  const { x, y } = keypoints.find(findKeypointByName("nose"));
-  const objectX = getObjectX(x, videoWidth, visibleWidth);
-  const objectY = getObjectY(y, videoHeight, visibleHeight);
-
-  bubbleHead.position.set(objectX, objectY);
-  bubbleHead.visible = true;
-}
-
 function createVectorFromKeypoint({ keypoint, videoWidth, visibleWidth, videoHeight, visibleHeight }) {
   const objectX = getObjectX(keypoint.x, videoWidth, visibleWidth)
   const objectY = getObjectY(keypoint.y, videoHeight, visibleHeight)
   return new THREE.Vector3(objectX, objectY, 0);
+}
+
+function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
+  const noseKeypoint = keypoints.find(findKeypointByName("nose"));
+  const noseVector = createVectorFromKeypoint({ keypoint: noseKeypoint, visibleWidth, visibleHeight, videoWidth, videoHeight});
+  bubbleHead.position.copy(noseVector);
+  bubbleHead.visible = true;
 }
 
 
@@ -99,13 +107,13 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
     return;
   }
 
-  const startPos = createVectorFromKeypoint({ keypoint: startKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
-  const endPos = createVectorFromKeypoint({ keypoint: endKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
-  const direction = endPos.clone().sub(startPos);
+  const startVector = createVectorFromKeypoint({ keypoint: startKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const endVector = createVectorFromKeypoint({ keypoint: endKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const direction = endVector.clone().sub(startVector);
 
   for (let i = 0; i < group.children.length; i++) {
     const t = i / (group.children.length);
-    const position = startPos.clone().add(direction.clone().multiplyScalar(t));
+    const position = startVector.clone().add(direction.clone().multiplyScalar(t));
     const object = group.children[i]
     object.position.copy(position);
   }
