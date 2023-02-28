@@ -1,93 +1,96 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js'
-import { POSE_KEYPOINT_NAMES } from './bodyDetection.js'
-import { getObjectX, getObjectY, getRadiansAngle } from './utils.js'
+import { getObjectX, getObjectY } from './utils.js'
 
-export function createPoseBubblesMap() {
-  const map = new Map();
+const SCORE_THRESHOLD = 0.85;
 
-  POSE_KEYPOINT_NAMES.forEach((keypoint) => {
-    const bubble = Bubble({ radius: 0.2 });
-    bubble.visible = false;
-    map.set(keypoint, bubble);
-  });
-
-  return map;
+function hideBubbles(bubbleLines) {
+  bubbleLines.forEach(({ group }) => group.visible = false)
 }
 
-function hidePoseBubbles(poseBubblesMap) {
-  poseBubblesMap.forEach((bubble) => bubble.visible = false)
-}
 
-const NUMBER_OF_SHOULDER_BUBBLES = 20;
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 20) {
+  const group = new THREE.Group()
+  group.visible = false;
 
-export function createShouldersGroup() {
-  const shouldersGroup = new THREE.Group()
-
-  for (let i = 0; i < NUMBER_OF_SHOULDER_BUBBLES; i++) {
-    const x = i * 0.5;
-    const bubble = Bubble({ x, radius: 0.2 })
-    shouldersGroup.add(bubble)
+  for (let i = 0; i < numberOfBubbles; i++) {
+    const x = i * radius * 2;
+    const bubble = Bubble({ x, radius })
+    group.add(bubble)
   }
 
-  shouldersGroup.visible = false;
+  return group;
+}
 
-  return shouldersGroup;
+const LINES_KEYPOINTS = [
+  [ "left_shoulder", "right_shoulder" ],
+  [ "left_hip", "right_hip" ],
+  [ "left_elbow", "left_shoulder" ],
+  [ "left_wrist", "left_elbow" ],
+  [ "left_index", "left_wrist" ],
+  [ "left_shoulder", "left_hip" ],
+  [ "left_hip", "left_knee" ],
+  [ "left_knee", "left_ankle" ],
+  [ "left_ankle", "left_heel" ],
+  [ "left_heel", "left_foot_index" ],
+  [ "right_shoulder", "right_elbow" ],
+  [ "right_elbow", "right_wrist" ],
+  [ "right_wrist", "right_index" ],
+  [ "right_shoulder", "right_hip" ],
+  [ "right_hip", "right_knee" ],
+  [ "right_knee", "right_ankle" ],
+  [ "right_ankle", "right_heel" ],
+  [ "right_heel", "right_foot_index" ],
+]
+
+export function createBubbleLines() {
+  return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup()
+  }) )
 }
 
 function findKeypointByName(name) {
   return (keypoint) => keypoint.name === name
 }
 
-function drawShoulders({ keypoints, shouldersGroup, videoWidth, videoHeight, visibleHeight, visibleWidth}) {
-  const leftShoulder = keypoints.find(findKeypointByName("left_shoulder"));
-  const rightShoulder = keypoints.find(findKeypointByName("right_shoulder"));
+function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+  const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
+  const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
 
-  if (! (leftShoulder?.score >= SCORE_THRESHOLD || rightShoulder?.score >= SCORE_THRESHOLD) ) {
-    shouldersGroup.visible = false
+  if (! (startKeypoint?.score >= SCORE_THRESHOLD || endKeypoint?.score >= SCORE_THRESHOLD) ) {
+    group.visible = false
     return;
   }
 
-  const leftX = getObjectX(leftShoulder.x, videoWidth, visibleWidth)
-  const leftY = getObjectY(leftShoulder.y, videoHeight, visibleHeight)
-  const rightX = getObjectX(rightShoulder.x, videoWidth, visibleWidth)
-  const rightY = getObjectY(rightShoulder.y, videoHeight, visibleHeight)
+  const startX = getObjectX(startKeypoint.x, videoWidth, visibleWidth)
+  const startY = getObjectY(startKeypoint.y, videoHeight, visibleHeight)
+  const endX = getObjectX(endKeypoint.x, videoWidth, visibleWidth)
+  const endY = getObjectY(endKeypoint.y, videoHeight, visibleHeight)
 
-  const startSpherePos = new THREE.Vector3(leftX, leftY, 0);
-  const endSpherePos = new THREE.Vector3(rightX, rightY, 0);
-  const direction = endSpherePos.clone().sub(startSpherePos);
+  const startPos = new THREE.Vector3(startX, startY, 0);
+  const endPos = new THREE.Vector3(endX, endY, 0);
+  const direction = endPos.clone().sub(startPos);
 
-  for (let i = 0; i < NUMBER_OF_SHOULDER_BUBBLES; i++) {
-    const t = i / (NUMBER_OF_SHOULDER_BUBBLES);
-    const position = startSpherePos.clone().add(direction.clone().multiplyScalar(t));
-    const bubble = shouldersGroup.children[i]
-    bubble.position.copy(position);
+  for (let i = 0; i < group.children.length; i++) {
+    const t = i / (group.children.length);
+    const position = startPos.clone().add(direction.clone().multiplyScalar(t));
+    const object = group.children[i]
+    object.position.copy(position);
   }
 
-  shouldersGroup.visible = true
+  group.visible = true
 }
 
-const SCORE_THRESHOLD = 0.85;
-
-export function drawPoseBubbles({ pose, poseBubblesMap, shouldersGroup, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
-  hidePoseBubbles(poseBubblesMap);
+export function drawPoseBubbles({ pose, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+  hideBubbles(bubbleLines);
 
   const { keypoints } = pose;
 
-  drawShoulders({ keypoints, shouldersGroup, videoWidth, videoHeight, visibleHeight, visibleWidth});
-
-  for (let i = 0; i < keypoints.length; i++) {
-    const { score, name, x, y } = keypoints[i];
-
-    if (score < SCORE_THRESHOLD) {
-      continue;
-    }
-
-    const bubble = poseBubblesMap.get(name)
-    const objectX = getObjectX(x, videoWidth, visibleWidth)
-    const objectY = getObjectY(y, videoHeight, visibleHeight)
-    bubble.position.set(objectX, objectY)
-    bubble.visible = true
+  for (let i = 0; i < bubbleLines.length; i++) {
+    const { group, startKeypointName, endKeypointName } = bubbleLines[i];
+    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth});
   }
 }

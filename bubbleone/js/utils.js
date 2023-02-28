@@ -24,10 +24,3 @@ export function getObjectX(videoX, videoWidth, visibleWidth) {
 export function getObjectY(videoY, videoHeight, visibleHeight) {
   return (0.5 - videoY / videoHeight) * visibleHeight
 }
-
-// source: ChatGPT
-export function getRadiansAngle(startX, startY, endX, endY) {
-  const deltaX = endX - startX;
-  const deltaY = endY - startY;
-  return Math.atan2(deltaY, deltaX);
-}

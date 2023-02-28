@@ -3,8 +3,7 @@ import * as THREE from 'three';
 import { getCameraVideo } from './media.js';
 import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
 import { getDetector } from './bodyDetection.js'
-import { createPoseBubblesMap, createShouldersGroup, drawPoseBubbles } from './bubblePerson.js'
-import Bubble from './Bubble.js'
+import { createBubbleLines, drawPoseBubbles } from './bubblePerson.js'
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -37,11 +36,8 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const poseBubblesMap = createPoseBubblesMap();
-poseBubblesMap.forEach((bubble) => scene.add(bubble));
-
-const shouldersGroup = createShouldersGroup();
-scene.add(shouldersGroup)
+const bubbleLines = createBubbleLines()
+bubbleLines.forEach(({ group }) => scene.add(group))
 
 let video;
 let detector;
@@ -51,7 +47,7 @@ function renderPose(pose) {
     return
   }
 
-  drawPoseBubbles({ scene, pose, poseBubblesMap, shouldersGroup, videoWidth, videoHeight, visibleWidth, visibleHeight })
+  drawPoseBubbles({ scene, pose, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight })
 }
 
 function renderPoses(poses) {
