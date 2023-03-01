@@ -125,7 +125,7 @@ function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibl
   const rightOuterEyeKeypoint = keypoints.find(findKeypointByName("right_eye_outer"));
   const leftShoulderKeypoint = keypoints.find(findKeypointByName("left_shoulder"));
 
-  if (! (leftOuterEyeKeypoint?.score >= SCORE_THRESHOLD || rightOuterEyeKeypoint?.score >= SCORE_THRESHOLD || leftShoulderKeypoint?.score >= SCORE_THRESHOLD) ) {
+  if (! (leftOuterEyeKeypoint || rightOuterEyeKeypoint || leftShoulderKeypoint) ) {
     bubbleHead.visible = false
     return;
   }
@@ -151,7 +151,7 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
   const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
   const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
 
-  if (! (startKeypoint?.score >= SCORE_THRESHOLD || endKeypoint?.score >= SCORE_THRESHOLD) ) {
+  if (! (startKeypoint || endKeypoint) ) {
     group.visible = false
     return;
   }
