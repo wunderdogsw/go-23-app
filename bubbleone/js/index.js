@@ -1,14 +1,16 @@
 import * as THREE from 'three';
-import Cone from './shapes/Cone.js';
-import Cylinder from './shapes/Cylinder.js';
-import Sphere from './shapes/Sphere.js';
-import VideoTexture from './VideoTexture.js';
+
+import { getCameraVideo } from './media.js';
+import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
+import { getDetector } from './bodyDetection.js'
+import { createPoseBubblesMap, drawPoseBubbles } from './bubblePerson.js'
 
 // Create an empty scene
-var scene = new THREE.Scene();
+const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
+
 // Create a basic perspective camera
-var camera = new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
@@ -16,15 +18,13 @@ var camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 6;
 
+const videoWidth = 640;
+const videoHeight = 480;
+const visibleHeight = visibleHeightAtZDepth(camera)
+const visibleWidth = visibleWidthAtZDepth(camera, visibleHeight)
+
 // Create a renderer with Antialiasing
-var renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  shadowMap: {
-    enabled: true,
-    type: THREE.PCFSoftShadowMap,
-  },
-  canvas,
-});
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
 // Configure renderer clear color
 renderer.setClearColor('#000000');
@@ -36,61 +36,41 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const hVideo = document.getElementById('hVideo');
-const sVideo = document.getElementById('sVideo');
+const poseBubblesMap = createPoseBubblesMap();
+poseBubblesMap.forEach((bubble) => scene.add(bubble));
 
-// Cone1
-const cone1 = Cone(VideoTexture(hVideo));
-scene.add(cone1);
+let video;
+let detector;
 
-// Cone2
-const cone2 = Cone(VideoTexture(hVideo));
-cone2.position.y = -2;
-scene.add(cone2);
+function renderPose(pose) {
+  if (!pose.keypoints) {
+    return
+  }
 
-// Sphere1
-const sphere1 = Sphere(VideoTexture(sVideo));
-sphere1.position.x = -2;
-scene.add(sphere1);
+  drawPoseBubbles({ pose, poseBubblesMap, videoWidth, videoHeight, visibleWidth, visibleHeight })
+}
 
-//Sphere2
-const sphere2 = Sphere(VideoTexture(sVideo));
-sphere2.position.x = -2;
-sphere2.position.y = -2;
-scene.add(sphere2);
-
-// Cylinder1
-const cylinder1 = Cylinder(VideoTexture(hVideo));
-cylinder1.position.x = 2;
-scene.add(cylinder1);
-
-// Cylinder2
-const cylinder2 = Cylinder(VideoTexture(hVideo));
-cylinder2.position.x = 2;
-cylinder2.position.y = -2;
-scene.add(cylinder2);
+function renderPoses(poses) {
+  for (let i = 0; i < poses.length; i++) {
+    const pose = poses[i];
+    renderPose(pose);
+  }
+}
 
 // Render Loop
-var render = function () {
+const render = async function () {
   requestAnimationFrame(render);
-
-  cone1.rotateX(0.01);
-  cone1.rotateY(-0.01);
-  cone2.rotateX(-0.02);
-  cone2.rotateY(0.02);
-
-  sphere1.rotateX(-0.01);
-  sphere1.rotateY(-0.01);
-  sphere2.rotateX(0.01);
-  sphere2.rotateY(0.01);
-
-  cylinder1.rotateX(-0.01);
-  cylinder1.rotateY(0.01);
-  cylinder2.rotateX(0.01);
-  cylinder2.rotateY(-0.01);
+  const poses = await detector.estimatePoses(video, {});
+  renderPoses(poses);
 
   // Render the scene
   renderer.render(scene, camera);
 };
 
-render();
+async function init() {
+  video = await getCameraVideo(videoWidth, videoHeight);
+  detector = await getDetector();
+  render();
+}
+
+init()
