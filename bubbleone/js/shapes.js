@@ -70,24 +70,57 @@ cylinder2.position.x = 2;
 cylinder2.position.y = -2;
 scene.add(cylinder2);
 
+// Random rotation
+let start = 0;
+const changeRotationSeconds = 2 * 1000;
+const rotationSpeeds = [-0.04, -0.03, -0.02, -0.01, 0.01, 0.02, 0.03, 0.04]
+const getRandomRotationSpeedXYZ = () => {
+  return {
+    X: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
+    Y: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
+    Z: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
+  };
+}
+
+let cone1Rotations = getRandomRotationSpeedXYZ();
+let cone2Rotations = getRandomRotationSpeedXYZ();
+let sphere1Rotations = getRandomRotationSpeedXYZ();
+let sphere2Rotations = getRandomRotationSpeedXYZ();
+let cylinder1Rotations = getRandomRotationSpeedXYZ();
+let cylinder2Rotations = getRandomRotationSpeedXYZ();
+
 // Render Loop
-var render = function () {
+var render = function (timestamp) {
   requestAnimationFrame(render);
 
-  cone1.rotateX(0.01);
-  cone1.rotateY(-0.01);
-  cone2.rotateX(-0.02);
-  cone2.rotateY(0.02);
+  if(!start || timestamp - start >= changeRotationSeconds) {
+    start = timestamp;
+    cone1Rotations = getRandomRotationSpeedXYZ();
+    cone2Rotations = getRandomRotationSpeedXYZ();
+    sphere1Rotations = getRandomRotationSpeedXYZ();
+    sphere2Rotations = getRandomRotationSpeedXYZ();
+    cylinder1Rotations = getRandomRotationSpeedXYZ();
+    cylinder2Rotations = getRandomRotationSpeedXYZ();
+  }
 
-  sphere1.rotateX(-0.01);
-  sphere1.rotateY(-0.01);
-  sphere2.rotateX(0.01);
-  sphere2.rotateY(0.01);
+  cone1.rotateX(cone1Rotations.X);
+  cone1.rotateY(cone1Rotations.Y);
+  cone1.rotateZ(cone1Rotations.Z);
+  cone2.rotateX(cone2Rotations.X);
+  cone2.rotateY(cone2Rotations.Y);
+  cone2.rotateZ(cone2Rotations.Z);
 
-  cylinder1.rotateX(-0.01);
-  cylinder1.rotateY(0.01);
-  cylinder2.rotateX(0.01);
-  cylinder2.rotateY(-0.01);
+  sphere1.rotateX(sphere1Rotations.X);
+  sphere1.rotateY(sphere1Rotations.Y);
+  sphere2.rotateX(sphere2Rotations.X);
+  sphere2.rotateY(sphere2Rotations.Y);
+
+  cylinder1.rotateX(cylinder1Rotations.X);
+  cylinder1.rotateY(cylinder1Rotations.Y);
+  cylinder1.rotateZ(cylinder1Rotations.Z);
+  cylinder2.rotateX(cylinder2Rotations.X);
+  cylinder2.rotateY(cylinder2Rotations.Y);
+  cylinder2.rotateZ(cylinder2Rotations.Z);
 
   // Render the scene
   renderer.render(scene, camera);
