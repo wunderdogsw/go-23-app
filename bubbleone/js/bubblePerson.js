@@ -56,35 +56,25 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 10) {
   return group;
 }
 
-function createBubblesAround(radius, number, distance) {
-  const bubbles = [];
-  const bubbleDegrees = 360 / number;
-
-  for (let i = 0; i < number; i++) {
-    const bubble = Bubble({ radius });
-    const radians = THREE.MathUtils.degToRad(bubbleDegrees * i);
-    const euler = new THREE.Euler( 0, 0, radians);
-    const vector = new THREE.Vector3(radius * distance, 0, 0).applyEuler(euler);
-    bubble.position.copy(vector);
-
-    bubbles.push(bubble);
+function drawEllipse(group, radiusX, radiusY) {
+  // source: ChatGPT
+  for (let i = 0; i < group.children.length; i++) {
+    const angle = i / group.children.length * Math.PI * 2;
+    const x = Math.cos(angle) * radiusX;
+    const y = Math.sin(angle) * radiusY;
+    const sphere = group.children[i]
+    sphere.position.set(x, y, 0);
   }
-
-  return bubbles;
 }
 
-export function createBubbleHead(radius = 0.2) {
+export function createBubbleHead(radius = 0.2, numSpheres = 20) {
   const group = new THREE.Group();
   group.visible = false;
 
-  const nose = Bubble({ radius })
-  group.add(nose);
-
-  const bubblesAround1 = createBubblesAround(radius, 6, 2);
-  const bubblesAround2 = createBubblesAround(radius, 12, 4);
-
-  bubblesAround1.forEach((bubble) => group.add(bubble))
-  bubblesAround2.forEach((bubble) => group.add(bubble))
+  for (let i = 0; i < numSpheres; i++) {
+    const sphere = Bubble({ radius });
+    group.add(sphere);
+  }
 
   return group;
 }
@@ -128,10 +118,31 @@ function createVectorFromKeypoint({ keypoint, videoWidth, visibleWidth, videoHei
   return new THREE.Vector3(objectX, objectY, 0);
 }
 
+const HUMAN_HEAD_RATIO = 5/4;
+
 function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
-  const noseKeypoint = keypoints.find(findKeypointByName("nose"));
-  const noseVector = createVectorFromKeypoint({ keypoint: noseKeypoint, visibleWidth, visibleHeight, videoWidth, videoHeight});
-  bubbleHead.position.copy(noseVector);
+  const leftOuterEyeKeypoint = keypoints.find(findKeypointByName("left_eye_outer"));
+  const rightOuterEyeKeypoint = keypoints.find(findKeypointByName("right_eye_outer"));
+  const leftShoulderKeypoint = keypoints.find(findKeypointByName("left_shoulder"));
+
+  if (! (leftOuterEyeKeypoint?.score >= SCORE_THRESHOLD || rightOuterEyeKeypoint?.score >= SCORE_THRESHOLD || leftShoulderKeypoint?.score >= SCORE_THRESHOLD) ) {
+    bubbleHead.visible = false
+    return;
+  }
+
+  const leftOuterEyeVector = createVectorFromKeypoint({ keypoint: leftOuterEyeKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const rightOuterEyeVector = createVectorFromKeypoint({ keypoint: rightOuterEyeKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const leftShoulderVector = createVectorFromKeypoint({ keypoint: leftShoulderKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+
+  const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
+  const radiusY = radiusX * HUMAN_HEAD_RATIO;
+  drawEllipse(bubbleHead, radiusX, radiusY);
+
+  const sphereRadius = bubbleHead.children[0].geometry.parameters.radius
+  const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y
+  const deltaY = deltaEarToShoulder - radiusY - sphereRadius
+
+  bubbleHead.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
   bubbleHead.visible = true;
 }
 
