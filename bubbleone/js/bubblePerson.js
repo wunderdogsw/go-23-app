@@ -6,7 +6,7 @@ import { POSE_KEYPOINT_NAMES } from './bodyDetection.js'
 
 const SCORE_THRESHOLD = 0.85;
 
-export function createPoseBubblesMap() {
+export function createPoseKeypointsMap() {
   const map = new Map();
 
   POSE_KEYPOINT_NAMES.forEach((keypoint) => {
@@ -18,12 +18,12 @@ export function createPoseBubblesMap() {
   return map;
 }
 
-function hidePoseBubbles(poseBubblesMap) {
+function hidePoseKeypoints(poseBubblesMap) {
   poseBubblesMap.forEach((bubble) => bubble.visible = false)
 }
 
-export function drawPoseBubbles({ pose, poseBubblesMap, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
-  hidePoseBubbles(poseBubblesMap);
+export function drawPoseKeypoints({ pose, poseBubblesMap, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+  hidePoseKeypoints(poseBubblesMap);
 
   const { keypoints } = pose;
 
