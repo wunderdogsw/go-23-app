@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { getObjectX, getObjectY } from './utils.js'
 
 // source: ChatGPT
 export function createRiggedHuman() {
@@ -22,11 +23,24 @@ export function createRiggedHuman() {
   });
 }
 
-/**
- * Get vector of keypoint 1
- * Get vector of keypoint 2
- * calculate angle in radians using vector1.angleTo(vector2)
- * apply it to bone.x
- * const axis = new THREE.Vector3().crossVectors(vector1, vector2).normalize();
- * vector3.applyAxisAngle(axis, angleRadians);
- */
+function createVectorFromKeypoint({ keypoint, videoWidth, visibleWidth, videoHeight, visibleHeight }) {
+  const objectX = getObjectX(keypoint.x, videoWidth, visibleWidth);
+  const objectY = getObjectY(keypoint.y, videoHeight, visibleHeight);
+  return new THREE.Vector3(objectX, objectY, 0);
+}
+
+const UPPER_ARM_L_INITIAL_ROTATION = -2.529298347216854
+const UPPER_ARM_L_ROTATION_COMPENSATION = THREE.MathUtils.degToRad(-60)
+export function updateRiggedHuman({ model, pose, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
+  const { keypoints } = pose;
+  const leftShoulderKeypoint = keypoints.find(({name}) => name === "left_shoulder");
+  const leftElbowKeypoint = keypoints.find(({name}) => name === "left_elbow");
+
+  const leftShoulderVector = createVectorFromKeypoint({ keypoint: leftShoulderKeypoint, videoWidth, videoHeight, visibleWidth, visibleHeight});
+  const leftElbowVector = createVectorFromKeypoint({ keypoint: leftElbowKeypoint, videoWidth, videoHeight, visibleWidth, visibleHeight});
+  const angleRadians = Math.atan2(leftShoulderVector.y - leftElbowVector.y, leftShoulderVector.x - leftElbowVector.x)
+
+  const skinnedMesh = model.children[1].children.find(child => child.isSkinnedMesh);
+  const upperArmL = skinnedMesh.skeleton.bones.find((bone) => bone.name === "upper_armL");
+  upperArmL.rotation.x =  UPPER_ARM_L_INITIAL_ROTATION - angleRadians - UPPER_ARM_L_ROTATION_COMPENSATION;
+}

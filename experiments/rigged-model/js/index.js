@@ -4,7 +4,7 @@ import { getCameraVideo } from './media.js';
 import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import { createPoseBubblesMap, drawPoseBubbles } from './bubblePerson.js'
-import { createRiggedHuman } from './model.js'
+import { createRiggedHuman, updateRiggedHuman } from './model.js'
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -41,15 +41,21 @@ const poseBubblesMap = createPoseBubblesMap();
 poseBubblesMap.forEach((bubble) => scene.add(bubble));
 
 // load 3d model
-createRiggedHuman(scene).then((model) => scene.add(model));
+let human;
+createRiggedHuman(scene).then((model) => {
+  human = model;
+  scene.add(human)
+});
 
 let video;
 let detector;
 
 function renderPose(pose) {
-  if (!pose.keypoints) {
+  if (!pose.keypoints || !human) {
     return
   }
+
+  updateRiggedHuman({model: human, pose, videoWidth, videoHeight, visibleHeight, visibleWidth})
 
 }
 
