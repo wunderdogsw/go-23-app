@@ -1,9 +1,14 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize, } from './utils.js'
+import { getSizes, setSceneSize } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
+
+document.querySelectorAll('.video-texture').forEach((video) => {
+  // need to play texture videos programmatically, otherwise it doesn't work :(
+  video.play();
+})
 
 // Create an empty scene
 const scene = new THREE.Scene();
