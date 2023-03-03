@@ -46,3 +46,8 @@ export function getObjectX(videoX) {
 export function getObjectY(videoY) {
   return (0.5 - videoY / sizes.video.height) * sizes.scene.height;
 }
+
+// lazy source: ChatGPT
+export function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

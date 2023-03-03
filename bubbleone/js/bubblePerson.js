@@ -10,7 +10,7 @@ export function createPoseBubblesMap() {
   const map = new Map();
 
   POSE_KEYPOINT_NAMES.forEach((keypoint) => {
-    const bubble = Bubble({ radius: 0.2 });
+    const bubble = Bubble();
     bubble.visible = false;
     map.set(keypoint, bubble);
   });
@@ -43,7 +43,7 @@ export function drawPoseBubbles(pose, poseBubblesMap) {
 }
 
 
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 10) {
+function createBubblesGroup(radius, numberOfBubbles = 5) {
   const group = new THREE.Group();
   group.visible = false;
 
@@ -67,7 +67,7 @@ function drawEllipse(group, radiusX, radiusY) {
   }
 }
 
-export function createBubbleHead(radius = 0.2, numSpheres = 20) {
+export function createBubbleHead(radius, numSpheres = 6) {
   const group = new THREE.Group();
   group.visible = false;
 

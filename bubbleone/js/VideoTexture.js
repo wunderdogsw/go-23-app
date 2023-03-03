@@ -1,4 +1,20 @@
 import * as THREE from 'three';
+import { getRandomInt } from './utils.js'
+
+const hVideo = document.getElementById('hVideo');
+const sVideo = document.getElementById('sVideo');
+
+export const VIDEO_TEXTURES = {
+  H_VIDEO: VideoTexture(hVideo),
+  S_VIDEO: VideoTexture(sVideo)
+};
+
+const VIDE_TEXTURES_VALUES = Object.values(VIDEO_TEXTURES);
+
+export function getRandomTexture() {
+  const index = getRandomInt(0, VIDE_TEXTURES_VALUES.length);
+  return VIDE_TEXTURES_VALUES[index];
+}
 
 /**
  *
