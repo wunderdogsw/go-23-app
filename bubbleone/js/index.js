@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
+import { getSizes, setSceneSize, } from './utils.js'
 import { getDetector } from './bodyDetection.js'
-import { createPoseBubblesMap, drawPoseBubbles } from './bubblePerson.js'
+import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -18,10 +18,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 6;
 
-const videoWidth = 640;
-const videoHeight = 480;
-const visibleHeight = visibleHeightAtZDepth(camera)
-const visibleWidth = visibleWidthAtZDepth(camera, visibleHeight)
+setSceneSize(camera);
 
 // Create a renderer with Antialiasing
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
@@ -36,8 +33,11 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const poseBubblesMap = createPoseBubblesMap();
-poseBubblesMap.forEach((bubble) => scene.add(bubble));
+const bubbleHead = createBubbleHead();
+scene.add(bubbleHead);
+
+const bubbleLines = createBubbleLines();
+bubbleLines.forEach(({ group }) => scene.add(group));
 
 let video;
 let detector;
@@ -47,10 +47,16 @@ function renderPose(pose) {
     return
   }
 
-  drawPoseBubbles({ pose, poseBubblesMap, videoWidth, videoHeight, visibleWidth, visibleHeight })
+  drawBubblesStickPerson({ pose, bubbleHead, bubbleLines })
 }
 
-function renderPoses(poses) {
+async function renderPoses() {
+  if (!(detector && video)) {
+    return
+  }
+
+  const poses = await detector.estimatePoses(video, {});
+
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
@@ -60,17 +66,16 @@ function renderPoses(poses) {
 // Render Loop
 const render = async function () {
   requestAnimationFrame(render);
-  const poses = await detector.estimatePoses(video, {});
-  renderPoses(poses);
-
-  // Render the scene
+  await renderPoses();
   renderer.render(scene, camera);
 };
 
 async function init() {
-  video = await getCameraVideo(videoWidth, videoHeight);
-  detector = await getDetector();
   render();
+
+  const sizes = getSizes()
+  video = await getCameraVideo(sizes.video.width, sizes.video.height);
+  detector = await getDetector();
 }
 
 init()

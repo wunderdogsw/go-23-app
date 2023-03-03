@@ -1,3 +1,14 @@
+let sizes = {
+  video: {
+    width: 640,
+    height: 480,
+  },
+  scene: {
+    width: null,
+    height: null
+  }
+}
+
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
 export function visibleHeightAtZDepth(camera, depth = 0 ) {
   // compensate for cameras not positioned at z=0
@@ -16,11 +27,22 @@ export function visibleWidthAtZDepth( camera, visibleHeight ) {
   return visibleHeight * camera.aspect;
 }
 
-export function getObjectX(videoX, videoWidth, visibleWidth) {
-  // this calculation flips the x coordinate for a mirror effect
-  return ((videoWidth - videoX) / videoWidth - 0.5) * visibleWidth
+export function setSceneSize(camera) {
+  const height = visibleHeightAtZDepth(camera);
+  const width = visibleWidthAtZDepth(camera, height);
+
+  sizes.scene = { width, height };
 }
 
-export function getObjectY(videoY, videoHeight, visibleHeight) {
-  return (0.5 - videoY / videoHeight) * visibleHeight
+export function getSizes() {
+  return sizes;
+}
+
+export function getObjectX(videoX) {
+  // this calculation flips the x coordinate for a mirror effect
+  return ((sizes.video.width - videoX) / sizes.video.width - 0.5) * sizes.scene.width;
+}
+
+export function getObjectY(videoY) {
+  return (0.5 - videoY / sizes.video.height) * sizes.scene.height;
 }
