@@ -51,3 +51,15 @@ export function getObjectY(videoY) {
 export function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+// lazy source: ChatGPT
+export function getAverage(...numbers) {
+  let sum = 0;
+
+  for (let i = 0; i < numbers.length; i++) {
+    sum += numbers[i];
+  }
+
+  return sum / numbers.length;
+}
+

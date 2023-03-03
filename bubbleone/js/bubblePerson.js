@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js'
-import { getObjectX, getObjectY } from './utils.js'
+import { getAverage, getObjectX, getObjectY } from './utils.js'
 import { POSE_KEYPOINT_NAMES } from './bodyDetection.js'
 
 const SCORE_THRESHOLD = 0.85;
@@ -43,7 +43,7 @@ export function drawPoseBubbles(pose, poseBubblesMap) {
 }
 
 
-function createBubblesGroup(radius, numberOfBubbles = 5) {
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   const group = new THREE.Group();
   group.visible = false;
 
@@ -57,9 +57,11 @@ function createBubblesGroup(radius, numberOfBubbles = 5) {
 }
 
 function drawEllipse(group, radiusX, radiusY) {
+  const offsetAngle = THREE.MathUtils.degToRad(30);
+
   // source: ChatGPT
   for (let i = 0; i < group.children.length; i++) {
-    const angle = i / group.children.length * Math.PI * 2;
+    const angle = offsetAngle + i / group.children.length * Math.PI * 2;
     const x = Math.cos(angle) * radiusX;
     const y = Math.sin(angle) * radiusY;
     const sphere = group.children[i]
@@ -67,7 +69,7 @@ function drawEllipse(group, radiusX, radiusY) {
   }
 }
 
-export function createBubbleHead(radius, numSpheres = 6) {
+export function createBubbleHead(radius = 0.2, numSpheres = 6) {
   const group = new THREE.Group();
   group.visible = false;
 
@@ -80,27 +82,16 @@ export function createBubbleHead(radius, numSpheres = 6) {
 }
 
 const LINES_KEYPOINTS = [
-  [ "left_shoulder", "right_shoulder" ],
-  [ "left_hip", "right_hip" ],
-  [ "left_elbow", "left_shoulder" ],
+  [ "neck", "stomach" ],
+  [ "left_elbow", "neck" ],
   [ "left_wrist", "left_elbow" ],
-  [ "left_index", "left_wrist" ],
-  [ "left_shoulder", "left_hip" ],
-  [ "left_hip", "left_knee" ],
-  [ "left_knee", "left_ankle" ],
-  [ "left_ankle", "left_heel" ],
-  [ "left_heel", "left_foot_index" ],
-  [ "right_shoulder", "right_elbow" ],
+  [ "stomach", "left_foot_index" ],
+  [ "neck", "right_elbow" ],
   [ "right_elbow", "right_wrist" ],
-  [ "right_wrist", "right_index" ],
-  [ "right_shoulder", "right_hip" ],
-  [ "right_hip", "right_knee" ],
-  [ "right_knee", "right_ankle" ],
-  [ "right_ankle", "right_heel" ],
-  [ "right_heel", "right_foot_index" ],
+  [ "stomach", "right_foot_index" ],
 ]
 
-export function createBubbleLines() {
+export function createBubbleBody() {
   return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
@@ -170,16 +161,36 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   group.visible = true
 }
 
+function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
+  const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
+  const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
+
+  const x = getAverage(startKeypoint.x, endKeypoint.x);
+  const y = getAverage(startKeypoint.y, endKeypoint.y);
+  const z = getAverage(startKeypoint.z, endKeypoint.z);
+  const score = getAverage(startKeypoint.score, endKeypoint.score);
+
+  return { name, x, y, z, score }
+}
+
+function createExtraKeypoints(keypoints) {
+  const neck = createAverageKeypoint({ keypoints, name: "neck", startKeypointName: "left_shoulder", endKeypointName: "right_shoulder" });
+  const stomach = createAverageKeypoint({ keypoints, name: "stomach", startKeypointName: "left_hip", endKeypointName: "right_hip" });
+  return [neck, stomach];
+}
+
 export function drawBubblesStickPerson({ pose, bubbleHead, bubbleLines }) {
   bubbleLines.forEach(({ group }) => group.visible = false)
   bubbleHead.visible = false
 
   const { keypoints } = pose;
+  const extraKeypoints = createExtraKeypoints(keypoints);
+  const allKeypoints = [ ...keypoints, ...extraKeypoints ];
 
   drawBubbleHead({ bubbleHead, keypoints });
 
   for (let i = 0; i < bubbleLines.length; i++) {
     const { group, startKeypointName, endKeypointName } = bubbleLines[i];
-    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints });
+    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints: allKeypoints });
   }
 }

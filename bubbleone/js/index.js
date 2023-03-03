@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { getCameraVideo } from './media.js';
 import { getSizes, setSceneSize } from './utils.js'
 import { getDetector } from './bodyDetection.js'
-import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
+import { createBubbleHead, createBubbleBody, drawBubblesStickPerson } from './bubblePerson.js'
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -38,10 +38,12 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const bubbleHead = createBubbleHead();
+const bubbleRadius = 0.2;
+
+const bubbleHead = createBubbleHead(bubbleRadius);
 scene.add(bubbleHead);
 
-const bubbleLines = createBubbleLines();
+const bubbleLines = createBubbleBody(bubbleRadius);
 bubbleLines.forEach(({ group }) => scene.add(group));
 
 let video;
