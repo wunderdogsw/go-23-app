@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize, } from './utils.js'
+import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
+
+const CAMERA_Z_POSITION_QUERY_KEY = 'z';
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -16,7 +18,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 6;
+
+// Adjusting camera z position via querystring. 6 by default
+camera.position.z = getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY) || 6;
 
 setSceneSize(camera);
 

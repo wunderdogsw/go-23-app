@@ -46,3 +46,7 @@ export function getObjectX(videoX) {
 export function getObjectY(videoY) {
   return (0.5 - videoY / sizes.video.height) * sizes.scene.height;
 }
+
+export function getQueryStringValue( key ) {
+  return (new URLSearchParams(window.location.search)).get(key);
+}
