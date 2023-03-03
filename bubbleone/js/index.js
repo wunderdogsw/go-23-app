@@ -20,7 +20,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 // Adjusting camera z position via querystring. 6 by default
-camera.position.z = getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY) || 6;
+camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
 
 setSceneSize(camera);
 
