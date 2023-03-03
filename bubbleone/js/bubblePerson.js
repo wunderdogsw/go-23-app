@@ -22,7 +22,7 @@ function hidePoseBubbles(poseBubblesMap) {
   poseBubblesMap.forEach((bubble) => bubble.visible = false)
 }
 
-export function drawPoseBubbles({ pose, poseBubblesMap, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+export function drawPoseBubbles(pose, poseBubblesMap) {
   hidePoseBubbles(poseBubblesMap);
 
   const { keypoints } = pose;
@@ -35,8 +35,8 @@ export function drawPoseBubbles({ pose, poseBubblesMap, videoWidth, videoHeight,
     }
 
     const bubble = poseBubblesMap.get(name)
-    const objectX = getObjectX(x, videoWidth, visibleWidth)
-    const objectY = getObjectY(y, videoHeight, visibleHeight)
+    const objectX = getObjectX(x)
+    const objectY = getObjectY(y)
     bubble.position.set(objectX, objectY)
     bubble.visible = true
   }
@@ -112,15 +112,15 @@ function findKeypointByName(name) {
   return (keypoint) => keypoint.name === name
 }
 
-function createVectorFromKeypoint({ keypoint, videoWidth, visibleWidth, videoHeight, visibleHeight }) {
-  const objectX = getObjectX(keypoint.x, videoWidth, visibleWidth)
-  const objectY = getObjectY(keypoint.y, videoHeight, visibleHeight)
+function createVectorFromKeypoint(keypoint) {
+  const objectX = getObjectX(keypoint.x)
+  const objectY = getObjectY(keypoint.y)
   return new THREE.Vector3(objectX, objectY, 0);
 }
 
 const HUMAN_HEAD_RATIO = 5/4;
 
-function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth }) {
+function drawBubbleHead({ bubbleHead, keypoints }) {
   const leftOuterEyeKeypoint = keypoints.find(findKeypointByName("left_eye_outer"));
   const rightOuterEyeKeypoint = keypoints.find(findKeypointByName("right_eye_outer"));
   const leftShoulderKeypoint = keypoints.find(findKeypointByName("left_shoulder"));
@@ -130,9 +130,9 @@ function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibl
     return;
   }
 
-  const leftOuterEyeVector = createVectorFromKeypoint({ keypoint: leftOuterEyeKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
-  const rightOuterEyeVector = createVectorFromKeypoint({ keypoint: rightOuterEyeKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
-  const leftShoulderVector = createVectorFromKeypoint({ keypoint: leftShoulderKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const leftOuterEyeVector = createVectorFromKeypoint(leftOuterEyeKeypoint);
+  const rightOuterEyeVector = createVectorFromKeypoint(rightOuterEyeKeypoint);
+  const leftShoulderVector = createVectorFromKeypoint(leftShoulderKeypoint);
 
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_HEAD_RATIO;
@@ -147,7 +147,7 @@ function drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibl
 }
 
 
-function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
   const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
   const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
 
@@ -156,8 +156,8 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
     return;
   }
 
-  const startVector = createVectorFromKeypoint({ keypoint: startKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
-  const endVector = createVectorFromKeypoint({ keypoint: endKeypoint, videoWidth, visibleWidth, videoHeight, visibleHeight });
+  const startVector = createVectorFromKeypoint(startKeypoint);
+  const endVector = createVectorFromKeypoint(endKeypoint);
   const direction = endVector.clone().sub(startVector);
 
   for (let i = 0; i < group.children.length; i++) {
@@ -170,16 +170,16 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group, 
   group.visible = true
 }
 
-export function drawBubblesStickPerson({ pose, bubbleHead, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight }) {
+export function drawBubblesStickPerson({ pose, bubbleHead, bubbleLines }) {
   bubbleLines.forEach(({ group }) => group.visible = false)
   bubbleHead.visible = false
 
   const { keypoints } = pose;
 
-  drawBubbleHead({ bubbleHead, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth});
+  drawBubbleHead({ bubbleHead, keypoints });
 
   for (let i = 0; i < bubbleLines.length; i++) {
     const { group, startKeypointName, endKeypointName } = bubbleLines[i];
-    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints, videoWidth, videoHeight, visibleHeight, visibleWidth});
+    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints });
   }
 }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils.js'
+import { getSizes, setSceneSize, } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
 
@@ -18,10 +18,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 6;
 
-const videoWidth = 640;
-const videoHeight = 480;
-const visibleHeight = visibleHeightAtZDepth(camera)
-const visibleWidth = visibleWidthAtZDepth(camera, visibleHeight)
+setSceneSize(camera);
 
 // Create a renderer with Antialiasing
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
@@ -50,7 +47,7 @@ function renderPose(pose) {
     return
   }
 
-  drawBubblesStickPerson({ pose, bubbleHead, bubbleLines, videoWidth, videoHeight, visibleWidth, visibleHeight })
+  drawBubblesStickPerson({ pose, bubbleHead, bubbleLines })
 }
 
 async function renderPoses() {
@@ -76,7 +73,8 @@ const render = async function () {
 async function init() {
   render();
 
-  video = await getCameraVideo(videoWidth, videoHeight);
+  const sizes = getSizes()
+  video = await getCameraVideo(sizes.video.width, sizes.video.height);
   detector = await getDetector();
 }
 
