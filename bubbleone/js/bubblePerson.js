@@ -70,8 +70,8 @@ function drawEllipse(group, radiusX, radiusY) {
   }
 }
 
-function findKeypointByName(name) {
-  return (keypoint) => keypoint.name === name
+function findKeypointByName({ name, keypoints }) {
+  return keypoints.find((keypoint) => keypoint.name === name);
 }
 
 function createVectorByKeypoint(keypoint) {
@@ -81,7 +81,7 @@ function createVectorByKeypoint(keypoint) {
 }
 
 function createVectorByKeypointName({ keypoints, name }) {
-  const keypoint = keypoints.find(findKeypointByName(name));
+  const keypoint = findKeypointByName({ keypoints, name })
   if (! keypoint ) {
     return null;
   }
@@ -139,8 +139,8 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
 }
 
 function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
-  const startKeypoint = keypoints.find(findKeypointByName(startKeypointName));
-  const endKeypoint = keypoints.find(findKeypointByName(endKeypointName));
+  const startKeypoint = findKeypointByName({ keypoints, name: startKeypointName });
+  const endKeypoint = findKeypointByName({ keypoints, name: endKeypointName });
 
   const x = getAverage(startKeypoint.x, endKeypoint.x);
   const y = getAverage(startKeypoint.y, endKeypoint.y);
