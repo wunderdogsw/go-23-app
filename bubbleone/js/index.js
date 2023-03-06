@@ -5,7 +5,7 @@ import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import {
   drawBubbleStickFigure,
-  bubbleStickFigure,
+  BUBBLE_STICK_FIGURE,
 } from './bubblePerson.js'
 
 document.querySelectorAll('.video-texture').forEach((video) => {
@@ -50,8 +50,8 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-scene.add(bubbleStickFigure.head);
-bubbleStickFigure.body.forEach(({ group }) => scene.add(group));
+scene.add(BUBBLE_STICK_FIGURE.HEAD);
+BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 
 let video;
 let detector;

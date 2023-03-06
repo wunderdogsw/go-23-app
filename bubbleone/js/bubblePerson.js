@@ -8,9 +8,9 @@ const SCORE_THRESHOLD = 0.85;
 // one sphere is used for the nose
 const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
 
-export let bubbleStickFigure = {
-  head: createBubbleHead(),
-  body: createBubbleBody()
+export const BUBBLE_STICK_FIGURE = {
+  HEAD: createBubbleHead(),
+  BODY: createBubbleBody()
 };
 
 function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
@@ -92,28 +92,27 @@ function createVectorByKeypointName({ keypoints, name }) {
 const HUMAN_HEAD_RATIO = 5/4;
 
 function drawBubbleHead({ keypoints }) {
-  const { head } = bubbleStickFigure;
-  head.visible = false
+  const { HEAD } = BUBBLE_STICK_FIGURE;
 
   const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: "left_eye_outer" });
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: "right_eye_outer" });
   const leftShoulderVector = createVectorByKeypointName({ keypoints, name: "left_shoulder" });
 
   if (! (leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector) ) {
-    head.visible = false
+    HEAD.visible = false
     return;
   }
 
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_HEAD_RATIO;
-  drawEllipse(head, radiusX, radiusY);
+  drawEllipse(HEAD, radiusX, radiusY);
 
-  const sphereRadius = head.children[0].geometry.parameters.radius
+  const sphereRadius = HEAD.children[0].geometry.parameters.radius
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y
   const deltaY = deltaEarToShoulder - radiusY - sphereRadius
 
-  head.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
-  head.visible = true;
+  HEAD.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
+  HEAD.visible = true;
 }
 
 
@@ -159,11 +158,10 @@ function createExtraKeypoints(keypoints) {
 function drawBubbleBody({ keypoints }) {
   const extraKeypoints = createExtraKeypoints(keypoints);
   const allKeypoints = [ ...keypoints, ...extraKeypoints ];
-  const { body } = bubbleStickFigure;
+  const { BODY } = BUBBLE_STICK_FIGURE;
 
-  for (let i = 0; i < body.length; i++) {
-    const { group, startKeypointName, endKeypointName } = body[i];
-    group.visible = false;
+  for (let i = 0; i < BODY.length; i++) {
+    const { group, startKeypointName, endKeypointName } = BODY[i];
     drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints: allKeypoints });
   }
 }
