@@ -62,4 +62,3 @@ export function getAverage(...numbers) {
 
   return sum / numbers.length;
 }
-
