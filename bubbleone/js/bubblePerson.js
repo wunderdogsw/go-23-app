@@ -50,11 +50,25 @@ export function createBubbleBody() {
     [ "stomach", "right_foot_index" ],
   ]
 
-  return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+  const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup()
-  }) )
+    group: createBubblesGroup(0.3, 5),
+  }));
+
+  const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.15, 7),
+  }));
+
+  const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.08, 15),
+  }));
+
+  return [...thickBubbles, ...middleBubbles, ...smallBubbles];
 }
 
 function drawEllipse(group, radiusX, radiusY) {
