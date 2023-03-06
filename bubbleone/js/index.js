@@ -3,7 +3,15 @@ import * as THREE from 'three';
 import { getCameraVideo } from './media.js';
 import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
 import { getDetector } from './bodyDetection.js'
-import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
+import {
+  drawBubbleStickFigure,
+  BUBBLE_STICK_FIGURE,
+} from './bubblePerson.js'
+
+document.querySelectorAll('.video-texture').forEach((video) => {
+  // need to play texture videos programmatically, otherwise it doesn't work :(
+  video.play();
+})
 
 const CAMERA_Z_POSITION_QUERY_KEY = 'z';
 const CAMERA_ZOOM_QUERY_KEY = 'zoom';
@@ -42,11 +50,8 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const bubbleHead = createBubbleHead();
-scene.add(bubbleHead);
-
-const bubbleLines = createBubbleLines();
-bubbleLines.forEach(({ group }) => scene.add(group));
+scene.add(BUBBLE_STICK_FIGURE.HEAD);
+BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 
 let video;
 let detector;
@@ -56,7 +61,7 @@ function renderPose(pose) {
     return
   }
 
-  drawBubblesStickPerson({ pose, bubbleHead, bubbleLines })
+  drawBubbleStickFigure({ pose })
 }
 
 async function renderPoses() {

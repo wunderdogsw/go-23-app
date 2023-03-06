@@ -1,11 +1,9 @@
-import * as THREE from 'three';
+import Sphere from './shapes/Sphere.js'
+import { VIDEO_TEXTURES } from './VideoTexture.js'
 
-export default function Bubble({ radius = 1, x = 0, y = 0, z = 0 } = {}) {
-  const geometry = new THREE.SphereGeometry(radius, 32, 32);
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-  });
-  const bubble = new THREE.Mesh(geometry, material);
+export default function Bubble({ radius = 0.4, x = 0, y = 0, z = 0 } = {}) {
+  const texture = VIDEO_TEXTURES.S_VIDEO;
+  const bubble = Sphere(texture, radius);
   bubble.position.set(x, y, z);
 
   return bubble;

@@ -26,38 +26,36 @@
         margin: 0;
         padding: 0;
       }
+
+      video {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <video
       id="hVideo"
+      class="video-texture"
       muted
-      autoplay="autoplay"
+      autoplay
       loop
-      src='assets/hVideo.mp4'
-      type="video/mp4"
       crossorigin="anonymous"
       playsinline
-      webkit-playsinline
-      style="display: none"
-    ></video>
+    >
+      <source src="assets/hVideo.mp4" type="video/mp4">
+    </video>
 
     <video
       id="sVideo"
+      class="video-texture"
       muted
       loop
-      autoplay="autoplay"
-      src='assets/sVideo.mp4'
-      type="video/mp4"
+      autoplay
       crossorigin="anonymous"
       playsinline
-      webkit-playsinline
-      style="display: none"
-    ></video>
-    <script>
-      document.getElementById('hVideo').play();
-      document.getElementById('sVideo').play();
-    </script>
+    >
+      <source src="assets/sVideo.mp4" type="video/mp4">
+    </video>
 
     <canvas id="canvas" width="640" height="480"></canvas>
 
