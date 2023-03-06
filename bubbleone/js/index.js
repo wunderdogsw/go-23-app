@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize } from './utils.js'
+import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import { createBubbleHead, createBubbleBody, drawBubbleStickFigure } from './bubblePerson.js'
 
@@ -9,6 +9,9 @@ document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
   video.play();
 })
+
+const CAMERA_Z_POSITION_QUERY_KEY = 'z';
+const CAMERA_ZOOM_QUERY_KEY = 'zoom';
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -21,7 +24,13 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 6;
+
+// Adjusting camera z position via querystring. 6 by default
+camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
+// Adjusting camera zoom percent via querystring. 100 % by default
+camera.zoom = (parseFloat(getQueryStringValue(CAMERA_ZOOM_QUERY_KEY)) || 100) / 100;
+
+camera.updateProjectionMatrix();
 
 setSceneSize(camera);
 

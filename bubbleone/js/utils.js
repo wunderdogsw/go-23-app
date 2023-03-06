@@ -62,3 +62,7 @@ export function getAverage(...numbers) {
 
   return sum / numbers.length;
 }
+
+export function getQueryStringValue( key ) {
+  return (new URLSearchParams(window.location.search)).get(key);
+}
