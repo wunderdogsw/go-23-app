@@ -8,7 +8,7 @@ const SCORE_THRESHOLD = 0.85;
 // one sphere is used for the nose
 const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
 
-export const BUBBLE_STICK_FIGURE = {
+export let BUBBLE_STICK_FIGURE = {
   HEAD: createBubbleHead(),
   BODY: createBubbleBody(),
 };
@@ -49,22 +49,26 @@ export function createBubbleBody() {
     ["stomach", "right_foot_index"],
   ];
 
+  const thickCount = document.getElementById("thickCount")?.value || 5;
+  console.log("ddd", thickCount);
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.3, 5),
+    group: createBubblesGroup(0.3, +thickCount),
   }));
 
+  const mediumCount = document.getElementById("mediumCount")?.value || 8;
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.15, 7),
+    group: createBubblesGroup(0.15, +mediumCount),
   }));
 
+  const smallCount = document.getElementById("smallCount")?.value || 15;
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.08, 15),
+    group: createBubblesGroup(0.08, +smallCount),
   }));
 
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
@@ -193,4 +197,19 @@ export function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
   drawBubbleHead({ keypoints });
   drawBubbleBody({ keypoints });
+}
+
+// /* TEMP */
+// function updateParameters() {
+//   console.log("trying", BUBBLE_STICK_FIGURE.BODY);
+//   BUBBLE_STICK_FIGURE.BODY.length = 0;
+//   //BUBBLE_STICK_FIGURE.BODY.splice(0, 0, ...createBubbleBody());
+//   console.log("worked?", BUBBLE_STICK_FIGURE.BODY);
+// }
+// document.getElementById("apply").onclick = updateParameters;
+export function resetBody() {
+ BUBBLE_STICK_FIGURE = {
+    HEAD: createBubbleHead(),
+    BODY: createBubbleBody(),
+  };
 }
