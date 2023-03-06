@@ -144,6 +144,9 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   for (let i = 0; i < group.children.length; i++) {
     const t = i / (group.children.length);
     const position = startVector.clone().add(direction.clone().multiplyScalar(t));
+    // Generate a random vector with values between 0 and 0.1
+    const randomOffset = new THREE.Vector3(Math.random() * 0.1, Math.random() * 0.1, Math.random() * 0.1);
+    position.add(randomOffset);
     const object = group.children[i]
     object.position.copy(position);
   }
