@@ -6,6 +6,7 @@ import { getDetector } from './bodyDetection.js'
 import { createBubbleHead, createBubbleLines, drawBubblesStickPerson } from './bubblePerson.js'
 
 const CAMERA_Z_POSITION_QUERY_KEY = 'z';
+const CAMERA_ZOOM_QUERY_KEY = 'zoom';
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -21,6 +22,10 @@ const camera = new THREE.PerspectiveCamera(
 
 // Adjusting camera z position via querystring. 6 by default
 camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
+// Adjusting camera zoom percent via querystring. 100 % by default
+camera.zoom = (parseFloat(getQueryStringValue(CAMERA_ZOOM_QUERY_KEY)) || 100) / 100;
+
+camera.updateProjectionMatrix();
 
 setSceneSize(camera);
 
