@@ -5,25 +5,25 @@ let sizes = {
   },
   scene: {
     width: null,
-    height: null
-  }
-}
+    height: null,
+  },
+};
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
-export function visibleHeightAtZDepth(camera, depth = 0 ) {
+export function visibleHeightAtZDepth(camera, depth = 0) {
   // compensate for cameras not positioned at z=0
   const cameraOffset = camera.position.z;
-  if ( depth < cameraOffset ) depth -= cameraOffset;
+  if (depth < cameraOffset) depth -= cameraOffset;
   else depth += cameraOffset;
 
   // vertical fov in radians
-  const vFOV = camera.fov * Math.PI / 180;
+  const vFOV = (camera.fov * Math.PI) / 180;
 
   // Math.abs to ensure the result is always positive
-  return 2 * Math.tan( vFOV / 2 ) * Math.abs( depth );
+  return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
 }
 
-export function visibleWidthAtZDepth( camera, visibleHeight ) {
+export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
@@ -63,6 +63,6 @@ export function getAverage(...numbers) {
   return sum / numbers.length;
 }
 
-export function getQueryStringValue( key ) {
-  return (new URLSearchParams(window.location.search)).get(key);
+export function getQueryStringValue(key) {
+  return new URLSearchParams(window.location.search).get(key);
 }

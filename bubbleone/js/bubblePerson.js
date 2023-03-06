@@ -1,7 +1,7 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
-import Bubble from "./Bubble.js";
-import { getAverage, getObjectX, getObjectY } from "./utils.js";
+import Bubble from './Bubble.js';
+import { getAverage, getObjectX, getObjectY } from './utils.js';
 
 const SCORE_THRESHOLD = 0.85;
 
@@ -40,31 +40,31 @@ export function createBubbleHead(radius = 0.2, numSpheres = BUBBLE_HEAD_OUTLINE_
 
 export function createBubbleBody() {
   const LINES_KEYPOINTS = [
-    ["neck", "stomach"],
-    ["left_elbow", "neck"],
-    ["left_wrist", "left_elbow"],
-    ["stomach", "left_foot_index"],
-    ["neck", "right_elbow"],
-    ["right_elbow", "right_wrist"],
-    ["stomach", "right_foot_index"],
+    ['neck', 'stomach'],
+    ['left_elbow', 'neck'],
+    ['left_wrist', 'left_elbow'],
+    ['stomach', 'left_foot_index'],
+    ['neck', 'right_elbow'],
+    ['right_elbow', 'right_wrist'],
+    ['stomach', 'right_foot_index'],
   ];
 
-  const thickCount = document.getElementById("thickCount")?.value || 5;
-  console.log("ddd", thickCount);
+  const thickCount = document.getElementById('thickCount')?.value || 5;
+  console.log('ddd', thickCount);
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(0.3, +thickCount),
   }));
 
-  const mediumCount = document.getElementById("mediumCount")?.value || 8;
+  const mediumCount = document.getElementById('mediumCount')?.value || 8;
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(0.15, +mediumCount),
   }));
 
-  const smallCount = document.getElementById("smallCount")?.value || 15;
+  const smallCount = document.getElementById('smallCount')?.value || 15;
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
@@ -122,13 +122,13 @@ function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
 
   if (!keypoints.length) {
-    HEAD.visible = false
+    HEAD.visible = false;
     return;
   }
 
-  const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: "left_eye_outer" });
-  const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: "right_eye_outer" });
-  const leftShoulderVector = createVectorByKeypointName({ keypoints, name: "left_shoulder" });
+  const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'left_eye_outer' });
+  const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'right_eye_outer' });
+  const leftShoulderVector = createVectorByKeypointName({ keypoints, name: 'left_shoulder' });
 
   if (!(leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector)) {
     HEAD.visible = false;
@@ -149,7 +149,7 @@ function drawBubbleHead({ keypoints }) {
 
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
   if (!keypoints.length) {
-    group.visible = false
+    group.visible = false;
     return;
   }
 
@@ -189,15 +189,15 @@ function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypoint
 function createExtraKeypoints(keypoints) {
   const neck = createAverageKeypoint({
     keypoints,
-    name: "neck",
-    startKeypointName: "left_shoulder",
-    endKeypointName: "right_shoulder",
+    name: 'neck',
+    startKeypointName: 'left_shoulder',
+    endKeypointName: 'right_shoulder',
   });
   const stomach = createAverageKeypoint({
     keypoints,
-    name: "stomach",
-    startKeypointName: "left_hip",
-    endKeypointName: "right_hip",
+    name: 'stomach',
+    startKeypointName: 'left_hip',
+    endKeypointName: 'right_hip',
   });
   return [neck, stomach];
 }
@@ -228,7 +228,7 @@ export function drawBubbleStickFigure({ pose }) {
 // }
 // document.getElementById("apply").onclick = updateParameters;
 export function resetBody() {
- BUBBLE_STICK_FIGURE = {
+  BUBBLE_STICK_FIGURE = {
     HEAD: createBubbleHead(),
     BODY: createBubbleBody(),
   };

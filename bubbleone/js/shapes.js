@@ -8,12 +8,7 @@ import VideoTexture from './VideoTexture.js';
 var scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
 // Create a basic perspective camera
-var camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 6;
 
 // Create a renderer with Antialiasing
