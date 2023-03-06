@@ -2,45 +2,8 @@ import * as THREE from 'three';
 
 import Bubble from './Bubble.js'
 import { getAverage, getObjectX, getObjectY } from './utils.js'
-import { POSE_KEYPOINT_NAMES } from './bodyDetection.js'
 
 const SCORE_THRESHOLD = 0.85;
-
-export function createPoseBubblesMap() {
-  const map = new Map();
-
-  POSE_KEYPOINT_NAMES.forEach((keypoint) => {
-    const bubble = Bubble();
-    bubble.visible = false;
-    map.set(keypoint, bubble);
-  });
-
-  return map;
-}
-
-function hidePoseBubbles(poseBubblesMap) {
-  poseBubblesMap.forEach((bubble) => bubble.visible = false)
-}
-
-export function drawPoseBubbles(pose, poseBubblesMap) {
-  hidePoseBubbles(poseBubblesMap);
-
-  const { keypoints } = pose;
-
-  for (let i = 0; i < keypoints.length; i++) {
-    const { score, name, x, y } = keypoints[i];
-
-    if (score < SCORE_THRESHOLD) {
-      continue;
-    }
-
-    const bubble = poseBubblesMap.get(name)
-    const objectX = getObjectX(x)
-    const objectY = getObjectY(y)
-    bubble.position.set(objectX, objectY)
-    bubble.visible = true
-  }
-}
 
 
 function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
@@ -56,12 +19,15 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   return group;
 }
 
+// one sphere is used for the nose
+const SPHERES_IN_BUBBLE_HEAD = 6;
+
 function drawEllipse(group, radiusX, radiusY) {
   const offsetAngle = THREE.MathUtils.degToRad(30);
 
   // source: ChatGPT
-  for (let i = 0; i < group.children.length; i++) {
-    const angle = offsetAngle + i / group.children.length * Math.PI * 2;
+  for (let i = 0; i < SPHERES_IN_BUBBLE_HEAD; i++) {
+    const angle = offsetAngle + i / SPHERES_IN_BUBBLE_HEAD * Math.PI * 2;
     const x = Math.cos(angle) * radiusX;
     const y = Math.sin(angle) * radiusY;
     const sphere = group.children[i]
@@ -69,7 +35,7 @@ function drawEllipse(group, radiusX, radiusY) {
   }
 }
 
-export function createBubbleHead(radius = 0.2, numSpheres = 6) {
+export function createBubbleHead(radius = 0.2, numSpheres = 7) {
   const group = new THREE.Group();
   group.visible = false;
 
