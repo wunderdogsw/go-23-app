@@ -9,11 +9,11 @@ export const VIDEO_TEXTURES = {
   S_VIDEO: VideoTexture(sVideo)
 };
 
-const VIDE_TEXTURES_VALUES = Object.values(VIDEO_TEXTURES);
+const VIDEO_TEXTURES_VALUES = Object.values(VIDEO_TEXTURES);
 
 export function getRandomTexture() {
-  const index = getRandomInt(0, VIDE_TEXTURES_VALUES.length);
-  return VIDE_TEXTURES_VALUES[index];
+  const index = getRandomInt(0, VIDEO_TEXTURES_VALUES.length);
+  return VIDEO_TEXTURES_VALUES[index];
 }
 
 /**

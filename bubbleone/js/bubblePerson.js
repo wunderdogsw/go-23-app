@@ -5,6 +5,14 @@ import { getAverage, getObjectX, getObjectY } from './utils.js'
 
 const SCORE_THRESHOLD = 0.85;
 
+// one sphere is used for the nose
+const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
+
+export let bubbleStickFigure = {
+  head: createBubbleHead(),
+  body: createBubbleBody()
+};
+
 function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   const group = new THREE.Group();
   group.visible = false;
@@ -18,8 +26,36 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   return group;
 }
 
-// one sphere is used for the nose
-const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
+
+export function createBubbleHead(radius = 0.2, numSpheres = BUBBLE_HEAD_OUTLINE_SPHERES + 1) {
+  const group = new THREE.Group();
+  group.visible = false;
+
+  for (let i = 0; i < numSpheres; i++) {
+    const sphere = Bubble({ radius });
+    group.add(sphere);
+  }
+
+  return group;
+}
+
+export function createBubbleBody() {
+  const LINES_KEYPOINTS = [
+    [ "neck", "stomach" ],
+    [ "left_elbow", "neck" ],
+    [ "left_wrist", "left_elbow" ],
+    [ "stomach", "left_foot_index" ],
+    [ "neck", "right_elbow" ],
+    [ "right_elbow", "right_wrist" ],
+    [ "stomach", "right_foot_index" ],
+  ]
+
+  return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup()
+  }) )
+}
 
 function drawEllipse(group, radiusX, radiusY) {
   const offsetAngle = THREE.MathUtils.degToRad(30);
@@ -32,36 +68,6 @@ function drawEllipse(group, radiusX, radiusY) {
     const sphere = group.children[i]
     sphere.position.set(x, y, 0);
   }
-}
-
-export function createBubbleHead(radius = 0.2, numSpheres = 7) {
-  const group = new THREE.Group();
-  group.visible = false;
-
-  for (let i = 0; i < numSpheres; i++) {
-    const sphere = Bubble({ radius });
-    group.add(sphere);
-  }
-
-  return group;
-}
-
-const LINES_KEYPOINTS = [
-  [ "neck", "stomach" ],
-  [ "left_elbow", "neck" ],
-  [ "left_wrist", "left_elbow" ],
-  [ "stomach", "left_foot_index" ],
-  [ "neck", "right_elbow" ],
-  [ "right_elbow", "right_wrist" ],
-  [ "stomach", "right_foot_index" ],
-]
-
-export function createBubbleBody() {
-  return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup()
-  }) )
 }
 
 function findKeypointByName(name) {
@@ -85,26 +91,29 @@ function createVectorByKeypointName({ keypoints, name }) {
 
 const HUMAN_HEAD_RATIO = 5/4;
 
-function drawBubbleHead({ bubbleHead, keypoints }) {
+function drawBubbleHead({ keypoints }) {
+  const { head } = bubbleStickFigure;
+  head.visible = false
+
   const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: "left_eye_outer" });
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: "right_eye_outer" });
   const leftShoulderVector = createVectorByKeypointName({ keypoints, name: "left_shoulder" });
 
   if (! (leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector) ) {
-    bubbleHead.visible = false
+    head.visible = false
     return;
   }
 
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_HEAD_RATIO;
-  drawEllipse(bubbleHead, radiusX, radiusY);
+  drawEllipse(head, radiusX, radiusY);
 
-  const sphereRadius = bubbleHead.children[0].geometry.parameters.radius
+  const sphereRadius = head.children[0].geometry.parameters.radius
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y
   const deltaY = deltaEarToShoulder - radiusY - sphereRadius
 
-  bubbleHead.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
-  bubbleHead.visible = true;
+  head.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
+  head.visible = true;
 }
 
 
@@ -147,21 +156,20 @@ function createExtraKeypoints(keypoints) {
   return [neck, stomach];
 }
 
-function drawBubbleBody({ keypoints, bubbleBody }) {
+function drawBubbleBody({ keypoints }) {
   const extraKeypoints = createExtraKeypoints(keypoints);
   const allKeypoints = [ ...keypoints, ...extraKeypoints ];
+  const { body } = bubbleStickFigure;
 
-  for (let i = 0; i < bubbleBody.length; i++) {
-    const { group, startKeypointName, endKeypointName } = bubbleBody[i];
+  for (let i = 0; i < body.length; i++) {
+    const { group, startKeypointName, endKeypointName } = body[i];
+    group.visible = false;
     drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints: allKeypoints });
   }
 }
 
-export function drawBubbleStickFigure({ pose, bubbleHead, bubbleBody }) {
-  bubbleBody.forEach(({ group }) => group.visible = false)
-  bubbleHead.visible = false
-
+export function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
-  drawBubbleHead({ bubbleHead, keypoints });
-  drawBubbleBody({ bubbleBody, keypoints })
+  drawBubbleHead({ keypoints });
+  drawBubbleBody({ keypoints })
 }
