@@ -5,6 +5,7 @@ import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
 import { getDetector } from './bodyDetection.js'
 import {
   drawBubbleStickFigure,
+  resetBody,
   BUBBLE_STICK_FIGURE,
   hideBubbleStickFigure
 } from './bubblePerson.js'
@@ -90,7 +91,7 @@ const render = async function () {
   renderer.render(scene, camera);
 };
 
-async function init() {
+async function start() {
   render();
 
   const sizes = getSizes()
@@ -98,4 +99,22 @@ async function init() {
   detector = await getDetector();
 }
 
-init()
+start()
+
+function init() {
+  console.log('clear');
+  scene.clear()
+  scene.add(ambientLight);
+  scene.add(BUBBLE_STICK_FIGURE.HEAD);
+  console.log('reseting...');
+  resetBody()
+  console.log('foreach');
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+}
+
+/* TEMP */
+function updateParameters() {
+  init()
+}
+
+document.getElementById("apply").onclick = updateParameters;

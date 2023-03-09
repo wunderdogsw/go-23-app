@@ -1,16 +1,16 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
-import Bubble from './Bubble.js'
-import { getAverage, getObjectX, getObjectY } from './utils.js'
+import Bubble from "./Bubble.js";
+import { getAverage, getObjectX, getObjectY } from "./utils.js";
 
 const SCORE_THRESHOLD = 0.85;
 
 // one sphere is used for the nose
 const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
 
-export const BUBBLE_STICK_FIGURE = {
+export let BUBBLE_STICK_FIGURE = {
   HEAD: createBubbleHead(),
-  BODY: createBubbleBody()
+  BODY: createBubbleBody(),
 };
 
 function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
@@ -40,20 +40,38 @@ export function createBubbleHead(radius = 0.2, numSpheres = BUBBLE_HEAD_OUTLINE_
 
 export function createBubbleBody() {
   const LINES_KEYPOINTS = [
-    [ "neck", "stomach" ],
-    [ "left_elbow", "neck" ],
-    [ "left_wrist", "left_elbow" ],
-    [ "stomach", "left_foot_index" ],
-    [ "neck", "right_elbow" ],
-    [ "right_elbow", "right_wrist" ],
-    [ "stomach", "right_foot_index" ],
-  ]
+    ["neck", "stomach"],
+    ["left_elbow", "neck"],
+    ["left_wrist", "left_elbow"],
+    ["stomach", "left_foot_index"],
+    ["neck", "right_elbow"],
+    ["right_elbow", "right_wrist"],
+    ["stomach", "right_foot_index"],
+  ];
 
-  return LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+  const thickCount = document.getElementById("thickCount")?.value || 5;
+  console.log("ddd", thickCount);
+  const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup()
-  }) )
+    group: createBubblesGroup(0.3, +thickCount),
+  }));
+
+  const mediumCount = document.getElementById("mediumCount")?.value || 8;
+  const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.15, +mediumCount),
+  }));
+
+  const smallCount = document.getElementById("smallCount")?.value || 15;
+  const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.08, +smallCount),
+  }));
+
+  return [...thickBubbles, ...middleBubbles, ...smallBubbles];
 }
 
 export function hideBubbleStickFigure() {
@@ -71,10 +89,10 @@ function drawEllipse(group, radiusX, radiusY) {
 
   // source: ChatGPT
   for (let i = 0; i < BUBBLE_HEAD_OUTLINE_SPHERES; i++) {
-    const angle = offsetAngle + i / BUBBLE_HEAD_OUTLINE_SPHERES * Math.PI * 2;
+    const angle = offsetAngle + (i / BUBBLE_HEAD_OUTLINE_SPHERES) * Math.PI * 2;
     const x = Math.cos(angle) * radiusX;
     const y = Math.sin(angle) * radiusY;
-    const sphere = group.children[i]
+    const sphere = group.children[i];
     sphere.position.set(x, y, 0);
   }
 }
@@ -84,21 +102,21 @@ function findKeypointByName({ name, keypoints }) {
 }
 
 function createVectorByKeypoint(keypoint) {
-  const objectX = getObjectX(keypoint.x)
-  const objectY = getObjectY(keypoint.y)
+  const objectX = getObjectX(keypoint.x);
+  const objectY = getObjectY(keypoint.y);
   return new THREE.Vector3(objectX, objectY, 0);
 }
 
 function createVectorByKeypointName({ keypoints, name }) {
-  const keypoint = findKeypointByName({ keypoints, name })
-  if (! keypoint ) {
+  const keypoint = findKeypointByName({ keypoints, name });
+  if (!keypoint) {
     return null;
   }
 
-  return createVectorByKeypoint(keypoint)
+  return createVectorByKeypoint(keypoint);
 }
 
-const HUMAN_HEAD_RATIO = 5/4;
+const HUMAN_HEAD_RATIO = 5 / 4;
 
 function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
@@ -112,8 +130,8 @@ function drawBubbleHead({ keypoints }) {
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: "right_eye_outer" });
   const leftShoulderVector = createVectorByKeypointName({ keypoints, name: "left_shoulder" });
 
-  if (! (leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector) ) {
-    HEAD.visible = false
+  if (!(leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector)) {
+    HEAD.visible = false;
     return;
   }
 
@@ -121,14 +139,13 @@ function drawBubbleHead({ keypoints }) {
   const radiusY = radiusX * HUMAN_HEAD_RATIO;
   drawEllipse(HEAD, radiusX, radiusY);
 
-  const sphereRadius = HEAD.children[0].geometry.parameters.radius
-  const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y
-  const deltaY = deltaEarToShoulder - radiusY - sphereRadius
+  const sphereRadius = HEAD.children[0].geometry.parameters.radius;
+  const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
+  const deltaY = deltaEarToShoulder - radiusY - sphereRadius;
 
   HEAD.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
   HEAD.visible = true;
 }
-
 
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
   if (!keypoints.length) {
@@ -137,23 +154,24 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   }
 
   const startVector = createVectorByKeypointName({ keypoints, name: startKeypointName });
-  const endVector = createVectorByKeypointName({ keypoints, name: endKeypointName});
+  const endVector = createVectorByKeypointName({ keypoints, name: endKeypointName });
 
-  if (! (startVector || endVector) ) {
-    group.visible = false
+  if (!(startVector || endVector)) {
+    group.visible = false;
     return;
   }
 
   const direction = endVector.clone().sub(startVector);
 
   for (let i = 0; i < group.children.length; i++) {
-    const t = i / (group.children.length);
+    const t = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(t));
-    const object = group.children[i]
-    object.position.copy(position);
+    const bubble = group.children[i];
+    position.add(bubble.offset);
+    bubble.position.copy(position);
   }
 
-  group.visible = true
+  group.visible = true;
 }
 
 function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
@@ -165,18 +183,28 @@ function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypoint
   const z = getAverage(startKeypoint.z, endKeypoint.z);
   const score = getAverage(startKeypoint.score, endKeypoint.score);
 
-  return { name, x, y, z, score }
+  return { name, x, y, z, score };
 }
 
 function createExtraKeypoints(keypoints) {
-  const neck = createAverageKeypoint({ keypoints, name: "neck", startKeypointName: "left_shoulder", endKeypointName: "right_shoulder" });
-  const stomach = createAverageKeypoint({ keypoints, name: "stomach", startKeypointName: "left_hip", endKeypointName: "right_hip" });
+  const neck = createAverageKeypoint({
+    keypoints,
+    name: "neck",
+    startKeypointName: "left_shoulder",
+    endKeypointName: "right_shoulder",
+  });
+  const stomach = createAverageKeypoint({
+    keypoints,
+    name: "stomach",
+    startKeypointName: "left_hip",
+    endKeypointName: "right_hip",
+  });
   return [neck, stomach];
 }
 
 function drawBubbleBody({ keypoints }) {
   const extraKeypoints = createExtraKeypoints(keypoints);
-  const allKeypoints = [ ...keypoints, ...extraKeypoints ];
+  const allKeypoints = [...keypoints, ...extraKeypoints];
   const { BODY } = BUBBLE_STICK_FIGURE;
 
   for (let i = 0; i < BODY.length; i++) {
@@ -188,5 +216,20 @@ function drawBubbleBody({ keypoints }) {
 export function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
   drawBubbleHead({ keypoints });
-  drawBubbleBody({ keypoints })
+  drawBubbleBody({ keypoints });
+}
+
+// /* TEMP */
+// function updateParameters() {
+//   console.log("trying", BUBBLE_STICK_FIGURE.BODY);
+//   BUBBLE_STICK_FIGURE.BODY.length = 0;
+//   //BUBBLE_STICK_FIGURE.BODY.splice(0, 0, ...createBubbleBody());
+//   console.log("worked?", BUBBLE_STICK_FIGURE.BODY);
+// }
+// document.getElementById("apply").onclick = updateParameters;
+export function resetBody() {
+ BUBBLE_STICK_FIGURE = {
+    HEAD: createBubbleHead(),
+    BODY: createBubbleBody(),
+  };
 }
