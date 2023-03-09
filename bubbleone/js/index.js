@@ -6,6 +6,7 @@ import { getDetector } from './bodyDetection.js'
 import {
   drawBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
+  hideBubbleStickFigure
 } from './bubblePerson.js'
 
 document.querySelectorAll('.video-texture').forEach((video) => {
@@ -58,7 +59,7 @@ let detector;
 
 function renderPose(pose) {
   if (!pose.keypoints) {
-    return
+    return;
   }
 
   drawBubbleStickFigure({ pose })
@@ -70,6 +71,11 @@ async function renderPoses() {
   }
 
   const poses = await detector.estimatePoses(video, {});
+
+  if (!poses.length) {
+    hideBubbleStickFigure();
+    return;
+  }
 
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];

@@ -26,7 +26,6 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   return group;
 }
 
-
 export function createBubbleHead(radius = 0.2, numSpheres = BUBBLE_HEAD_OUTLINE_SPHERES + 1) {
   const group = new THREE.Group();
   group.visible = false;
@@ -55,6 +54,16 @@ export function createBubbleBody() {
     endKeypointName,
     group: createBubblesGroup()
   }) )
+}
+
+export function hideBubbleStickFigure() {
+  // Hiding the head
+  drawBubbleHead({ keypoints: [] });
+  // Hiding the body
+  const { BODY } = BUBBLE_STICK_FIGURE;
+  for (let i = 0; i < BODY.length; i++) {
+    drawBubbleLine({ ...BODY[i], keypoints: [] });
+  }
 }
 
 function drawEllipse(group, radiusX, radiusY) {
@@ -94,6 +103,11 @@ const HUMAN_HEAD_RATIO = 5/4;
 function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
 
+  if (!keypoints.length) {
+    HEAD.visible = false
+    return;
+  }
+
   const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: "left_eye_outer" });
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: "right_eye_outer" });
   const leftShoulderVector = createVectorByKeypointName({ keypoints, name: "left_shoulder" });
@@ -117,6 +131,11 @@ function drawBubbleHead({ keypoints }) {
 
 
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
+  if (!keypoints.length) {
+    group.visible = false
+    return;
+  }
+
   const startVector = createVectorByKeypointName({ keypoints, name: startKeypointName });
   const endVector = createVectorByKeypointName({ keypoints, name: endKeypointName});
 
