@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
-import VideoTexture from './VideoTexture.js';
+import { getRandomTexture } from './textures.js';
 
 // Create an empty scene
 var scene = new THREE.Scene();
@@ -31,36 +31,33 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const hVideo = document.getElementById('hVideo');
-const sVideo = document.getElementById('sVideo');
-
 // Cone1
-const cone1 = Cone(VideoTexture(hVideo));
+const cone1 = Cone(getRandomTexture());
 scene.add(cone1);
 
 // Cone2
-const cone2 = Cone(VideoTexture(hVideo));
+const cone2 = Cone(getRandomTexture());
 cone2.position.y = -2;
 scene.add(cone2);
 
 // Sphere1
-const sphere1 = Sphere(VideoTexture(sVideo));
+const sphere1 = Sphere(getRandomTexture());
 sphere1.position.x = -2;
 scene.add(sphere1);
 
 //Sphere2
-const sphere2 = Sphere(VideoTexture(sVideo));
+const sphere2 = Sphere(getRandomTexture());
 sphere2.position.x = -2;
 sphere2.position.y = -2;
 scene.add(sphere2);
 
 // Cylinder1
-const cylinder1 = Cylinder(VideoTexture(hVideo));
+const cylinder1 = Cylinder(getRandomTexture());
 cylinder1.position.x = 2;
 scene.add(cylinder1);
 
 // Cylinder2
-const cylinder2 = Cylinder(VideoTexture(hVideo));
+const cylinder2 = Cylinder(getRandomTexture());
 cylinder2.position.x = 2;
 cylinder2.position.y = -2;
 scene.add(cylinder2);

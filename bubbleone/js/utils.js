@@ -40,7 +40,9 @@ export function getSizes() {
 
 export function getObjectX(videoX) {
   // this calculation flips the x coordinate for a mirror effect
-  return ((sizes.video.width - videoX) / sizes.video.width - 0.5) * sizes.scene.width;
+  return (
+    ((sizes.video.width - videoX) / sizes.video.width - 0.5) * sizes.scene.width
+  );
 }
 
 export function getObjectY(videoY) {
@@ -66,3 +68,12 @@ export function getAverage(...numbers) {
 export function getQueryStringValue(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
+
+/**
+ *
+ * @param {string} path
+ * @returns string
+ */
+export const getIdFromPath = (path) => {
+  return path.split('/').slice(-1)[0];
+};
