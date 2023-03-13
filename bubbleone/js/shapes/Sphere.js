@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 /**
  *
  * @param {THREE.VideoTexture} texture
@@ -8,7 +8,7 @@ import * as THREE from "three";
 export default function Sphere(texture, radius = 0.6) {
   const sphereGe = new THREE.SphereGeometry(radius);
   const sphereMaterial = new THREE.MeshStandardMaterial({
-    color: randomColor(),
+    map: texture,
   });
   const sphere = new THREE.Mesh(sphereGe, sphereMaterial);
 
