@@ -39,7 +39,7 @@ renderer.setClearColor('#000000');
 // Needed for standard materials to be visible
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
-generateDirectionalLight(true);
+generateDirectionalLight();
 
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
