@@ -50,7 +50,6 @@ export function createBubbleBody() {
   ];
 
   const thickCount = document.getElementById('thickCount')?.value || 5;
-  console.log('ddd', thickCount);
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
