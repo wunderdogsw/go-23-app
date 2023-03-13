@@ -123,7 +123,7 @@ function calculateRoute(start, end, speed) {
   return route;
 }
 
-function convertDirectionToNumber({ top, right, bottom, left }) {
+function allowedDirectionsToNumber({ top, right, bottom, left }) {
   return [top, right, bottom, left]
     .map((d, index) => d ? index + 1 : 0)
     .filter(d => !!d);
@@ -139,11 +139,11 @@ function generateTrajectory(shape) {
   const visibleEdges = visibleCoordinates(camera, shape.position.z);
 
   // Random start: top, right, bottom, left
-  const startDirections = convertDirectionToNumber(ALLOWED_START_DIRECTION);
+  const startDirections = allowedDirectionsToNumber(ALLOWED_START_DIRECTION);
   const startDirection = startDirections[getRandomInt(1, startDirections.length) - 1];
 
   // Random end without start direction
-  const leftoverDirections = convertDirectionToNumber(ALLOWED_END_DIRECTION).filter(d => d !== startDirection);
+  const leftoverDirections = allowedDirectionsToNumber(ALLOWED_END_DIRECTION).filter(d => d !== startDirection);
   const endDirection = leftoverDirections[getRandomInt(1, leftoverDirections.length) - 1];
 
   // Calculating shape start and end positions
