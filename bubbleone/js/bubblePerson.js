@@ -1,12 +1,10 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
-import { getAverage, getObjectX, getObjectY } from './utils.js';
+import Sphere from './shapes/Sphere.js';
+import { getRandomDouble, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
 
-const SCORE_THRESHOLD = 0.85;
-
-// one sphere is used for the nose
-const BUBBLE_HEAD_OUTLINE_SPHERES = 6;
+const BUBBLE_HEAD_SPHERES = 50;
 
 export let BUBBLE_STICK_FIGURE = {
   HEAD: createBubbleHead(),
@@ -26,13 +24,31 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   return group;
 }
 
-export function createBubbleHead(radius = 0.2, numSpheres = BUBBLE_HEAD_OUTLINE_SPHERES + 1) {
+export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
   const group = new THREE.Group();
   group.visible = false;
 
+  // Create the sphere geometry (Size of the head)
+  const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
+  // Create the sphere material
+  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
+  // Create the sphere mesh
+  const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+  // Add the bubbles to the sphere mesh
   for (let i = 0; i < numSpheres; i++) {
-    const sphere = Bubble({ radius });
-    group.add(sphere);
+    const randomRadius = getRandomDouble(0.1, 0.4);
+
+    const bubbleMesh = Sphere('', randomRadius);
+    const angle1 = getRandomInt(0, 50);
+    const angle2 = getRandomInt(0, 50);
+    bubbleMesh.position.set(
+      radius * Math.sin(angle1) * Math.cos(angle2),
+      radius * Math.sin(angle1) * Math.sin(angle2),
+      radius * getRandomDouble(0, 0.5)
+    );
+    sphereMesh.add(bubbleMesh);
+    group.add(sphereMesh);
   }
 
   return group;
@@ -83,19 +99,6 @@ export function hideBubbleStickFigure() {
   }
 }
 
-function drawEllipse(group, radiusX, radiusY) {
-  const offsetAngle = THREE.MathUtils.degToRad(30);
-
-  // source: ChatGPT
-  for (let i = 0; i < BUBBLE_HEAD_OUTLINE_SPHERES; i++) {
-    const angle = offsetAngle + (i / BUBBLE_HEAD_OUTLINE_SPHERES) * Math.PI * 2;
-    const x = Math.cos(angle) * radiusX;
-    const y = Math.sin(angle) * radiusY;
-    const sphere = group.children[i];
-    sphere.position.set(x, y, 0);
-  }
-}
-
 function findKeypointByName({ name, keypoints }) {
   return keypoints.find((keypoint) => keypoint.name === name);
 }
@@ -115,7 +118,7 @@ function createVectorByKeypointName({ keypoints, name }) {
   return createVectorByKeypoint(keypoint);
 }
 
-const HUMAN_HEAD_RATIO = 5 / 4;
+const HUMAN_HEAD_RATIO = 2 / 4;
 
 function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
@@ -136,7 +139,6 @@ function drawBubbleHead({ keypoints }) {
 
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_HEAD_RATIO;
-  drawEllipse(HEAD, radiusX, radiusY);
 
   const sphereRadius = HEAD.children[0].geometry.parameters.radius;
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
