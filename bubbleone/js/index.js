@@ -4,6 +4,7 @@ import { getCameraVideo } from './media.js';
 import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import { drawBubbleStickFigure, resetBody, BUBBLE_STICK_FIGURE, hideBubbleStickFigure } from './bubblePerson.js';
+import { renderShapes, resetShapes } from './shape.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -79,11 +80,14 @@ async function renderPoses() {
 // Render Loop
 const render = async function () {
   requestAnimationFrame(render);
+  renderShapes();
   await renderPoses();
   renderer.render(scene, camera);
 };
 
 async function start() {
+  resetShapes({ camera, scene, renderer });
+
   render();
 
   const sizes = getSizes();
@@ -96,6 +100,7 @@ start();
 function updateParameters() {
   console.log('clear');
   scene.clear();
+  resetShapes({ camera, scene, renderer });
   scene.add(ambientLight);
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
   console.log('resetting...');
