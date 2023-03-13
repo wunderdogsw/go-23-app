@@ -73,12 +73,13 @@ scene.add(cylinder2);
 // Random rotation
 let start = 0;
 const changeRotationSeconds = 2 * 1000;
-const rotationSpeeds = [-0.04, -0.03, -0.02, -0.01, 0.01, 0.02, 0.03, 0.04]
 const getRandomRotationSpeedXYZ = () => {
+  const minRotationSpeed = -0.04;
+  const maxRotationSpeed = 0.05;
   return {
-    X: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
-    Y: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
-    Z: rotationSpeeds[Math.floor(Math.random()*rotationSpeeds.length)],
+    X: Math.random() * (maxRotationSpeed - minRotationSpeed) + minRotationSpeed,
+    Y: Math.random() * (maxRotationSpeed - minRotationSpeed) + minRotationSpeed,
+    Z: Math.random() * (maxRotationSpeed - minRotationSpeed) + minRotationSpeed,
   };
 }
 
