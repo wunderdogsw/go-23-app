@@ -91,20 +91,28 @@ async function start() {
 
 start();
 
-function init() {
+function updateParameters() {
   console.log('clear');
   scene.clear();
   scene.add(ambientLight);
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  console.log('reseting...');
+  console.log('resetting...');
   resetBody();
   console.log('foreach');
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 }
 
-/* TEMP */
-function updateParameters() {
-  init();
+function initControls() {
+  const hasControls = getQueryStringValue('controls');
+  if (!hasControls) {
+    return;
+  }
+
+  const controls = document.getElementById('controls');
+  controls.classList.toggle('hidden');
+
+  const applyButton = document.getElementById('apply');
+  applyButton.onclick = updateParameters;
 }
 
-document.getElementById('apply').onclick = updateParameters;
+initControls();
