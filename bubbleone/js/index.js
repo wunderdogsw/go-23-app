@@ -1,19 +1,14 @@
 import * as THREE from 'three';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize, getQueryStringValue } from './utils.js'
-import { getDetector } from './bodyDetection.js'
-import {
-  drawBubbleStickFigure,
-  resetBody,
-  BUBBLE_STICK_FIGURE,
-  hideBubbleStickFigure
-} from './bubblePerson.js'
+import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
+import { getDetector } from './bodyDetection.js';
+import { drawBubbleStickFigure, resetBody, BUBBLE_STICK_FIGURE, hideBubbleStickFigure } from './bubblePerson.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
   video.play();
-})
+});
 
 const CAMERA_Z_POSITION_QUERY_KEY = 'z';
 const CAMERA_ZOOM_QUERY_KEY = 'zoom';
@@ -23,12 +18,7 @@ const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
 
 // Create a basic perspective camera
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 // Adjusting camera z position via querystring. 6 by default
 camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
@@ -63,12 +53,12 @@ function renderPose(pose) {
     return;
   }
 
-  drawBubbleStickFigure({ pose })
+  drawBubbleStickFigure({ pose });
 }
 
 async function renderPoses() {
   if (!(detector && video)) {
-    return
+    return;
   }
 
   const poses = await detector.estimatePoses(video, {});
@@ -94,27 +84,27 @@ const render = async function () {
 async function start() {
   render();
 
-  const sizes = getSizes()
+  const sizes = getSizes();
   video = await getCameraVideo(sizes.video.width, sizes.video.height);
   detector = await getDetector();
 }
 
-start()
+start();
 
 function init() {
   console.log('clear');
-  scene.clear()
+  scene.clear();
   scene.add(ambientLight);
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
   console.log('reseting...');
-  resetBody()
+  resetBody();
   console.log('foreach');
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 }
 
 /* TEMP */
 function updateParameters() {
-  init()
+  init();
 }
 
-document.getElementById("apply").onclick = updateParameters;
+document.getElementById('apply').onclick = updateParameters;

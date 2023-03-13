@@ -5,19 +5,8 @@ import * as THREE from 'three';
  * @param {number} radius
  * @returns
  */
-export default function Cylinder(
-  texture,
-  radiusTop = 0.3,
-  radiusBottom = 0.3,
-  height = 3,
-  radialSegments = 20
-) {
-  const cylinderGe = new THREE.CylinderGeometry(
-    radiusTop,
-    radiusBottom,
-    height,
-    radialSegments
-  );
+export default function Cylinder(texture, radiusTop = 0.3, radiusBottom = 0.3, height = 3, radialSegments = 20) {
+  const cylinderGe = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
   const cylinderMaterial = new THREE.MeshStandardMaterial({
     map: texture,
   });

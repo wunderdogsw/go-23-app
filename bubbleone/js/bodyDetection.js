@@ -13,11 +13,10 @@ export async function getDetector() {
     const model = poseDetection.SupportedModels.BlazePose;
     const detectorConfig = {
       runtime: 'mediapipe',
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose'
+      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
     };
     return await poseDetection.createDetector(model, detectorConfig);
-  }
-  catch(error) {
-    console.error(error)
+  } catch (error) {
+    console.error(error);
   }
 }
