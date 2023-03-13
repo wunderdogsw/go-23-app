@@ -13,11 +13,34 @@ export const VIDEO_PATHS = [
   'assets/anim/texture_anim_bw_4.mp4',
 ];
 
-export function getAllVideoTextures() {
-  return VIDEO_PATHS.map((path) =>
-    VideoTexture(document.getElementById(getIdFromPath(path)))
-  );
+function createVideoElement(path) {
+  const video = document.createElement('video');
+  const videoId = getIdFromPath(path);
+  const attributes = {
+    id: videoId,
+    autoplay: true,
+    muted: true,
+    loop: true,
+    src: path,
+    type: 'video/mp4',
+    crossorigin: 'anonymous',
+    playsinline: true,
+    'webkit-playsinline': true,
+    style: 'display: none',
+  };
+
+  Object.keys(attributes).forEach((attr) => {
+    video.setAttribute(attr, attributes[attr]);
+  });
+
+  video.muted = true;
+  video.play();
+  return video;
 }
+
+export const VIDEO_TEXTURES = VIDEO_PATHS.map((path) =>
+  VideoTexture(createVideoElement(path))
+);
 
 /**
  *

@@ -1,17 +1,14 @@
-import { getAllStaticTextures } from './textures/StaticTexture.js';
-import { getAllVideoTextures } from './textures/VideoTexture.js';
+import { STATIC_TEXTURES } from './textures/StaticTexture.js';
+import { VIDEO_TEXTURES } from './textures/VideoTexture.js';
 import { getRandomInt } from './utils.js';
 
-export function getAllTextures() {
-  return [...getAllVideoTextures(), ...getAllStaticTextures()];
-}
+export const TEXTURES = [...VIDEO_TEXTURES, ...STATIC_TEXTURES];
 
 /**
  * @param {(THREE.VideoTexture|THREE.Texture)[]| undefined} textures
  * @returns THREE.VideoTexture|THREE.Texture
  */
-export function getRandomTexture(textures) {
-  const t = textures !== undefined ? textures : getAllTextures();
-  const index = getRandomInt(0, t.length - 1);
-  return t[index];
+export function getRandomTexture(textures = TEXTURES) {
+  const index = getRandomInt(0, textures.length - 1);
+  return textures[index];
 }

@@ -21,9 +21,7 @@ export const IMAGE_PATHS = [
   'assets/static/static_stripe_5.png',
 ];
 
-export function getAllStaticTextures() {
-  return IMAGE_PATHS.map((path) => StaticTexture(path));
-}
+export const STATIC_TEXTURES = IMAGE_PATHS.map((path) => StaticTexture(path));
 /**
  *
  * @param {string} path
