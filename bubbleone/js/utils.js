@@ -27,7 +27,7 @@ export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
-export function visibleCoordinates(camera, depth = 0) {
+export function visibleBoundingBox(camera, depth = 0) {
   const height = visibleHeightAtZDepth(camera, depth);
   const width = visibleWidthAtZDepth(camera, height);
 

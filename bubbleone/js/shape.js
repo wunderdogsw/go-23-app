@@ -8,7 +8,7 @@ import {
   getRandomFloat,
   visibleHeightAtZDepth,
   visibleWidthAtZDepth,
-  visibleCoordinates
+  visibleBoundingBox
 } from './utils.js'
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
@@ -136,7 +136,7 @@ function generateTrajectory(shape) {
   // Bounding box for calculating space needed outside visible area
   const { max } = new THREE.Box3().setFromObject(shape);
   const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
-  const visibleEdges = visibleCoordinates(camera, shape.position.z);
+  const visibleEdges = visibleBoundingBox(camera, shape.position.z);
 
   // Random start: top, right, bottom, left
   const startDirections = allowedDirectionsToNumber(ALLOWED_START_DIRECTION);
