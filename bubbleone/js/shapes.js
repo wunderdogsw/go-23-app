@@ -83,12 +83,7 @@ const getRandomRotationSpeedXYZ = () => {
   };
 }
 
-let cone1Rotations = getRandomRotationSpeedXYZ();
-let cone2Rotations = getRandomRotationSpeedXYZ();
-let sphere1Rotations = getRandomRotationSpeedXYZ();
-let sphere2Rotations = getRandomRotationSpeedXYZ();
-let cylinder1Rotations = getRandomRotationSpeedXYZ();
-let cylinder2Rotations = getRandomRotationSpeedXYZ();
+let cone1Rotations, cone2Rotations, sphere1Rotations, sphere2Rotations, cylinder1Rotations, cylinder2Rotations;
 
 // Render Loop
 var render = function (timestamp) {
