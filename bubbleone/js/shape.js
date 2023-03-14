@@ -142,11 +142,9 @@ function generateTrajectoryEdges(shape) {
   const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
   const visibleEdges = visibleBoundingBox(shape.position.z);
 
-  // Random start from the allowed start directions
   const startDirectionKeys = extractEnabledKeys(ALLOWED_START_DIRECTION);
   const startDirectionKey = getRandomItem(startDirectionKeys);
 
-  // Random end from the allowed end direction excluding the start direction
   const endDirectionKeys = extractEnabledKeys(ALLOWED_END_DIRECTION, [startDirectionKey]);
   const endDirectionKey = getRandomItem(endDirectionKeys);
 
@@ -194,9 +192,7 @@ function extractEnabledKeys(obj, excludeKeys = []) {
   const keys = Object.keys(obj);
   const allowed = [];
 
-  for (let i = 0; i < keys.length; i++) {
-    let key = keys[i];
-
+  for (let key of keys) {
     if (!!obj[key] && !excludeKeys.includes(key)) {
       allowed.push(key);
     }
