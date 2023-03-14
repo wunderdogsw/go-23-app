@@ -24,18 +24,18 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   return group;
 }
 
+function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
+  const sphereGeometry = new THREE.SphereGeometry(radius, x, y);
+  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
+  return new THREE.Mesh(sphereGeometry, sphereMaterial);
+}
+
 export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
   const group = new THREE.Group();
+  const headSphere = createHeadSphere({ radius });
+
   group.visible = false;
 
-  // Create the sphere geometry (Size of the head)
-  const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
-  // Create the sphere material
-  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
-  // Create the sphere mesh
-  const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-
-  // Add the bubbles to the sphere mesh
   for (let i = 0; i < numSpheres; i++) {
     const randomRadius = getRandomFloat(0.1, 0.4);
 
@@ -47,8 +47,8 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
       radius * Math.sin(angle1) * Math.sin(angle2),
       radius * getRandomFloat(0, 0.5)
     );
-    sphereMesh.add(bubbleMesh);
-    group.add(sphereMesh);
+    headSphere.add(bubbleMesh);
+    group.add(headSphere);
   }
 
   return group;
@@ -118,7 +118,7 @@ function createVectorByKeypointName({ keypoints, name }) {
   return createVectorByKeypoint(keypoint);
 }
 
-const HUMAN_HEAD_RATIO = 2 / 4;
+const HUMAN_NECK_LENGTH = 0.5;
 
 function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
@@ -138,7 +138,7 @@ function drawBubbleHead({ keypoints }) {
   }
 
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
-  const radiusY = radiusX * HUMAN_HEAD_RATIO;
+  const radiusY = radiusX * HUMAN_NECK_LENGTH;
 
   const sphereRadius = HEAD.children[0].geometry.parameters.radius;
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
