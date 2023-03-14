@@ -48,9 +48,9 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
 
     bubble.position.set(x, y, z);
     headSphere.add(bubble);
-    group.add(headSphere);
   }
 
+  group.add(headSphere);
   return group;
 }
 
@@ -118,7 +118,7 @@ function createVectorByKeypointName({ keypoints, name }) {
   return createVectorByKeypoint(keypoint);
 }
 
-const HUMAN_NECK_LENGTH = 0.5;
+const HUMAN_NECK_LENGTH = 1 / 4;
 
 function drawBubbleHead({ keypoints }) {
   const { HEAD } = BUBBLE_STICK_FIGURE;
