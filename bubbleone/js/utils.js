@@ -27,6 +27,17 @@ export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
+export function visibleBoundingBox(depth = 0) {
+  const { width, height } = sizes.scene;
+
+  const left = -width / 2;
+  const right = width / 2;
+  const top = height / 2;
+  const bottom = -height / 2;
+
+  return { left, right, top, bottom };
+}
+
 export function setSceneSize(camera) {
   const height = visibleHeightAtZDepth(camera);
   const width = visibleWidthAtZDepth(camera, height);
@@ -52,6 +63,14 @@ export function getObjectY(videoY) {
 // lazy source: ChatGPT
 export function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function getRandomFloat(min, max) {
+  return parseFloat(Math.random() * (max - min) + min);
+}
+
+export function getRandomItem(array = []) {
+  return array.length ? array[getRandomInt(1, array.length) - 1] : undefined;
 }
 
 // lazy source: ChatGPT
