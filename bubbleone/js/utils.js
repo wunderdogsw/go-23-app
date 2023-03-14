@@ -27,9 +27,8 @@ export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
-export function visibleBoundingBox(camera, depth = 0) {
-  const height = visibleHeightAtZDepth(camera, depth);
-  const width = visibleWidthAtZDepth(camera, height);
+export function visibleBoundingBox(depth = 0) {
+  const { width, height } = sizes.scene;
 
   const left = -width / 2;
   const right = width / 2;
@@ -68,6 +67,10 @@ export function getRandomInt(min, max) {
 
 export function getRandomFloat(min, max) {
   return parseFloat(Math.random() * (max - min) + min);
+}
+
+export function getRandomItem(array = []) {
+  return array.length ? array[getRandomInt(1, array.length) - 1] : undefined;
 }
 
 // lazy source: ChatGPT

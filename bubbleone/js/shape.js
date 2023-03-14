@@ -1,21 +1,21 @@
 import * as THREE from 'three';
 
 import {
-  getSizes,
-  setSceneSize,
-  getQueryStringValue,
   getRandomInt,
   getRandomFloat,
-  visibleHeightAtZDepth,
-  visibleWidthAtZDepth,
-  visibleBoundingBox
+  visibleBoundingBox,
+  getRandomItem
 } from './utils.js'
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
-import VideoTexture, { getRandomTexture } from './VideoTexture.js';
+import { getRandomTexture } from './textures.js';
 
 const AMOUNT_OF_GENERATED_SHAPES = 6;
+
+const DEFAULT_POSITION = new THREE.Vector3(0, 0, -1);
+
+const AVAILABLE_SHAPES = [Sphere, Cylinder, Cone];
 
 const ALLOWED_START_DIRECTION = {
   top: true,
@@ -36,78 +36,57 @@ const MOVE_SPEED_RANGE = {
   max: 0.1
 };
 
-const SHAPES = [];
+const ROTATION_RANGE = {
+  min: -0.05,
+  max: 0.05
+};
 
-let camera;
-let scene;
-let renderer;
+let SHAPES_TRAJECTORIES = [];
 
-export function resetShapes({
-  camera: threeCamera,
-  scene: threeScene,
-  renderer: threeRenderer
-}) {
-  camera = threeCamera;
-  scene = threeScene;
-  renderer = threeRenderer;
-
-  // Removing existing shapes from scene and clearing array
-  SHAPES.forEach(({ shape }) => scene.remove(shape));
-  SHAPES.length = 0;
+export function resetShapes({ camera, scene }) {
+  clearShapes();
 
   // Adding different shapes
   for (let i = 0; i <= AMOUNT_OF_GENERATED_SHAPES; i++) {
-    const shapeTypeNumber = getRandomInt(1, 3);
-    const randomVideo = Math.round(Math.random()) ? hVideo : sVideo;
-
-    let shape;
-
-    // Get randomly selected shape
-    switch (shapeTypeNumber) {
-      case 1: shape = Sphere(VideoTexture(randomVideo)); break;
-      case 2: shape = Cylinder(VideoTexture(randomVideo)); break;
-      case 3: shape = Cone(VideoTexture(randomVideo)); break;
-    }
+    const videoTexture = getRandomTexture();
+    const createShape = getRandomItem(AVAILABLE_SHAPES);
+    const shape = createShape(videoTexture);
 
     const shapeTrajectory = generateTrajectory(shape);
 
-    SHAPES.push(shapeTrajectory);
+    SHAPES_TRAJECTORIES.push(shapeTrajectory);
     scene.add(shapeTrajectory.shape);
   }
-
-  return SHAPES.map(trajectory => trajectory.shape);
-}
-
-export function renderShape(shapeTrajectory) {
-  // Setting up new trajectory if shape has moved until the end
-  if (!shapeTrajectory.position.route.length) {
-    const newTrajectory = generateTrajectory(shapeTrajectory.shape);
-    shapeTrajectory.position = newTrajectory.position;
-    shapeTrajectory.rotation = newTrajectory.rotation;
-  }
-
-  const { x: newX, y: newY } = shapeTrajectory.position.route.shift();
-  shapeTrajectory.shape.position.y = newY;
-  shapeTrajectory.shape.position.x = newX;
-
-  shapeTrajectory.shape.rotateX(shapeTrajectory.rotation.x);
-  shapeTrajectory.shape.rotateY(shapeTrajectory.rotation.y);
-  shapeTrajectory.shape.rotateZ(shapeTrajectory.rotation.z);
 }
 
 export function renderShapes() {
-  for (let i = 0; i < SHAPES.length; i++) {
-    renderShape(SHAPES[i]);
+  for (let i = 0; i < SHAPES_TRAJECTORIES.length; i++) {
+    renderShape(SHAPES_TRAJECTORIES[i]);
   }
 }
 
-function calculateRoute(start, end, speed) {
-  const { y: endY, x: endX } = end;
-  const { y: startY, x: startX } = start;
+function renderShape(shapeTrajectory) {
+  const isRouteFinished = !shapeTrajectory.trajectory.route.length;
+  if (isRouteFinished) {
+    const { trajectory } = generateTrajectory(shapeTrajectory.shape);
+    shapeTrajectory.trajectory = trajectory;
+  }
+
+  const { x: newX, y: newY } = shapeTrajectory.trajectory.route.shift();
+  shapeTrajectory.shape.position.y = newY;
+  shapeTrajectory.shape.position.x = newX;
+
+  const { x, y, z } = shapeTrajectory.trajectory.rotation;
+  shapeTrajectory.shape.rotateX(x);
+  shapeTrajectory.shape.rotateY(y);
+  shapeTrajectory.shape.rotateZ(z);
+}
+
+function createRoute(start, end, speed) {
   const route = [];
 
-  const deltaX = endX - startX;
-  const deltaY = endY - startY;
+  const deltaX = end.x - start.x;
+  const deltaY = end.y - start.y;
   const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
   const numSteps = Math.ceil(distance / speed);
 
@@ -115,81 +94,34 @@ function calculateRoute(start, end, speed) {
   const yStep = deltaY / numSteps;
 
   for (let i = 0; i < numSteps; i++) {
-    const newX = startX + xStep * i;
-    const newY = startY + yStep * i;
+    const newX = start.x + xStep * i;
+    const newY = start.y + yStep * i;
     route.push({ x: newX, y: newY });
   }
 
   return route;
 }
 
-function allowedDirectionsToNumber({ top, right, bottom, left }) {
-  return [top, right, bottom, left]
-    .map((d, index) => d ? index + 1 : 0)
-    .filter(d => !!d);
-}
-
 function generateTrajectory(shape) {
-  // Setting shape start position to default
-  shape.position.set(0, 0, -1);
+  shape.position.copy(DEFAULT_POSITION);
 
-  // Bounding box for calculating space needed outside visible area
-  const { max } = new THREE.Box3().setFromObject(shape);
-  const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
-  const visibleEdges = visibleBoundingBox(camera, shape.position.z);
+  const { start, end } = generateTrajectoryEdges(shape);
 
-  // Random start: top, right, bottom, left
-  const startDirections = allowedDirectionsToNumber(ALLOWED_START_DIRECTION);
-  const startDirection = startDirections[getRandomInt(1, startDirections.length) - 1];
-
-  // Random end without start direction
-  const leftoverDirections = allowedDirectionsToNumber(ALLOWED_END_DIRECTION).filter(d => d !== startDirection);
-  const endDirection = leftoverDirections[getRandomInt(1, leftoverDirections.length) - 1];
-
-  // Calculating shape start and end positions
-  const [start, end] = [startDirection, endDirection].reduce((acc, direction) => {
-    let x;
-    let y;
-
-    if (direction === 1) {
-      // TOP
-      y = visibleEdges.top + shapeHideAdjustment;
-      x = getRandomInt(visibleEdges.left, visibleEdges.right);
-    } else if (direction === 2) {
-      // RIGHT
-      x = visibleEdges.right + shapeHideAdjustment;
-      y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
-    } else if (direction === 3) {
-      // BOTTOM
-      y = visibleEdges.bottom - shapeHideAdjustment;
-      x = getRandomInt(visibleEdges.left, visibleEdges.right);
-    } else if (direction === 4) {
-      // LEFT
-      x = visibleEdges.left - shapeHideAdjustment;
-      y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
-    }
-
-    return [...acc, { wall: direction, x, y }];
-  }, []);
-
-  // Setting random speed
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
 
   // Calculating route and extracting start coordinates  
-  const route = calculateRoute(start, end, speed);
+  const route = createRoute(start, end, speed);
   const { x, y } = route.shift();
 
-  const position = {
-    speed,
-    route,
-    start,
-    end
+  const rotation = {
+    x: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    y: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max)
   };
 
-  const rotation = {
-    x: getRandomFloat(-0.05, 0.05),
-    y: getRandomFloat(-0.05, 0.05),
-    z: getRandomFloat(-0.05, 0.05)
+  const trajectory = {
+    route,
+    rotation
   };
 
   shape.position.x = x;
@@ -200,7 +132,75 @@ function generateTrajectory(shape) {
 
   return {
     shape,
-    position,
-    rotation
+    trajectory
   }
+}
+
+function generateTrajectoryEdges(shape) {
+  // Bounding box for calculating space needed outside visible area
+  const { max } = new THREE.Box3().setFromObject(shape);
+  const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
+  const visibleEdges = visibleBoundingBox(shape.position.z);
+
+  // Random start from the allowed start directions
+  const startDirectionKeys = extractEnabledKeys(ALLOWED_START_DIRECTION);
+  const startDirectionKey = getRandomItem(startDirectionKeys);
+
+  // Random end from the allowed end direction excluding the start direction
+  const endDirectionKeys = extractEnabledKeys(ALLOWED_END_DIRECTION, [startDirectionKey]);
+  const endDirectionKey = getRandomItem(endDirectionKeys);
+
+  const start = generateSingleTrajectoryEdge({
+    directionKey: startDirectionKey,
+    visibleEdges,
+    shapeHideAdjustment
+  });
+  const end = generateSingleTrajectoryEdge({
+    directionKey: endDirectionKey,
+    visibleEdges,
+    shapeHideAdjustment
+  });
+
+  return { start, end };
+}
+
+function generateSingleTrajectoryEdge({ directionKey, visibleEdges, shapeHideAdjustment }) {
+  let x;
+  let y;
+
+  if (directionKey === 'top') {
+    y = visibleEdges.top + shapeHideAdjustment;
+    x = getRandomInt(visibleEdges.left, visibleEdges.right);
+  } else if (directionKey === 'right') {
+    x = visibleEdges.right + shapeHideAdjustment;
+    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
+  } else if (directionKey === 'bottom') {
+    y = visibleEdges.bottom - shapeHideAdjustment;
+    x = getRandomInt(visibleEdges.left, visibleEdges.right);
+  } else if (directionKey === 'left') {
+    x = visibleEdges.left - shapeHideAdjustment;
+    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
+  }
+
+  return { x, y };
+}
+
+function clearShapes() {
+  SHAPES_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
+  SHAPES_TRAJECTORIES = [];
+}
+
+function extractEnabledKeys(obj, excludeKeys = []) {
+  const keys = Object.keys(obj);
+  const allowed = [];
+
+  for (let i = 0; i < keys.length; i++) {
+    let key = keys[i];
+
+    if (!!obj[key] && !excludeKeys.includes(key)) {
+      allowed.push(key);
+    }
+  }
+
+  return allowed;
 }
