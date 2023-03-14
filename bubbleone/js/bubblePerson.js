@@ -41,11 +41,12 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
     const bubble = Bubble({ radius: randomRadius });
     const angle1 = getRandomInt(0, 50);
     const angle2 = getRandomInt(0, 50);
-    bubble.position.set(
-      radius * Math.sin(angle1) * Math.cos(angle2),
-      radius * Math.sin(angle1) * Math.sin(angle2),
-      radius * getRandomFloat(0, 0.5)
-    );
+
+    const x = radius * Math.sin(angle1) * Math.cos(angle2);
+    const y = radius * Math.sin(angle1) * Math.sin(angle2);
+    const z = radius * getRandomFloat(0, 0.5);
+
+    bubble.position.set(x, y, z);
     headSphere.add(bubble);
     group.add(headSphere);
   }
