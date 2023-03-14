@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
-import Sphere from './shapes/Sphere.js';
 import { getRandomFloat, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
@@ -39,15 +38,15 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
   for (let i = 0; i < numSpheres; i++) {
     const randomRadius = getRandomFloat(0.1, 0.4);
 
-    const bubbleMesh = Sphere('', randomRadius);
+    const bubble = Bubble({ radius: randomRadius });
     const angle1 = getRandomInt(0, 50);
     const angle2 = getRandomInt(0, 50);
-    bubbleMesh.position.set(
+    bubble.position.set(
       radius * Math.sin(angle1) * Math.cos(angle2),
       radius * Math.sin(angle1) * Math.sin(angle2),
       radius * getRandomFloat(0, 0.5)
     );
-    headSphere.add(bubbleMesh);
+    headSphere.add(bubble);
     group.add(headSphere);
   }
 
