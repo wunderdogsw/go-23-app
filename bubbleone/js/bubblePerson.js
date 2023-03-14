@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
 import Sphere from './shapes/Sphere.js';
-import { getRandomDouble, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
+import { getRandomFloat, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
 
@@ -37,7 +37,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
 
   // Add the bubbles to the sphere mesh
   for (let i = 0; i < numSpheres; i++) {
-    const randomRadius = getRandomDouble(0.1, 0.4);
+    const randomRadius = getRandomFloat(0.1, 0.4);
 
     const bubbleMesh = Sphere('', randomRadius);
     const angle1 = getRandomInt(0, 50);
@@ -45,7 +45,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
     bubbleMesh.position.set(
       radius * Math.sin(angle1) * Math.cos(angle2),
       radius * Math.sin(angle1) * Math.sin(angle2),
-      radius * getRandomDouble(0, 0.5)
+      radius * getRandomFloat(0, 0.5)
     );
     sphereMesh.add(bubbleMesh);
     group.add(sphereMesh);
