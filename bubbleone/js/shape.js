@@ -41,7 +41,7 @@ const ROTATION_RANGE = {
   max: 0.05
 };
 
-let SHAPES_TRAJECTORIES = [];
+let SHAPES_WITH_TRAJECTORIES = [];
 
 export function resetShapes({ camera, scene }) {
   clearShapes();
@@ -52,38 +52,54 @@ export function resetShapes({ camera, scene }) {
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
 
-    const shapeTrajectory = generateTrajectory(shape);
+    const shapeTrajectoryEntry = { shape, trajectory: null };
+    applyTrajectory(shapeTrajectoryEntry);
 
-    SHAPES_TRAJECTORIES.push(shapeTrajectory);
-    scene.add(shapeTrajectory.shape);
+    SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
+    scene.add(shapeTrajectoryEntry.shape);
   }
 }
 
 export function renderShapes() {
-  for (let i = 0; i < SHAPES_TRAJECTORIES.length; i++) {
-    renderShape(SHAPES_TRAJECTORIES[i]);
+  for (let shapeTrajectoryEntry of SHAPES_WITH_TRAJECTORIES) {
+    if (shapeTrajectoryEntry.shape.visible) {
+      applyTrajectory(shapeTrajectoryEntry);
+    }
   }
 }
 
-function renderShape(shapeTrajectory) {
-  const isRouteFinished = !shapeTrajectory.trajectory.route.length;
-  if (isRouteFinished) {
-    const { trajectory } = generateTrajectory(shapeTrajectory.shape);
-    shapeTrajectory.trajectory = trajectory;
+function applyTrajectory(shapeTrajectoryEntry) {
+  if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
+    shapeTrajectoryEntry.trajectory = generateTrajectory(shapeTrajectoryEntry.shape);
+
+    // Hiding the shape if trajectory is immediately finished
+    if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
+      shapeTrajectoryEntry.shape.visible = false;
+      console.error(`Invalid shape trajectory. Please check the allowed directions`);
+      return;
+    }
   }
 
-  const { x: newX, y: newY } = shapeTrajectory.trajectory.route.shift();
-  shapeTrajectory.shape.position.y = newY;
-  shapeTrajectory.shape.position.x = newX;
+  const { x: newX, y: newY } = shapeTrajectoryEntry.trajectory.route.shift();
+  shapeTrajectoryEntry.shape.position.y = newY;
+  shapeTrajectoryEntry.shape.position.x = newX;
 
-  const { x, y, z } = shapeTrajectory.trajectory.rotation;
-  shapeTrajectory.shape.rotateX(x);
-  shapeTrajectory.shape.rotateY(y);
-  shapeTrajectory.shape.rotateZ(z);
+  const { x, y, z } = shapeTrajectoryEntry.trajectory.rotation;
+  shapeTrajectoryEntry.shape.rotateX(x);
+  shapeTrajectoryEntry.shape.rotateY(y);
+  shapeTrajectoryEntry.shape.rotateZ(z);
+}
+
+function isRouteFinished(trajectory) {
+  return !trajectory?.route?.length
 }
 
 function createRoute(start, end, speed) {
   const route = [];
+
+  if (!start || !end || !speed) {
+    return route;
+  }
 
   const deltaX = end.x - start.x;
   const deltaY = end.y - start.y;
@@ -111,7 +127,6 @@ function generateTrajectory(shape) {
 
   // Calculating route and extracting start coordinates  
   const route = createRoute(start, end, speed);
-  const { x, y } = route.shift();
 
   const rotation = {
     x: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
@@ -119,21 +134,10 @@ function generateTrajectory(shape) {
     z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max)
   };
 
-  const trajectory = {
+  return {
     route,
     rotation
   };
-
-  shape.position.x = x;
-  shape.position.y = y;
-  shape.rotateX(rotation.x);
-  shape.rotateY(rotation.y);
-  shape.rotateZ(rotation.z);
-
-  return {
-    shape,
-    trajectory
-  }
 }
 
 function generateTrajectoryEdges(shape) {
@@ -184,8 +188,8 @@ function generateSingleTrajectoryEdge({ directionKey, visibleEdges, shapeHideAdj
 }
 
 function clearShapes() {
-  SHAPES_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
-  SHAPES_TRAJECTORIES = [];
+  SHAPES_WITH_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
+  SHAPES_WITH_TRAJECTORIES = [];
 }
 
 function extractEnabledKeys(obj, excludeKeys = []) {
