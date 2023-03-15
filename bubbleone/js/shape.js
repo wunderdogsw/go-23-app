@@ -1,11 +1,6 @@
 import * as THREE from 'three';
 
-import {
-  getRandomInt,
-  getRandomFloat,
-  visibleBoundingBox,
-  getRandomItem
-} from './utils.js'
+import { getRandomInt, getRandomFloat, visibleBoundingBox, getRandomItem } from './utils.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
@@ -21,30 +16,30 @@ const ALLOWED_START_DIRECTION = {
   top: true,
   right: false,
   bottom: false,
-  left: false
+  left: false,
 };
 
 const ALLOWED_END_DIRECTION = {
   top: false,
   right: false,
   bottom: true,
-  left: false
+  left: false,
 };
 
 const MOVE_SPEED_RANGE = {
   min: 0.05,
-  max: 0.1
+  max: 0.1,
 };
 
 const ROTATION_RANGE = {
   min: -0.05,
-  max: 0.05
+  max: 0.05,
 };
 
 let SHAPES_WITH_TRAJECTORIES = [];
 
-export function resetShapes({ camera, scene }) {
-  clearShapes();
+export function resetShapes({ scene }) {
+  clearShapes(scene);
 
   // Adding different shapes
   for (let i = 0; i <= AMOUNT_OF_GENERATED_SHAPES; i++) {
@@ -91,7 +86,7 @@ function applyTrajectory(shapeTrajectoryEntry) {
 }
 
 function isRouteFinished(trajectory) {
-  return !trajectory?.route?.length
+  return !trajectory?.route?.length;
 }
 
 function createRoute(start, end, speed) {
@@ -125,18 +120,18 @@ function generateTrajectory(shape) {
 
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
 
-  // Calculating route and extracting start coordinates  
+  // Calculating route and extracting start coordinates
   const route = createRoute(start, end, speed);
 
   const rotation = {
     x: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
     y: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-    z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max)
+    z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
   };
 
   return {
     route,
-    rotation
+    rotation,
   };
 }
 
@@ -155,12 +150,12 @@ function generateTrajectoryEdges(shape) {
   const start = generateSingleTrajectoryEdge({
     directionKey: startDirectionKey,
     visibleEdges,
-    shapeHideAdjustment
+    shapeHideAdjustment,
   });
   const end = generateSingleTrajectoryEdge({
     directionKey: endDirectionKey,
     visibleEdges,
-    shapeHideAdjustment
+    shapeHideAdjustment,
   });
 
   return { start, end };
@@ -187,7 +182,7 @@ function generateSingleTrajectoryEdge({ directionKey, visibleEdges, shapeHideAdj
   return { x, y };
 }
 
-function clearShapes() {
+function clearShapes(scene) {
   SHAPES_WITH_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
   SHAPES_WITH_TRAJECTORIES = [];
 }
