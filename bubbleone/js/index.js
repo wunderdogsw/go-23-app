@@ -40,7 +40,6 @@ renderer.setClearColor('#000000');
 // Needed for standard materials to be visible
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
-generateDirectionalLight();
 
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -120,20 +119,6 @@ function initControls() {
 
   const applyButton = document.getElementById('apply');
   applyButton.onclick = updateParameters;
-}
-
-//Add direction light to apply the shadows to the objects
-function generateDirectionalLight(showHelper = false) {
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-  //Set for the direction of the light
-  directionalLight.position.set(-4, 2, 1);
-  scene.add(directionalLight);
-  directionalLight.castShadow = true;
-
-  if (showHelper) {
-    const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
-    scene.add(helper);
-  }
 }
 
 initControls();
