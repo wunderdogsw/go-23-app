@@ -220,14 +220,6 @@ export function drawBubbleStickFigure({ pose }) {
   drawBubbleBody({ keypoints });
 }
 
-// /* TEMP */
-// function updateParameters() {
-//   console.log("trying", BUBBLE_STICK_FIGURE.BODY);
-//   BUBBLE_STICK_FIGURE.BODY.length = 0;
-//   //BUBBLE_STICK_FIGURE.BODY.splice(0, 0, ...createBubbleBody());
-//   console.log("worked?", BUBBLE_STICK_FIGURE.BODY);
-// }
-// document.getElementById("apply").onclick = updateParameters;
 export function resetBody() {
   BUBBLE_STICK_FIGURE = {
     HEAD: createBubbleHead(),

@@ -97,14 +97,11 @@ async function start() {
 start();
 
 function updateParameters() {
-  console.log('clear');
   scene.clear();
-  resetShapes({ camera, scene, renderer });
   scene.add(ambientLight);
-  scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  console.log('resetting...');
+  resetShapes({ camera, scene, renderer });
   resetBody();
-  console.log('foreach');
+  scene.add(BUBBLE_STICK_FIGURE.HEAD);
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 }
 
