@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 let sizes = {
   video: {
     width: 640,
@@ -94,3 +96,15 @@ export function getQueryStringValue(key) {
 export const getIdFromPath = (path) => {
   return path.split('/').slice(-1)[0];
 };
+
+export function getRandomRadianAngle() {
+  const degrees = getRandomInt(0, 359);
+  return THREE.MathUtils.degToRad(degrees);
+}
+
+export function createRandomEuler() {
+  const x = getRandomRadianAngle();
+  const y = getRandomRadianAngle();
+  const z = getRandomRadianAngle();
+  return new THREE.Euler(x, y, z);
+}
