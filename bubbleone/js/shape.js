@@ -27,31 +27,34 @@ const ALLOWED_END_DIRECTION = {
 };
 
 const MOVE_SPEED_RANGE = {
-  min: 0.05,
-  max: 0.1,
+  min: 1,
+  max: 5
 };
 
 const ROTATION_RANGE = {
-  min: -0.05,
-  max: 0.05,
+  min: -5,
+  max: 5
 };
 
 export let SHAPES_WITH_TRAJECTORIES = [];
 
-export function resetShapes({ scene }) {
-  clearShapes(scene);
+export function resetShapes({ scene, world }) {
+  clearShapes();
 
   // Adding different shapes
   for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
+    const body = createBody(shape);
 
-    const shapeTrajectoryEntry = { shape, trajectory: null };
+    const shapeTrajectoryEntry = { shape, body, trajectory: null };
     applyTrajectory(shapeTrajectoryEntry);
 
     SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
+    
     scene.add(shapeTrajectoryEntry.shape);
+    world.addBody(shapeTrajectoryEntry.body);
   }
 }
 
@@ -63,83 +66,114 @@ export function renderShapes() {
   }
 }
 
+function createBody(shape) {
+  const vertices = shape.geometry.attributes.position.array;
+  const indices = Object.keys(vertices).map(Number);
+  const cannonShape = new CANNON.Trimesh(vertices, indices);
+
+  const body = new CANNON.Body({
+    mass: 1,
+    shape: cannonShape,
+    position: new CANNON.Vec3(shape.position.x, shape.position.y, shape.position.z)
+  });
+
+  return body;
+}
+
 function applyTrajectory(shapeTrajectoryEntry) {
-  if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
+  if (isRouteFinished(shapeTrajectoryEntry.shape, shapeTrajectoryEntry.trajectory)) {
     shapeTrajectoryEntry.trajectory = generateTrajectory(shapeTrajectoryEntry.shape);
 
     // Hiding the shape if trajectory is immediately finished
-    if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
+    if (isRouteFinished(shapeTrajectoryEntry.shape, shapeTrajectoryEntry.trajectory)) {
       shapeTrajectoryEntry.shape.visible = false;
       console.error(`Invalid shape trajectory. Please check the allowed directions`);
       return;
     }
+
+    shapeTrajectoryEntry.body.position.copy(shapeTrajectoryEntry.trajectory.start);
   }
 
-  const { x: newX, y: newY } = shapeTrajectoryEntry.trajectory.route.shift();
-  shapeTrajectoryEntry.shape.position.y = newY;
-  shapeTrajectoryEntry.shape.position.x = newX;
+  const { rotation, velocity } = shapeTrajectoryEntry.trajectory;
 
-  const { x, y, z } = shapeTrajectoryEntry.trajectory.rotation;
-  shapeTrajectoryEntry.shape.rotateX(x);
-  shapeTrajectoryEntry.shape.rotateY(y);
-  shapeTrajectoryEntry.shape.rotateZ(z);
+  shapeTrajectoryEntry.body.velocity.x = velocity.x;
+  shapeTrajectoryEntry.body.velocity.y = velocity.y;
+  shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
+  shapeTrajectoryEntry.body.angularVelocity.normalize();
+
+  shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
+  shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
 }
 
-function isRouteFinished(trajectory) {
-  return !trajectory?.route?.length;
+function isRouteFinished(shape, trajectory) {
+  if (!shape || !trajectory) {
+    return true;
+  }
+
+  return !trajectory.worldEdges.containsPoint(shape.position);
 }
 
-function createRoute(start, end, speed) {
-  const route = [];
+function calculateVelocity(start, end, speed, depth = 0) {
+  const angleRadians = Math.atan2(end.y - start.y, end.x - start.x);
 
-  if (!start || !end || !speed) {
-    return route;
-  }
-
-  const deltaX = end.x - start.x;
-  const deltaY = end.y - start.y;
-  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-  const numSteps = Math.ceil(distance / speed);
-
-  const xStep = deltaX / numSteps;
-  const yStep = deltaY / numSteps;
-
-  for (let i = 0; i < numSteps; i++) {
-    const newX = start.x + xStep * i;
-    const newY = start.y + yStep * i;
-    route.push({ x: newX, y: newY });
-  }
-
-  return route;
+  return new THREE.Vector3(
+    speed * Math.cos(angleRadians),
+    speed * Math.sin(angleRadians),
+    depth
+  );
 }
 
 function generateTrajectory(shape) {
   shape.position.copy(DEFAULT_POSITION);
 
-  const { start, end } = generateTrajectoryEdges(shape);
+  const { start, end, visibleEdges, worldEdges } = generateTrajectoryEdges(shape);
 
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
 
-  // Calculating route and extracting start coordinates
-  const route = createRoute(start, end, speed);
+  const velocity = calculateVelocity(start, end, speed, shape.position.z);
 
-  const rotation = {
-    x: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-    y: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-    z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-  };
+  const rotation = new THREE.Vector3(
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max)
+  );
 
   return {
-    route,
+    start,
+    end,
     rotation,
+    visibleEdges,
+    worldEdges,
+    velocity
   };
 }
 
-function generateTrajectoryEdges(shape) {
+function trajectoryWorldEdges(shape) {
   // Bounding box for calculating space needed outside visible area
   const { max } = new THREE.Box3().setFromObject(shape);
   const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
   const visibleEdges = visibleBoundingBox(shape.position.z);
+
+  const worldEdges = new THREE.Box3(
+    new THREE.Vector3(
+      visibleEdges.left - shapeHideAdjustment,
+      visibleEdges.bottom - shapeHideAdjustment,
+      shape.position.z
+    ),
+    new THREE.Vector3(
+      visibleEdges.right + shapeHideAdjustment,
+      visibleEdges.top + shapeHideAdjustment,
+      0
+    )
+  );
+
+  return worldEdges;
+}
+
+function generateTrajectoryEdges(shape) {
+  const depth = shape.position.z;
+  const visibleEdges = visibleBoundingBox(depth);
+  const worldEdges = trajectoryWorldEdges(shape);
 
   const startDirectionKeys = extractEnabledKeys(ALLOWED_START_DIRECTION);
   const startDirectionKey = getRandomItem(startDirectionKeys);
@@ -150,36 +184,38 @@ function generateTrajectoryEdges(shape) {
   const start = generateSingleTrajectoryEdge({
     directionKey: startDirectionKey,
     visibleEdges,
-    shapeHideAdjustment,
+    worldEdges,
+    depth
   });
   const end = generateSingleTrajectoryEdge({
     directionKey: endDirectionKey,
     visibleEdges,
-    shapeHideAdjustment,
+    worldEdges,
+    depth
   });
 
-  return { start, end };
+  return { start, end, visibleEdges, worldEdges };
 }
 
-function generateSingleTrajectoryEdge({ directionKey, visibleEdges, shapeHideAdjustment }) {
+function generateSingleTrajectoryEdge({ directionKey, visibleEdges, worldEdges, depth = 0 }) {
   let x;
   let y;
 
   if (directionKey === 'top') {
-    y = visibleEdges.top + shapeHideAdjustment;
+    y = worldEdges.max.y;
     x = getRandomInt(visibleEdges.left, visibleEdges.right);
   } else if (directionKey === 'right') {
-    x = visibleEdges.right + shapeHideAdjustment;
+    x = worldEdges.max.x;
     y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
   } else if (directionKey === 'bottom') {
-    y = visibleEdges.bottom - shapeHideAdjustment;
+    y = worldEdges.min.y;
     x = getRandomInt(visibleEdges.left, visibleEdges.right);
   } else if (directionKey === 'left') {
-    x = visibleEdges.left - shapeHideAdjustment;
+    x = worldEdges.min.x;
     y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
   }
 
-  return { x, y };
+  return new THREE.Vector3(x, y, depth);
 }
 
 function clearShapes(scene) {
