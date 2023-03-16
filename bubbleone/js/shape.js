@@ -52,7 +52,7 @@ export function resetShapes({ scene, world }) {
     applyTrajectory(shapeTrajectoryEntry);
 
     SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
-    
+
     scene.add(shapeTrajectoryEntry.shape);
     world.addBody(shapeTrajectoryEntry.body);
   }
@@ -81,34 +81,44 @@ function createBody(shape) {
 }
 
 function applyTrajectory(shapeTrajectoryEntry) {
-  if (isRouteFinished(shapeTrajectoryEntry.shape, shapeTrajectoryEntry.trajectory)) {
+  if (!isShapeVisible(shapeTrajectoryEntry)) {
     shapeTrajectoryEntry.trajectory = generateTrajectory(shapeTrajectoryEntry.shape);
 
     // Hiding the shape if trajectory is immediately finished
-    if (isRouteFinished(shapeTrajectoryEntry.shape, shapeTrajectoryEntry.trajectory)) {
+    if (!isShapeVisible(shapeTrajectoryEntry)) {
       shapeTrajectoryEntry.shape.visible = false;
       console.error(`Invalid shape trajectory. Please check the allowed directions`);
       return;
     }
 
-    const { rotation, velocity, start } = shapeTrajectoryEntry.trajectory;
-    shapeTrajectoryEntry.body.position.copy(start);
-    shapeTrajectoryEntry.body.velocity.x = velocity.x;
-    shapeTrajectoryEntry.body.velocity.y = velocity.y;
-    shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
-    shapeTrajectoryEntry.body.angularVelocity.normalize();
+    updateBody(shapeTrajectoryEntry);
   }
-  
-  shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
-  shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
+
+  updateShape(shapeTrajectoryEntry);
 }
 
-function isRouteFinished(shape, trajectory) {
-  if (!shape || !trajectory) {
-    return true;
+function isShapeVisible(shapeTrajectoryEntry) {
+  if (!shapeTrajectoryEntry.shape || !shapeTrajectoryEntry.trajectory) {
+    return false;
   }
 
-  return !trajectory.worldEdges.containsPoint(shape.position);
+  const { shape, trajectory } = shapeTrajectoryEntry;
+
+  return trajectory.worldEdges.containsPoint(shape.position);
+}
+
+function updateBody(shapeTrajectoryEntry) {
+  const { rotation, velocity, start } = shapeTrajectoryEntry.trajectory;
+  shapeTrajectoryEntry.body.position.copy(start);
+  shapeTrajectoryEntry.body.velocity.x = velocity.x;
+  shapeTrajectoryEntry.body.velocity.y = velocity.y;
+  shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
+  shapeTrajectoryEntry.body.angularVelocity.normalize();
+}
+
+function updateShape(shapeTrajectoryEntry) {
+  shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
+  shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
 }
 
 function calculateVelocity(start, end, speed, depth = 0) {
