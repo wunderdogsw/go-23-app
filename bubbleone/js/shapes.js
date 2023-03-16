@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
-import { getRandomTexture } from './textures.js';
+import { getRandomColorTexture } from './textures.js';
 
 // Create an empty scene
 var scene = new THREE.Scene();
@@ -32,32 +32,32 @@ scene.add(ambientLight);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Cone1
-const cone1 = Cone(getRandomTexture());
+const cone1 = Cone(getRandomColorTexture());
 scene.add(cone1);
 
 // Cone2
-const cone2 = Cone(getRandomTexture());
+const cone2 = Cone(getRandomColorTexture());
 cone2.position.y = -2;
 scene.add(cone2);
 
 // Sphere1
-const sphere1 = Sphere(getRandomTexture());
+const sphere1 = Sphere(getRandomColorTexture());
 sphere1.position.x = -2;
 scene.add(sphere1);
 
 //Sphere2
-const sphere2 = Sphere(getRandomTexture());
+const sphere2 = Sphere(getRandomColorTexture());
 sphere2.position.x = -2;
 sphere2.position.y = -2;
 scene.add(sphere2);
 
 // Cylinder1
-const cylinder1 = Cylinder(getRandomTexture());
+const cylinder1 = Cylinder(getRandomColorTexture());
 cylinder1.position.x = 2;
 scene.add(cylinder1);
 
 // Cylinder2
-const cylinder2 = Cylinder(getRandomTexture());
+const cylinder2 = Cylinder(getRandomColorTexture());
 cylinder2.position.x = 2;
 cylinder2.position.y = -2;
 scene.add(cylinder2);
@@ -73,7 +73,7 @@ const getRandomRotationSpeedXYZ = () => {
     Y: Math.random() * (maxRotationSpeed - minRotationSpeed) + minRotationSpeed,
     Z: Math.random() * (maxRotationSpeed - minRotationSpeed) + minRotationSpeed,
   };
-}
+};
 
 let cone1Rotations, cone2Rotations, sphere1Rotations, sphere2Rotations, cylinder1Rotations, cylinder2Rotations;
 
@@ -81,7 +81,7 @@ let cone1Rotations, cone2Rotations, sphere1Rotations, sphere2Rotations, cylinder
 var render = function (timestamp) {
   requestAnimationFrame(render);
 
-  if(!start || timestamp - start >= changeRotationSeconds) {
+  if (!start || timestamp - start >= changeRotationSeconds) {
     start = timestamp;
     cone1Rotations = getRandomRotationSpeedXYZ();
     cone2Rotations = getRandomRotationSpeedXYZ();

@@ -4,7 +4,7 @@ import { getRandomInt, getRandomFloat, visibleBoundingBox, getRandomItem } from 
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
-import { getRandomTexture } from './textures.js';
+import { getRandomColorTexture } from './textures.js';
 
 const AMOUNT_OF_GENERATED_SHAPES = 6;
 
@@ -43,7 +43,7 @@ export function resetShapes({ scene }) {
 
   // Adding different shapes
   for (let i = 0; i <= AMOUNT_OF_GENERATED_SHAPES; i++) {
-    const videoTexture = getRandomTexture();
+    const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
 
