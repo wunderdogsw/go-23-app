@@ -1,9 +1,9 @@
 import { getIdFromPath } from './utils.js';
-import { VIDEO_PATHS } from './textures/VideoTexture.js';
+import { COLOR_VIDEO_PATHS } from './textures/VideoTexture.js';
 
 // adds videos to dom to be used as textures
 function addVideoToDom() {
-  VIDEO_PATHS.forEach((path) => {
+  COLOR_VIDEO_PATHS.forEach((path) => {
     const video = document.createElement('video');
     const videoId = getIdFromPath(path);
     const attributes = {

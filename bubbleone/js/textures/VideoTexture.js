@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { getIdFromPath } from '../utils.js';
 
-export const VIDEO_PATHS = [
+export const COLOR_VIDEO_PATHS = [
   'assets/anim/h_video.mp4',
   'assets/anim/s_video.mp4',
   'assets/anim/texture_anim_1.mp4',
@@ -9,9 +9,9 @@ export const VIDEO_PATHS = [
   'assets/anim/texture_anim_3.mp4',
   'assets/anim/texture_anim_4.mp4',
   'assets/anim/texture_anim_5.mp4',
-  'assets/anim/texture_anim_bw_3.mp4',
-  'assets/anim/texture_anim_bw_4.mp4',
 ];
+
+export const MONOCHROME_VIDEO_PATHS = ['assets/anim/texture_anim_bw_3.mp4', 'assets/anim/texture_anim_bw_4.mp4'];
 
 function createVideoElement(path) {
   const video = document.createElement('video');
@@ -38,9 +38,7 @@ function createVideoElement(path) {
   return video;
 }
 
-export const VIDEO_TEXTURES = VIDEO_PATHS.map((path) =>
-  VideoTexture(createVideoElement(path))
-);
+export const COLOR_VIDEO_TEXTURES = COLOR_VIDEO_PATHS.map((path) => VideoTexture(createVideoElement(path)));
 
 /**
  *
@@ -50,12 +48,7 @@ export const VIDEO_TEXTURES = VIDEO_PATHS.map((path) =>
  * @param {number} y
  * @returns
  */
-export default function VideoTexture(
-  video,
-  rotation = -1.57,
-  x = 0.5,
-  y = 0.5
-) {
+export default function VideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.VideoTexture(video);
 
   texture.rotation = rotation;
