@@ -38,8 +38,9 @@ const ROTATION_RANGE = {
 
 export let SHAPES_WITH_TRAJECTORIES = [];
 
+
 export function resetShapes({ scene, world }) {
-  clearShapes();
+  clearShapes(scene, world);
 
   // Adding different shapes
   for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
@@ -54,6 +55,7 @@ export function resetShapes({ scene, world }) {
     SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
 
     scene.add(shapeTrajectoryEntry.shape);
+
     world.addBody(shapeTrajectoryEntry.body);
   }
 }
@@ -226,8 +228,11 @@ function generateSingleTrajectoryEdge({ directionKey, visibleEdges, worldEdges, 
   return new THREE.Vector3(x, y, depth);
 }
 
-function clearShapes(scene) {
-  SHAPES_WITH_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
+function clearShapes(scene, world) {
+  SHAPES_WITH_TRAJECTORIES.forEach(({ shape, body }) => {
+    scene.remove(shape);
+    world.remove(body);
+  });
   SHAPES_WITH_TRAJECTORIES = [];
 }
 
