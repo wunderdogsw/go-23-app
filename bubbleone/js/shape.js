@@ -27,8 +27,8 @@ const ALLOWED_END_DIRECTION = {
 };
 
 const MOVE_SPEED_RANGE = {
-  min: 1,
-  max: 5
+  min: 2,
+  max: 7
 };
 
 const ROTATION_RANGE = {
@@ -91,16 +91,14 @@ function applyTrajectory(shapeTrajectoryEntry) {
       return;
     }
 
-    shapeTrajectoryEntry.body.position.copy(shapeTrajectoryEntry.trajectory.start);
+    const { rotation, velocity, start } = shapeTrajectoryEntry.trajectory;
+    shapeTrajectoryEntry.body.position.copy(start);
+    shapeTrajectoryEntry.body.velocity.x = velocity.x;
+    shapeTrajectoryEntry.body.velocity.y = velocity.y;
+    shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
+    shapeTrajectoryEntry.body.angularVelocity.normalize();
   }
-
-  const { rotation, velocity } = shapeTrajectoryEntry.trajectory;
-
-  shapeTrajectoryEntry.body.velocity.x = velocity.x;
-  shapeTrajectoryEntry.body.velocity.y = velocity.y;
-  shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
-  shapeTrajectoryEntry.body.angularVelocity.normalize();
-
+  
   shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
   shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
 }
