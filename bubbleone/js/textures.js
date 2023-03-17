@@ -14,5 +14,5 @@ export function getRandomColorTexture() {
 }
 
 export function getRandomBlackWhiteTexture() {
-  return getRandomItem(BLACK_WHITE_STATIC_TEXTURES);
+  return getRandomItem(BLACK_WHITE_TEXTURES);
 }
