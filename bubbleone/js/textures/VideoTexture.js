@@ -1,18 +1,6 @@
 import * as THREE from 'three';
 import { getIdFromPath } from '../utils.js';
 
-export const COLOR_VIDEO_PATHS = [
-  'assets/anim/h_video.mp4',
-  'assets/anim/s_video.mp4',
-  'assets/anim/texture_anim_1.mp4',
-  'assets/anim/texture_anim_2.mp4',
-  'assets/anim/texture_anim_3.mp4',
-  'assets/anim/texture_anim_4.mp4',
-  'assets/anim/texture_anim_5.mp4',
-];
-
-export const MONOCHROME_VIDEO_PATHS = ['assets/anim/texture_anim_bw_3.mp4', 'assets/anim/texture_anim_bw_4.mp4'];
-
 function createVideoElement(path) {
   const video = document.createElement('video');
   const videoId = getIdFromPath(path);
@@ -38,8 +26,6 @@ function createVideoElement(path) {
   return video;
 }
 
-export const COLOR_VIDEO_TEXTURES = COLOR_VIDEO_PATHS.map((path) => VideoTexture(createVideoElement(path)));
-
 /**
  *
  * @param {HTMLElement} video
@@ -48,10 +34,28 @@ export const COLOR_VIDEO_TEXTURES = COLOR_VIDEO_PATHS.map((path) => VideoTexture
  * @param {number} y
  * @returns
  */
-export default function VideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
+function VideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.VideoTexture(video);
 
   texture.rotation = rotation;
   texture.center.set(x, y);
   return texture;
 }
+
+function createVideoTextures(paths) {
+  return paths.map((path) => VideoTexture(createVideoElement(path)));
+}
+
+export const COLOR_VIDEO_PATHS = [
+  'assets/anim/h_video.mp4',
+  'assets/anim/s_video.mp4',
+  'assets/anim/texture_anim_1.mp4',
+  'assets/anim/texture_anim_2.mp4',
+  'assets/anim/texture_anim_3.mp4',
+  'assets/anim/texture_anim_4.mp4',
+  'assets/anim/texture_anim_5.mp4',
+];
+const BLACK_WHITE_VIDEO_PATHS = ['assets/anim/texture_anim_bw_3.mp4', 'assets/anim/texture_anim_bw_4.mp4'];
+
+export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_PATHS);
+export const BLACK_WHITE_VIDEO_TEXTURES = createVideoTextures(BLACK_WHITE_VIDEO_PATHS);

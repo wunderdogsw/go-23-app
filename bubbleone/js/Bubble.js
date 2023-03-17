@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
 import Sphere from './shapes/Sphere.js';
-import { getRandomColorTexture } from './textures.js';
-import { createRandomEuler, getRandomRadianAngle } from './utils.js';
+import { getRandomBlackWhiteTexture, getRandomColorTexture } from './textures.js';
+import { createRandomEuler } from './utils.js';
 
 const Point = (offset) => Math.random() * offset - offset / 2;
 
@@ -13,8 +13,8 @@ export default function Bubble({
   z = 0,
   offset = document.getElementById('offsetPercentage')?.value || 0.5,
   rotation = createRandomEuler(),
+  texture = getRandomBlackWhiteTexture(),
 } = {}) {
-  const texture = getRandomColorTexture();
   const bubble = Sphere(texture, radius);
   bubble.position.set(x, y, z);
   bubble.rotation.copy(rotation);
