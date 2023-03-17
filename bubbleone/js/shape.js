@@ -42,7 +42,7 @@ export function resetShapes({ scene }) {
   clearShapes(scene);
 
   // Adding different shapes
-  for (let i = 0; i <= AMOUNT_OF_GENERATED_SHAPES; i++) {
+  for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
