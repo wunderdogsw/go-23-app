@@ -38,7 +38,6 @@ const ROTATION_RANGE = {
 
 export let SHAPES_WITH_TRAJECTORIES = [];
 
-
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
 
@@ -106,7 +105,7 @@ function isShapeVisible(shapeTrajectoryEntry) {
 
   const { shape, trajectory } = shapeTrajectoryEntry;
 
-  return trajectory.worldEdges.containsPoint(shape.position);
+  return trajectory.boundingBox.containsPoint(shape.position);
 }
 
 function updateBody(shapeTrajectoryEntry) {
@@ -136,7 +135,7 @@ function calculateVelocity(start, end, speed, depth = 0) {
 function generateTrajectory(shape) {
   shape.position.copy(DEFAULT_POSITION);
 
-  const { start, end, visibleEdges, worldEdges } = generateTrajectoryEdges(shape);
+  const { start, end, boundingBox } = generateTrajectoryEdges(shape);
 
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
 
@@ -152,38 +151,36 @@ function generateTrajectory(shape) {
     start,
     end,
     rotation,
-    visibleEdges,
-    worldEdges,
+    boundingBox,
     velocity
   };
 }
 
-function trajectoryWorldEdges(shape) {
+function calculateTrajectoryBoundingBox(shape, visibleArea) {
   // Bounding box for calculating space needed outside visible area
   const { max } = new THREE.Box3().setFromObject(shape);
   const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
-  const visibleEdges = visibleBoundingBox(shape.position.z);
 
-  const worldEdges = new THREE.Box3(
+  const boundingBox = new THREE.Box3(
     new THREE.Vector3(
-      visibleEdges.left - shapeHideAdjustment,
-      visibleEdges.bottom - shapeHideAdjustment,
+      visibleArea.left - shapeHideAdjustment,
+      visibleArea.bottom - shapeHideAdjustment,
       shape.position.z
     ),
     new THREE.Vector3(
-      visibleEdges.right + shapeHideAdjustment,
-      visibleEdges.top + shapeHideAdjustment,
+      visibleArea.right + shapeHideAdjustment,
+      visibleArea.top + shapeHideAdjustment,
       0
     )
   );
 
-  return worldEdges;
+  return boundingBox;
 }
 
 function generateTrajectoryEdges(shape) {
   const depth = shape.position.z;
-  const visibleEdges = visibleBoundingBox(depth);
-  const worldEdges = trajectoryWorldEdges(shape);
+  const visibleArea = visibleBoundingBox(depth);
+  const boundingBox = calculateTrajectoryBoundingBox(shape, visibleArea);
 
   const startDirectionKeys = extractEnabledKeys(ALLOWED_START_DIRECTION);
   const startDirectionKey = getRandomItem(startDirectionKeys);
@@ -193,36 +190,36 @@ function generateTrajectoryEdges(shape) {
 
   const start = generateSingleTrajectoryEdge({
     directionKey: startDirectionKey,
-    visibleEdges,
-    worldEdges,
+    visibleArea,
+    boundingBox,
     depth
   });
   const end = generateSingleTrajectoryEdge({
     directionKey: endDirectionKey,
-    visibleEdges,
-    worldEdges,
+    visibleArea,
+    boundingBox,
     depth
   });
 
-  return { start, end, visibleEdges, worldEdges };
+  return { start, end, visibleArea, boundingBox };
 }
 
-function generateSingleTrajectoryEdge({ directionKey, visibleEdges, worldEdges, depth = 0 }) {
+function generateSingleTrajectoryEdge({ directionKey, visibleArea, boundingBox, depth = 0 }) {
   let x;
   let y;
 
   if (directionKey === 'top') {
-    y = worldEdges.max.y;
-    x = getRandomInt(visibleEdges.left, visibleEdges.right);
+    y = boundingBox.max.y;
+    x = getRandomInt(visibleArea.left, visibleArea.right);
   } else if (directionKey === 'right') {
-    x = worldEdges.max.x;
-    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
+    x = boundingBox.max.x;
+    y = getRandomInt(visibleArea.top, visibleArea.bottom);
   } else if (directionKey === 'bottom') {
-    y = worldEdges.min.y;
-    x = getRandomInt(visibleEdges.left, visibleEdges.right);
+    y = boundingBox.min.y;
+    x = getRandomInt(visibleArea.left, visibleArea.right);
   } else if (directionKey === 'left') {
-    x = worldEdges.min.x;
-    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
+    x = boundingBox.min.x;
+    y = getRandomInt(visibleArea.top, visibleArea.bottom);
   }
 
   return new THREE.Vector3(x, y, depth);
