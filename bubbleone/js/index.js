@@ -3,8 +3,14 @@ import * as THREE from 'three';
 import { getCameraVideo } from './media.js';
 import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
-import { drawBubbleStickFigure, resetBody, BUBBLE_STICK_FIGURE, hideBubbleStickFigure } from './bubblePerson.js';
-import { renderShapes, resetShapes } from './shape.js';
+import {
+  drawBubbleStickFigure,
+  resetBody,
+  BUBBLE_STICK_FIGURE,
+  hideBubbleStickFigure,
+  checkBubbleFigureIntersection,
+} from './bubblePerson.js';
+import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -74,9 +80,17 @@ async function renderPoses() {
     const pose = poses[i];
     renderPose(pose);
   }
+
+  checkShapeIntersections();
 }
 
-// Render Loop
+function checkShapeIntersections() {
+  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
+    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
+    checkBubbleFigureIntersection(shape);
+  }
+}
+
 const render = async function () {
   requestAnimationFrame(render);
   renderShapes();

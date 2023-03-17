@@ -226,3 +226,76 @@ export function resetBody() {
     BODY: createBubbleBody(),
   };
 }
+
+// reference: ChatGPT
+function doesBoxIntersectBoxes(box, boxes) {
+  for (let i = 0; i < boxes.length; i++) {
+    const bubbleBox = boxes[i];
+    if (box.intersectsBox(bubbleBox)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function createBoundingBoxes(group) {
+  const boxes = [];
+
+  for (let i = 0; i < group.children.length; i++) {
+    const child = group.children[i];
+    const box = new THREE.Box3().setFromObject(child);
+    boxes.push(box);
+  }
+
+  return boxes;
+}
+
+function createHeadBox() {
+  const group = BUBBLE_STICK_FIGURE.HEAD.children[0];
+  const boxes = createBoundingBoxes(group);
+
+  return { group, boxes };
+}
+
+function createBodyBoxes() {
+  const bodyBoxes = [];
+
+  for (let i = 0; i < BUBBLE_STICK_FIGURE.BODY.length; i++) {
+    const { group } = BUBBLE_STICK_FIGURE.BODY[i];
+    const boxes = createBoundingBoxes(group);
+    bodyBoxes.push({ group, boxes });
+  }
+
+  return bodyBoxes;
+}
+
+function createBubbleFigureBoxes() {
+  const headBox = createHeadBox();
+  const bodyBoxes = createBodyBoxes();
+
+  return [headBox, ...bodyBoxes];
+}
+
+function copyTexture(shape, group) {
+  const sourceTexture = shape.material.map;
+
+  for (let i = 0; i < group.children.length; i++) {
+    const child = group.children[i];
+    child.material.map = sourceTexture;
+  }
+}
+
+export function checkBubbleFigureIntersection(shape) {
+  const box = new THREE.Box3().setFromObject(shape);
+  const bubbleFigureBoxes = createBubbleFigureBoxes();
+
+  for (let i = 0; i < bubbleFigureBoxes.length; i++) {
+    const { group, boxes } = bubbleFigureBoxes[i];
+    const doesIntersect = doesBoxIntersectBoxes(box, boxes);
+
+    if (doesIntersect) {
+      copyTexture(shape, group);
+    }
+  }
+}
