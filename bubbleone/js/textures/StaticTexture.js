@@ -28,7 +28,6 @@ const COLOR_IMAGE_PATHS = [
   'assets/static/static_5.png',
   'assets/static/static_6.png',
   'assets/static/static_7.png',
-  'assets/static/static_7.png',
   'assets/static/static_stripe_1.png',
   'assets/static/static_stripe_2.png',
   'assets/static/static_stripe_3.png',
