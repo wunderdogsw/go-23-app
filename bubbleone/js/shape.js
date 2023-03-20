@@ -5,53 +5,53 @@ import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
+import { createBody } from './physics.js';
 
 const AMOUNT_OF_GENERATED_SHAPES = 3;
 
-const DEFAULT_POSITION = new THREE.Vector3(0, 0, -1);
+const SHAPE_POSITION_DEPTH = -1;
+
+const DEFAULT_POSITION = new THREE.Vector3(0, 0, SHAPE_POSITION_DEPTH);
 
 const AVAILABLE_SHAPES = [Sphere, Cylinder, Cone];
 
-const ALLOWED_START_DIRECTION = {
-  top: true,
-  right: false,
-  bottom: false,
-  left: false,
-};
-
-const ALLOWED_END_DIRECTION = {
-  top: false,
-  right: false,
-  bottom: true,
-  left: false,
-};
-
 const MOVE_SPEED_RANGE = {
-  min: 0.05,
-  max: 0.1,
+  min: 2,
+  max: 7
 };
 
 const ROTATION_RANGE = {
-  min: -0.05,
-  max: 0.05,
+  min: -5,
+  max: 5
 };
+
+const VISIBLE_AREA_MARGIN = 5;
+
+let VISIBLE_AREA;
+let VISIBLE_AREA_WITH_MARGIN;
 
 export let SHAPES_WITH_TRAJECTORIES = [];
 
-export function resetShapes({ scene }) {
-  clearShapes(scene);
+export function resetShapes({ scene, world }) {
+  clearShapes(scene, world);
+
+  setupVisibleArea();
 
   // Adding different shapes
   for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
+    const body = createBody(shape);
 
-    const shapeTrajectoryEntry = { shape, trajectory: null };
+    const shapeTrajectoryEntry = { shape, body, trajectory: null };
     applyTrajectory(shapeTrajectoryEntry);
 
     SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
+
     scene.add(shapeTrajectoryEntry.shape);
+
+    world.addBody(shapeTrajectoryEntry.body);
   }
 }
 
@@ -63,139 +63,113 @@ export function renderShapes() {
   }
 }
 
+function setupVisibleArea() {
+  VISIBLE_AREA = visibleArea(SHAPE_POSITION_DEPTH);
+  VISIBLE_AREA_WITH_MARGIN = visibleArea(SHAPE_POSITION_DEPTH, VISIBLE_AREA_MARGIN);
+}
+
+function visibleArea(depth = -1, margin = 0) {
+  const { top, right, bottom, left } = visibleBoundingBox(depth);
+
+  const bottomLeft = new THREE.Vector3(left - margin, bottom - margin, depth);
+  const topRight = new THREE.Vector3(right + margin, top + margin, 0);
+
+  return new THREE.Box3(bottomLeft, topRight);
+}
+
 function applyTrajectory(shapeTrajectoryEntry) {
-  if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
+  if (!shapeTrajectoryEntry.trajectory || !isShapeVisible(shapeTrajectoryEntry.shape)) {
     shapeTrajectoryEntry.trajectory = generateTrajectory(shapeTrajectoryEntry.shape);
 
-    // Hiding the shape if trajectory is immediately finished
-    if (isRouteFinished(shapeTrajectoryEntry.trajectory)) {
-      shapeTrajectoryEntry.shape.visible = false;
-      console.error(`Invalid shape trajectory. Please check the allowed directions`);
-      return;
-    }
+    updateBody(shapeTrajectoryEntry);
   }
 
-  const { x: newX, y: newY } = shapeTrajectoryEntry.trajectory.route.shift();
-  shapeTrajectoryEntry.shape.position.y = newY;
-  shapeTrajectoryEntry.shape.position.x = newX;
-
-  const { x, y, z } = shapeTrajectoryEntry.trajectory.rotation;
-  shapeTrajectoryEntry.shape.rotateX(x);
-  shapeTrajectoryEntry.shape.rotateY(y);
-  shapeTrajectoryEntry.shape.rotateZ(z);
+  updateShape(shapeTrajectoryEntry);
 }
 
-function isRouteFinished(trajectory) {
-  return !trajectory?.route?.length;
+function isShapeVisible(shape) {
+  if (!shape) {
+    return false;
+  }
+
+  return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
 }
 
-function createRoute(start, end, speed) {
-  const route = [];
+function updateBody(shapeTrajectoryEntry) {
+  const { rotation, velocity, start } = shapeTrajectoryEntry.trajectory;
+  shapeTrajectoryEntry.body.position.copy(start);
+  shapeTrajectoryEntry.body.velocity.x = velocity.x;
+  shapeTrajectoryEntry.body.velocity.y = velocity.y;
+  shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
+  shapeTrajectoryEntry.body.angularVelocity.normalize();
+}
 
-  if (!start || !end || !speed) {
-    return route;
-  }
-
-  const deltaX = end.x - start.x;
-  const deltaY = end.y - start.y;
-  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-  const numSteps = Math.ceil(distance / speed);
-
-  const xStep = deltaX / numSteps;
-  const yStep = deltaY / numSteps;
-
-  for (let i = 0; i < numSteps; i++) {
-    const newX = start.x + xStep * i;
-    const newY = start.y + yStep * i;
-    route.push({ x: newX, y: newY });
-  }
-
-  return route;
+function updateShape(shapeTrajectoryEntry) {
+  shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
+  shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
 }
 
 function generateTrajectory(shape) {
   shape.position.copy(DEFAULT_POSITION);
 
-  const { start, end } = generateTrajectoryEdges(shape);
+  const depth = shape.position.z;
 
-  const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
+  const start = new THREE.Vector3(
+    getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
+    VISIBLE_AREA_WITH_MARGIN.max.y,
+    depth
+  );
 
-  // Calculating route and extracting start coordinates
-  const route = createRoute(start, end, speed);
+  const velocity = generateTrajectoryVelocity(start);
 
-  const rotation = {
-    x: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-    y: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-    z: getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
-  };
+  const rotation = new THREE.Vector3(
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
+    getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max)
+  );
 
   return {
-    route,
+    start,
     rotation,
+    velocity
   };
 }
 
-function generateTrajectoryEdges(shape) {
-  // Bounding box for calculating space needed outside visible area
-  const { max } = new THREE.Box3().setFromObject(shape);
-  const shapeHideAdjustment = Math.max(max.x, max.y) * 2;
-  const visibleEdges = visibleBoundingBox(shape.position.z);
+function generateTrajectoryVelocity(start) {
+  const endDirection = new THREE.Vector3(
+    getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
+    VISIBLE_AREA_WITH_MARGIN.min.y,
+    start.z
+  );
 
-  const startDirectionKeys = extractEnabledKeys(ALLOWED_START_DIRECTION);
-  const startDirectionKey = getRandomItem(startDirectionKeys);
+  const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
+  const angle = calculateAngle(start, endDirection);
 
-  const endDirectionKeys = extractEnabledKeys(ALLOWED_END_DIRECTION, [startDirectionKey]);
-  const endDirectionKey = getRandomItem(endDirectionKeys);
-
-  const start = generateSingleTrajectoryEdge({
-    directionKey: startDirectionKey,
-    visibleEdges,
-    shapeHideAdjustment,
-  });
-  const end = generateSingleTrajectoryEdge({
-    directionKey: endDirectionKey,
-    visibleEdges,
-    shapeHideAdjustment,
-  });
-
-  return { start, end };
+  return calculateVelocity(angle, speed, start.z);
 }
 
-function generateSingleTrajectoryEdge({ directionKey, visibleEdges, shapeHideAdjustment }) {
-  let x;
-  let y;
-
-  if (directionKey === 'top') {
-    y = visibleEdges.top + shapeHideAdjustment;
-    x = getRandomInt(visibleEdges.left, visibleEdges.right);
-  } else if (directionKey === 'right') {
-    x = visibleEdges.right + shapeHideAdjustment;
-    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
-  } else if (directionKey === 'bottom') {
-    y = visibleEdges.bottom - shapeHideAdjustment;
-    x = getRandomInt(visibleEdges.left, visibleEdges.right);
-  } else if (directionKey === 'left') {
-    x = visibleEdges.left - shapeHideAdjustment;
-    y = getRandomInt(visibleEdges.top, visibleEdges.bottom);
-  }
-
-  return { x, y };
+function calculateVelocity(angleRadians, speed, depth) {
+  return new THREE.Vector3(
+    speed * Math.cos(angleRadians),
+    speed * Math.sin(angleRadians),
+    depth
+  );
 }
 
-function clearShapes(scene) {
-  SHAPES_WITH_TRAJECTORIES.forEach(({ shape }) => scene.remove(shape));
+/**
+ * 
+ * @param {THREE.Vector3} from 
+ * @param {THREE.Vector3} to 
+ * @returns angle (in radians)
+ */
+function calculateAngle(from, to) {
+  return Math.atan2(to.y - from.y, to.x - from.x);
+}
+
+function clearShapes(scene, world) {
+  SHAPES_WITH_TRAJECTORIES.forEach(({ shape, body }) => {
+    scene.remove(shape);
+    world.remove(body);
+  });
   SHAPES_WITH_TRAJECTORIES = [];
-}
-
-function extractEnabledKeys(obj, excludeKeys = []) {
-  const keys = Object.keys(obj);
-  const allowed = [];
-
-  for (let key of keys) {
-    if (!!obj[key] && !excludeKeys.includes(key)) {
-      allowed.push(key);
-    }
-  }
-
-  return allowed;
 }

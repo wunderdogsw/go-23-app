@@ -36,6 +36,9 @@ camera.updateProjectionMatrix();
 
 setSceneSize(camera);
 
+const world = new CANNON.World();
+world.gravity.set(0, 0, 0);
+
 // Create a renderer with Antialiasing
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 renderer.shadowMap.enabled = true;
@@ -93,13 +96,15 @@ function checkShapeIntersections() {
 
 const render = async function () {
   requestAnimationFrame(render);
+  
+  world.step(1/60);
   renderShapes();
   await renderPoses();
   renderer.render(scene, camera);
 };
 
 async function start() {
-  resetShapes({ camera, scene, renderer });
+  resetShapes({ scene, world });
 
   render();
 
@@ -113,10 +118,10 @@ start();
 function updateParameters() {
   scene.clear();
   scene.add(ambientLight);
-  resetShapes({ camera, scene, renderer });
   resetBody();
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+  resetShapes({ scene, world });
 }
 
 function initControls() {
