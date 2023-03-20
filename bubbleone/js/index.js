@@ -5,9 +5,8 @@ import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
   drawBubbleStickFigure,
-  resetBody,
+  createBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
-  hideBubbleStickFigure,
   checkBubbleFigureIntersection,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
@@ -53,11 +52,19 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-scene.add(BUBBLE_STICK_FIGURE.HEAD);
-BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
-
 let video;
 let detector;
+let isPersonThere = false;
+
+function removeBubbleStickFigure() {
+  scene.remove(BUBBLE_STICK_FIGURE.HEAD);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.remove(group));
+}
+
+function addBubbleStickFigure() {
+  scene.add(BUBBLE_STICK_FIGURE.HEAD);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+}
 
 function renderPose(pose) {
   if (!pose.keypoints) {
@@ -67,6 +74,13 @@ function renderPose(pose) {
   drawBubbleStickFigure({ pose });
 }
 
+function checkShapeIntersections() {
+  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
+    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
+    checkBubbleFigureIntersection(shape);
+  }
+}
+
 async function renderPoses() {
   if (!(detector && video)) {
     return;
@@ -74,9 +88,18 @@ async function renderPoses() {
 
   const poses = await detector.estimatePoses(video, {});
 
-  if (!poses.length) {
-    hideBubbleStickFigure();
+  const hasPersonLeft = isPersonThere && !poses?.length;
+  if (hasPersonLeft) {
+    isPersonThere = false;
+    removeBubbleStickFigure();
+    createBubbleStickFigure();
     return;
+  }
+
+  const hasPersonEntered = !isPersonThere && poses?.length;
+  if (hasPersonEntered) {
+    isPersonThere = true;
+    addBubbleStickFigure();
   }
 
   for (let i = 0; i < poses.length; i++) {
@@ -87,23 +110,18 @@ async function renderPoses() {
   checkShapeIntersections();
 }
 
-function checkShapeIntersections() {
-  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
-    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
-    checkBubbleFigureIntersection(shape);
-  }
-}
-
 const render = async function () {
   requestAnimationFrame(render);
-  
-  world.step(1/60);
+
+  world.step(1 / 60);
   renderShapes();
   await renderPoses();
   renderer.render(scene, camera);
 };
 
 async function start() {
+  createBubbleStickFigure();
+  addBubbleStickFigure();
   resetShapes({ scene, world });
 
   render();
@@ -118,9 +136,9 @@ start();
 function updateParameters() {
   scene.clear();
   scene.add(ambientLight);
-  resetBody();
-  scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+  removeBubbleStickFigure();
+  createBubbleStickFigure();
+  addBubbleStickFigure();
   resetShapes({ scene, world });
 }
 
