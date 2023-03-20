@@ -87,8 +87,9 @@ async function renderPoses() {
   }
 
   const poses = await detector.estimatePoses(video, {});
+  const arePosesDetected = !!poses?.length;
 
-  const hasPersonLeft = isPersonThere && !poses?.length;
+  const hasPersonLeft = !arePosesDetected && isPersonThere;
   if (hasPersonLeft) {
     isPersonThere = false;
     removeBubbleStickFigure();
@@ -96,7 +97,7 @@ async function renderPoses() {
     return;
   }
 
-  const hasPersonEntered = !isPersonThere && poses?.length;
+  const hasPersonEntered = arePosesDetected && !isPersonThere;
   if (hasPersonEntered) {
     isPersonThere = true;
     addBubbleStickFigure();
