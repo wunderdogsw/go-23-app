@@ -17,7 +17,7 @@ export default function StaticTexture(path, rotation = -1.57, x = 0.5, y = 0.5) 
 }
 
 function createStaticTextures(paths) {
-  return paths.map(StaticTexture);
+  return paths.map((path) => StaticTexture(path));
 }
 
 const COLOR_IMAGE_PATHS = [
