@@ -66,6 +66,17 @@ function addBubbleStickFigure() {
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
 }
 
+function personLeft() {
+  isPersonThere = false;
+  removeBubbleStickFigure();
+  createBubbleStickFigure();
+}
+
+function personEntered() {
+  isPersonThere = true;
+  addBubbleStickFigure();
+}
+
 function renderPose(pose) {
   if (!pose.keypoints) {
     return;
@@ -79,17 +90,6 @@ function checkShapeIntersections() {
     const { shape } = SHAPES_WITH_TRAJECTORIES[i];
     checkBubbleFigureIntersection(shape);
   }
-}
-
-function personLeft() {
-  isPersonThere = false;
-  removeBubbleStickFigure();
-  createBubbleStickFigure();
-}
-
-function personEntered() {
-  isPersonThere = true;
-  addBubbleStickFigure();
 }
 
 async function renderPoses() {
