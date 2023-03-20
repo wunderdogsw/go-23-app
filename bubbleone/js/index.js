@@ -54,7 +54,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 let video;
 let detector;
-let isPersonThere = false;
+let isPersonPresent = false;
 
 function removeBubbleStickFigure() {
   scene.remove(BUBBLE_STICK_FIGURE.HEAD);
@@ -67,19 +67,19 @@ function addBubbleStickFigure() {
 }
 
 function personLeft() {
-  isPersonThere = false;
+  isPersonPresent = false;
   removeBubbleStickFigure();
   createBubbleStickFigure();
 }
 
 function personEntered() {
-  isPersonThere = true;
+  isPersonPresent = true;
   addBubbleStickFigure();
 }
 
 function detectPersonPresence(hasPoses) {
-  const hasPersonLeft = !hasPoses && isPersonThere;
-  const hasPersonEntered = hasPoses && !isPersonThere;
+  const hasPersonLeft = !hasPoses && isPersonPresent;
+  const hasPersonEntered = hasPoses && !isPersonPresent;
 
   if (hasPersonLeft) {
     personLeft();
