@@ -77,6 +77,17 @@ function personEntered() {
   addBubbleStickFigure();
 }
 
+function detectPersonPresence(hasPoses) {
+  const hasPersonLeft = !hasPoses && isPersonThere;
+  const hasPersonEntered = hasPoses && !isPersonThere;
+
+  if (hasPersonLeft) {
+    personLeft();
+  } else if (hasPersonEntered) {
+    personEntered();
+  }
+}
+
 function renderPose(pose) {
   if (!pose.keypoints) {
     return;
@@ -92,25 +103,7 @@ function checkShapeIntersections() {
   }
 }
 
-async function renderPoses() {
-  if (!(detector && video)) {
-    return;
-  }
-
-  const poses = await detector.estimatePoses(video, {});
-  const hasPoses = !!poses?.length;
-
-  const hasPersonLeft = !hasPoses && isPersonThere;
-  if (hasPersonLeft) {
-    personLeft();
-    return;
-  }
-
-  const hasPersonEntered = hasPoses && !isPersonThere;
-  if (hasPersonEntered) {
-    personEntered();
-  }
-
+function renderPoses(poses) {
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
@@ -119,12 +112,29 @@ async function renderPoses() {
   checkShapeIntersections();
 }
 
+async function detectPoses() {
+  if (!(detector && video)) {
+    return;
+  }
+
+  const poses = await detector.estimatePoses(video, {});
+  const hasPoses = !!poses?.length;
+
+  detectPersonPresence(hasPoses);
+
+  if (!hasPoses) {
+    return;
+  }
+
+  renderPoses(poses);
+}
+
 const render = async function () {
   requestAnimationFrame(render);
 
   world.step(1 / 60);
   renderShapes();
-  await renderPoses();
+  await detectPoses();
   renderer.render(scene, camera);
 };
 
