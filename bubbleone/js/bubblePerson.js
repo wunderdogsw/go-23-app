@@ -117,7 +117,7 @@ export function createExtremities() {
   }));
 
   const mediumCount = document.getElementById('extremitiesMediumCount')?.value || 8;
-  const mediumRadio = document.getElementById('extremitiesMediumRadio')?.value || 0.5;
+  const mediumRadio = document.getElementById('extremitiesMediumRadio')?.value || 0.3;
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
@@ -125,7 +125,7 @@ export function createExtremities() {
   }));
 
   const smallCount = document.getElementById('extremitiesSmallCount')?.value || 15;
-  const smallRadio = document.getElementById('extremitiesSmallRadio')?.value || 0.5;
+  const smallRadio = document.getElementById('extremitiesSmallRadio')?.value || 0.1;
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
