@@ -5,9 +5,8 @@ import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
   drawBubbleStickFigure,
-  resetBody,
+  createBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
-  hideBubbleStickFigure,
   checkBubbleFigureIntersection,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
@@ -53,11 +52,41 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-scene.add(BUBBLE_STICK_FIGURE.HEAD);
-BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
-
 let video;
 let detector;
+let isPersonPresent = false;
+
+function removeBubbleStickFigure() {
+  scene.remove(BUBBLE_STICK_FIGURE.HEAD);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.remove(group));
+}
+
+function addBubbleStickFigure() {
+  scene.add(BUBBLE_STICK_FIGURE.HEAD);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+}
+
+function personLeft() {
+  isPersonPresent = false;
+  removeBubbleStickFigure();
+  createBubbleStickFigure();
+}
+
+function personEntered() {
+  isPersonPresent = true;
+  addBubbleStickFigure();
+}
+
+function detectPersonPresence(hasPoses) {
+  const hasPersonLeft = !hasPoses && isPersonPresent;
+  const hasPersonEntered = hasPoses && !isPersonPresent;
+
+  if (hasPersonLeft) {
+    personLeft();
+  } else if (hasPersonEntered) {
+    personEntered();
+  }
+}
 
 function renderPose(pose) {
   if (!pose.keypoints) {
@@ -67,18 +96,14 @@ function renderPose(pose) {
   drawBubbleStickFigure({ pose });
 }
 
-async function renderPoses() {
-  if (!(detector && video)) {
-    return;
+function checkShapeIntersections() {
+  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
+    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
+    checkBubbleFigureIntersection(shape);
   }
+}
 
-  const poses = await detector.estimatePoses(video, {});
-
-  if (!poses.length) {
-    hideBubbleStickFigure();
-    return;
-  }
-
+function renderPoses(poses) {
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
@@ -87,23 +112,35 @@ async function renderPoses() {
   checkShapeIntersections();
 }
 
-function checkShapeIntersections() {
-  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
-    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
-    checkBubbleFigureIntersection(shape);
+async function detectPoses() {
+  if (!(detector && video)) {
+    return;
   }
+
+  const poses = await detector.estimatePoses(video, {});
+  const hasPoses = !!poses?.length;
+
+  detectPersonPresence(hasPoses);
+
+  if (!hasPoses) {
+    return;
+  }
+
+  renderPoses(poses);
 }
 
 const render = async function () {
   requestAnimationFrame(render);
-  
-  world.step(1/60);
+
+  world.step(1 / 60);
   renderShapes();
-  await renderPoses();
+  await detectPoses();
   renderer.render(scene, camera);
 };
 
 async function start() {
+  createBubbleStickFigure();
+  addBubbleStickFigure();
   resetShapes({ scene, world });
 
   render();
@@ -118,9 +155,9 @@ start();
 function updateParameters() {
   scene.clear();
   scene.add(ambientLight);
-  resetBody();
-  scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+  removeBubbleStickFigure();
+  createBubbleStickFigure();
+  addBubbleStickFigure();
   resetShapes({ scene, world });
 }
 

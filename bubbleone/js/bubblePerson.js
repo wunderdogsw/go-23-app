@@ -9,15 +9,12 @@ import {
   getObjectX,
   getObjectY,
   getRandomFloat,
-  getRandomInt
+  getRandomInt,
 } from './utils.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
 
-export let BUBBLE_STICK_FIGURE = {
-  HEAD: createBubbleHead(),
-  BODY: createBubbleBody(),
-};
+export let BUBBLE_STICK_FIGURE;
 
 function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
   const group = new THREE.Group();
@@ -98,14 +95,11 @@ export function createBubbleBody() {
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
 }
 
-export function hideBubbleStickFigure() {
-  // Hiding the head
-  drawBubbleHead({ keypoints: [] });
-  // Hiding the body
-  const { BODY } = BUBBLE_STICK_FIGURE;
-  for (let i = 0; i < BODY.length; i++) {
-    drawBubbleLine({ ...BODY[i], keypoints: [] });
-  }
+export function createBubbleStickFigure() {
+  BUBBLE_STICK_FIGURE = {
+    HEAD: createBubbleHead(),
+    BODY: createBubbleBody(),
+  };
 }
 
 function findKeypointByName({ name, keypoints }) {
@@ -227,13 +221,6 @@ export function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
   drawBubbleHead({ keypoints });
   drawBubbleBody({ keypoints });
-}
-
-export function resetBody() {
-  BUBBLE_STICK_FIGURE = {
-    HEAD: createBubbleHead(),
-    BODY: createBubbleBody(),
-  };
 }
 
 function createHeadBox() {
