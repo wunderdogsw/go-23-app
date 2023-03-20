@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
-import { getRandomFloat, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
+import {
+  copyTextureToGroup,
+  createGroupBoundingBoxes,
+  doesBoxIntersectBoxes,
+  getAverage,
+  getObjectX,
+  getObjectY,
+  getRandomFloat,
+  getRandomInt
+} from './utils.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
 
@@ -227,33 +236,9 @@ export function resetBody() {
   };
 }
 
-// reference: ChatGPT
-function doesBoxIntersectBoxes(box, boxes) {
-  for (let i = 0; i < boxes.length; i++) {
-    const bubbleBox = boxes[i];
-    if (box.intersectsBox(bubbleBox)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function createBoundingBoxes(group) {
-  const boxes = [];
-
-  for (let i = 0; i < group.children.length; i++) {
-    const child = group.children[i];
-    const box = new THREE.Box3().setFromObject(child);
-    boxes.push(box);
-  }
-
-  return boxes;
-}
-
 function createHeadBox() {
   const group = BUBBLE_STICK_FIGURE.HEAD.children[0];
-  const boxes = createBoundingBoxes(group);
+  const boxes = createGroupBoundingBoxes(group);
 
   return { group, boxes };
 }
@@ -263,7 +248,7 @@ function createBodyBoxes() {
 
   for (let i = 0; i < BUBBLE_STICK_FIGURE.BODY.length; i++) {
     const { group } = BUBBLE_STICK_FIGURE.BODY[i];
-    const boxes = createBoundingBoxes(group);
+    const boxes = createGroupBoundingBoxes(group);
     bodyBoxes.push({ group, boxes });
   }
 
@@ -277,15 +262,6 @@ function createBubbleFigureBoxes() {
   return [headBox, ...bodyBoxes];
 }
 
-function copyTexture(shape, group) {
-  const sourceTexture = shape.material.map;
-
-  for (let i = 0; i < group.children.length; i++) {
-    const child = group.children[i];
-    child.material.map = sourceTexture;
-  }
-}
-
 export function checkBubbleFigureIntersection(shape) {
   const box = new THREE.Box3().setFromObject(shape);
   const bubbleFigureBoxes = createBubbleFigureBoxes();
@@ -295,7 +271,7 @@ export function checkBubbleFigureIntersection(shape) {
     const doesIntersect = doesBoxIntersectBoxes(box, boxes);
 
     if (doesIntersect) {
-      copyTexture(shape, group);
+      copyTextureToGroup(shape, group);
     }
   }
 }
