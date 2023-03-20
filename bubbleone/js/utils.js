@@ -108,3 +108,39 @@ export function createRandomEuler() {
   const z = getRandomRadianAngle();
   return new THREE.Euler(x, y, z);
 }
+
+export function createGroupBoundingBoxes(group) {
+  const boxes = [];
+
+  for (let i = 0; i < group.children.length; i++) {
+    const child = group.children[i];
+    const box = new THREE.Box3().setFromObject(child);
+    boxes.push(box);
+  }
+
+  return boxes;
+}
+
+// reference: ChatGPT
+export function doesBoxIntersectBoxes(box, boxes) {
+  for (let i = 0; i < boxes.length; i++) {
+    const bubbleBox = boxes[i];
+    if (box.intersectsBox(bubbleBox)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function copyTextureToGroup(mesh, group) {
+  const sourceTexture = mesh.material.map;
+  if (group.children[0]?.material?.map === sourceTexture) {
+    return
+  }
+
+  for (let i = 0; i < group.children.length; i++) {
+    const child = group.children[i];
+    child.material.map = sourceTexture;
+  }
+}

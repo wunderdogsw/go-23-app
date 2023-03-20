@@ -6,7 +6,7 @@ import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
 
-const AMOUNT_OF_GENERATED_SHAPES = 6;
+const AMOUNT_OF_GENERATED_SHAPES = 3;
 
 const DEFAULT_POSITION = new THREE.Vector3(0, 0, -1);
 
@@ -36,13 +36,13 @@ const ROTATION_RANGE = {
   max: 0.05,
 };
 
-let SHAPES_WITH_TRAJECTORIES = [];
+export let SHAPES_WITH_TRAJECTORIES = [];
 
 export function resetShapes({ scene }) {
   clearShapes(scene);
 
   // Adding different shapes
-  for (let i = 0; i <= AMOUNT_OF_GENERATED_SHAPES; i++) {
+  for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);

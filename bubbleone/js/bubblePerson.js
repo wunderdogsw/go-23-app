@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
-import { getRandomFloat, getAverage, getObjectX, getObjectY, getRandomInt } from './utils.js';
+import {
+  copyTextureToGroup,
+  createGroupBoundingBoxes,
+  doesBoxIntersectBoxes,
+  getAverage,
+  getObjectX,
+  getObjectY,
+  getRandomFloat,
+  getRandomInt
+} from './utils.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
 
@@ -225,4 +234,44 @@ export function resetBody() {
     HEAD: createBubbleHead(),
     BODY: createBubbleBody(),
   };
+}
+
+function createHeadBox() {
+  const group = BUBBLE_STICK_FIGURE.HEAD.children[0];
+  const boxes = createGroupBoundingBoxes(group);
+
+  return { group, boxes };
+}
+
+function createBodyBoxes() {
+  const bodyBoxes = [];
+
+  for (let i = 0; i < BUBBLE_STICK_FIGURE.BODY.length; i++) {
+    const { group } = BUBBLE_STICK_FIGURE.BODY[i];
+    const boxes = createGroupBoundingBoxes(group);
+    bodyBoxes.push({ group, boxes });
+  }
+
+  return bodyBoxes;
+}
+
+function createBubbleFigureBoxes() {
+  const headBox = createHeadBox();
+  const bodyBoxes = createBodyBoxes();
+
+  return [headBox, ...bodyBoxes];
+}
+
+export function checkBubbleFigureIntersection(shape) {
+  const box = new THREE.Box3().setFromObject(shape);
+  const bubbleFigureBoxes = createBubbleFigureBoxes();
+
+  for (let i = 0; i < bubbleFigureBoxes.length; i++) {
+    const { group, boxes } = bubbleFigureBoxes[i];
+    const doesIntersect = doesBoxIntersectBoxes(box, boxes);
+
+    if (doesIntersect) {
+      copyTextureToGroup(shape, group);
+    }
+  }
 }
