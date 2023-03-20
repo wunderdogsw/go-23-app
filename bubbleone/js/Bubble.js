@@ -13,7 +13,7 @@ export default function Bubble({
   z = 0,
   offset = document.getElementById('offsetPercentage')?.value || 0.5,
   rotation = createRandomEuler(),
-  texture = getRandomBlackWhiteTexture(),
+  texture = getRandomColorTexture(),
 } = {}) {
   const bubble = Sphere(texture, radius);
   bubble.position.set(x, y, z);
