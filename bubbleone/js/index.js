@@ -81,26 +81,34 @@ function checkShapeIntersections() {
   }
 }
 
+function personLeft() {
+  isPersonThere = false;
+  removeBubbleStickFigure();
+  createBubbleStickFigure();
+}
+
+function personEntered() {
+  isPersonThere = true;
+  addBubbleStickFigure();
+}
+
 async function renderPoses() {
   if (!(detector && video)) {
     return;
   }
 
   const poses = await detector.estimatePoses(video, {});
-  const arePosesDetected = !!poses?.length;
+  const hasPoses = !!poses?.length;
 
-  const hasPersonLeft = !arePosesDetected && isPersonThere;
+  const hasPersonLeft = !hasPoses && isPersonThere;
   if (hasPersonLeft) {
-    isPersonThere = false;
-    removeBubbleStickFigure();
-    createBubbleStickFigure();
+    personLeft();
     return;
   }
 
-  const hasPersonEntered = arePosesDetected && !isPersonThere;
+  const hasPersonEntered = hasPoses && !isPersonThere;
   if (hasPersonEntered) {
-    isPersonThere = true;
-    addBubbleStickFigure();
+    personEntered();
   }
 
   for (let i = 0; i < poses.length; i++) {
