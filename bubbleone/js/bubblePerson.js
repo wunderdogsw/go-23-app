@@ -74,7 +74,7 @@ export function createBubbleTorso() {
   const thickBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+thickRadius, +thickCount, offset),
+    group: createBubblesGroup(parseInt(thickRadius), parseInt(thickCount), offset),
   };
 
   const mediumCount = document.getElementById('torsoMediumCount')?.value || 8;
@@ -82,7 +82,7 @@ export function createBubbleTorso() {
   const middleBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+mediumRadius, +mediumCount, offset),
+    group: createBubblesGroup(parseInt(mediumRadius), parseInt(mediumCount), offset),
   };
 
   const smallCount = document.getElementById('torsoSmallCount')?.value || 15;
@@ -90,7 +90,7 @@ export function createBubbleTorso() {
   const smallBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+smallRadius, +smallCount, offset),
+    group: createBubblesGroup(parseInt(smallRadius), parseInt(smallCount), offset),
   };
 
   return [thickBubbles, middleBubbles, smallBubbles];
@@ -113,7 +113,7 @@ export function createLimbs() {
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+thickRadius, +thickCount, offset),
+    group: createBubblesGroup(parseInt(thickRadius), parseInt(thickCount), offset),
   }));
 
   const mediumCount = document.getElementById('limbsMediumCount')?.value || 8;
@@ -121,7 +121,7 @@ export function createLimbs() {
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+mediumRadius, +mediumCount, offset),
+    group: createBubblesGroup(parseInt(mediumRadius), parseInt(mediumCount), offset),
   }));
 
   const smallCount = document.getElementById('limbsSmallCount')?.value || 15;
@@ -129,7 +129,7 @@ export function createLimbs() {
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+smallRadius, +smallCount, offset),
+    group: createBubblesGroup(parseInt(smallRadius), parseInt(smallCount), offset),
   }));
 
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
