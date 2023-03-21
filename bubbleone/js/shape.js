@@ -7,9 +7,9 @@ import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
 import { createBody } from './physics.js';
 
-const AMOUNT_OF_GENERATED_SHAPES = 3;
+const AMOUNT_OF_GENERATED_SHAPES = 6;
 
-const SHAPE_POSITION_DEPTH = -1;
+const SHAPE_POSITION_DEPTH = -0.01;
 
 const DEFAULT_POSITION = new THREE.Vector3(0, 0, SHAPE_POSITION_DEPTH);
 
@@ -27,8 +27,14 @@ const ROTATION_RANGE = {
 
 const VISIBLE_AREA_MARGIN = 5;
 
+const SHAPES_COLLIDE_EACH_OTHER = true;
+
+const SHAPE_BODY_MASS = 1;
+
 let VISIBLE_AREA;
 let VISIBLE_AREA_WITH_MARGIN;
+
+export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 export let SHAPES_WITH_TRAJECTORIES = [];
 
@@ -37,12 +43,14 @@ export function resetShapes({ scene, world }) {
 
   setupVisibleArea();
 
+  setupWorld(world);
+
   // Adding different shapes
   for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
-    const body = createBody(shape);
+    const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
 
     const shapeTrajectoryEntry = { shape, body, trajectory: null };
     applyTrajectory(shapeTrajectoryEntry);
@@ -60,6 +68,20 @@ export function renderShapes() {
     if (shapeTrajectoryEntry.shape.visible) {
       applyTrajectory(shapeTrajectoryEntry);
     }
+  }
+}
+
+function setupWorld(world) {
+  // For keeping shape position z fixed
+  world.addEventListener('postStep', keepFixedDepth);
+
+  // Making shapes bounce from each other
+  if (SHAPES_COLLIDE_EACH_OTHER) {
+    const contactMaterial = new CANNON.ContactMaterial(SHAPE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
+      friction: 0.0,
+      restitution: 1.0
+    });
+    world.addContactMaterial(contactMaterial);
   }
 }
 
@@ -172,4 +194,12 @@ function clearShapes(scene, world) {
     world.remove(body);
   });
   SHAPES_WITH_TRAJECTORIES = [];
+  world.removeEventListener('postStep', keepFixedDepth);
+}
+
+function keepFixedDepth(event) {
+  for (let entry of SHAPES_WITH_TRAJECTORIES) {
+    entry.body.position.z = SHAPE_POSITION_DEPTH;
+    entry.shape.position.copy(entry.body.position);
+  }
 }
