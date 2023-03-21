@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 import { getCameraVideo } from './media.js';
 import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 export function convertThreeToCannon(shape) {
   const { type, parameters, attributes } = shape.geometry;
   let { radiusTop, radiusBottom, radius, height, radialSegments } = parameters;
 
   switch (type) {
-    case 'ConeGeometry': return new CANNON.Cylinder(0, radius, height, radialSegments);
+    case 'ConeGeometry': return new CANNON.Cylinder(0.0001, radius, height, radialSegments);
     case 'CylinderGeometry': return new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
     case 'SphereGeometry': return new CANNON.Sphere(radius);    
   }

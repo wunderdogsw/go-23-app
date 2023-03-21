@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 import { getRandomInt, getRandomFloat, visibleBoundingBox, getRandomItem } from './utils.js';
 import Cone from './shapes/Cone.js';
