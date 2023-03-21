@@ -109,7 +109,9 @@ function renderPoses(poses) {
     renderPose(pose);
   }
 
-  checkShapeIntersections();
+  // keeping intersection related code in case anyone changes their minds about using it
+  // once we have the final version we can safely remove it
+  // checkShapeIntersections();
 }
 
 async function detectPoses() {
