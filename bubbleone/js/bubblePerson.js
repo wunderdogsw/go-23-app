@@ -70,27 +70,27 @@ export function createBubbleTorso() {
   const startKeypointName = 'neck';
   const endKeypointName = 'stomach';
   const thickCount = document.getElementById('torsoThickCount')?.value || 5;
-  const thickRadio = document.getElementById('torsoThickRadio')?.value || 0.5;
+  const thickRadius = document.getElementById('torsoThickRadius')?.value || 0.5;
   const thickBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+thickRadio, +thickCount, offset),
+    group: createBubblesGroup(+thickRadius, +thickCount, offset),
   };
 
   const mediumCount = document.getElementById('torsoMediumCount')?.value || 8;
-  const mediumRadio = document.getElementById('torsoMediumRadio')?.value || 0.3;
+  const mediumRadius = document.getElementById('torsoMediumRadius')?.value || 0.3;
   const middleBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+mediumRadio, +mediumCount, offset),
+    group: createBubblesGroup(+mediumRadius, +mediumCount, offset),
   };
 
   const smallCount = document.getElementById('torsoSmallCount')?.value || 15;
-  const smallRadio = document.getElementById('torsoSmallRadio')?.value || 0.1;
+  const smallRadius = document.getElementById('torsoSmallRadius')?.value || 0.1;
   const smallBubbles = {
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+smallRadio, +smallCount, offset),
+    group: createBubblesGroup(+smallRadius, +smallCount, offset),
   };
 
   return [thickBubbles, middleBubbles, smallBubbles];
@@ -106,30 +106,30 @@ export function createLimbs() {
     ['stomach', 'right_foot_index'],
   ];
 
-  const offset = document.getElementById('extremitiesOffsetPercentage')?.value || 0.5;
+  const offset = document.getElementById('limbsOffsetPercentage')?.value || 0.5;
 
-  const thickCount = document.getElementById('extremitiesThickCount')?.value || 5;
-  const thickRadio = document.getElementById('extremitiesThickRadio')?.value || 0.5;
+  const thickCount = document.getElementById('limbsThickCount')?.value || 5;
+  const thickRadius = document.getElementById('limbsThickRadius')?.value || 0.5;
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+thickRadio, +thickCount, offset),
+    group: createBubblesGroup(+thickRadius, +thickCount, offset),
   }));
 
-  const mediumCount = document.getElementById('extremitiesMediumCount')?.value || 8;
-  const mediumRadio = document.getElementById('extremitiesMediumRadio')?.value || 0.3;
+  const mediumCount = document.getElementById('limbsMediumCount')?.value || 8;
+  const mediumRadius = document.getElementById('limbsMediumRadius')?.value || 0.3;
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+mediumRadio, +mediumCount, offset),
+    group: createBubblesGroup(+mediumRadius, +mediumCount, offset),
   }));
 
-  const smallCount = document.getElementById('extremitiesSmallCount')?.value || 15;
-  const smallRadio = document.getElementById('extremitiesSmallRadio')?.value || 0.1;
+  const smallCount = document.getElementById('limbsSmallCount')?.value || 15;
+  const smallRadius = document.getElementById('limbsSmallRadius')?.value || 0.1;
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(+smallRadio, +smallCount, offset),
+    group: createBubblesGroup(+smallRadius, +smallCount, offset),
   }));
 
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
