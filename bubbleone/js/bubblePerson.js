@@ -44,7 +44,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
   for (let i = 0; i < numSpheres; i++) {
     const randomRadius = getRandomFloat(0.1, 0.4);
 
-    const bubble = Bubble({ radius: randomRadius });
+    const bubble = Bubble({ radius: randomRadius, offset: 0 });
     const angle1 = getRandomInt(0, 50);
     const angle2 = getRandomInt(0, 50);
 
@@ -61,7 +61,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
 }
 
 export function createBubbleBody() {
-  return [...createBubbleTorso(), ...createExtremities()];
+  return [...createBubbleTorso(), ...createLimbs()];
 }
 
 export function createBubbleTorso() {
@@ -93,7 +93,7 @@ export function createBubbleTorso() {
   return [thickBubbles, middleBubbles, smallBubbles];
 }
 
-export function createExtremities() {
+export function createLimbs() {
   const LINES_KEYPOINTS = [
     ['left_elbow', 'neck'],
     ['left_wrist', 'left_elbow'],
