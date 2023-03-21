@@ -136,11 +136,21 @@ export function doesBoxIntersectBoxes(box, boxes) {
 export function copyTextureToGroup(mesh, group) {
   const sourceTexture = mesh.material.map;
   if (group.children[0]?.material?.map === sourceTexture) {
-    return
+    return;
   }
 
   for (let i = 0; i < group.children.length; i++) {
     const child = group.children[i];
     child.material.map = sourceTexture;
   }
+}
+
+export function getParameterValue(parameterName, defaultValue) {
+  const valueAsString = parseFloat(document.getElementById(parameterName)?.value);
+  const valueAsFloat = parseFloat(valueAsString);
+  if (Number.isFinite(valueAsFloat)) {
+    return valueAsFloat;
+  }
+
+  return defaultValue;
 }

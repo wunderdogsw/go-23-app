@@ -35,14 +35,35 @@
       .hidden {
         display: none;
       }
+
+      input {
+        width: 50px;
+        margin: 3px;
+      }
     </style>
   </head>
   <body>
     <div id="controls" class="hidden">
-      Big: <input type="number" id="thickCount" min="0" value="60" /> Med:
-      <input type="number" id="mediumCount" min="0" value="8" /> Small:
-      <input type="number" id="smallCount" min="0" value="15" />
-      Offset +/-<input type="number" id="offsetPercentage" min="0" value="1" step="0.1" />
+      <div>
+        Limbs Big: <input type="number" id="limbsThickCount" min="0" value="60" /> of radius
+        <input type="number" id="limbsThickRadius" min="0.05" value="0.4" step="0.05" />
+        Med:
+        <input type="number" id="limbsMediumCount" min="0" value="8" /> of radius
+        <input type="number" id="limbsMediumRadius" min="0.05" value="0.2" step="0.05" /> Small:
+        <input type="number" id="limbsSmallCount" min="0" value="15" /> of radius
+        <input type="number" id="limbsSmallRadius" min="0.05" value="0.05" step="0.05" />
+        Offset +/-<input type="number" id="limbsOffsetPercentage" min="0" value="1" step="0.1" />
+      </div>
+      <div>
+        Torso Big: <input type="number" id="torsoThickCount" min="0" value="120" /> of radius
+        <input type="number" id="torsoThickRadius" min="0.05" value="0.4" step="0.05" />Med:
+        <input type="number" id="torsoMediumCount" min="0" value="8" />of radius
+        <input type="number" id="torsoMediumRadius" min="0.05" value="0.2" step="0.05" /> Small:
+        <input type="number" id="torsoSmallCount" min="0" value="15" />of radius
+        <input type="number" id="torsoSmallRadius" min="0.05" value="0.1" step="0.05" />
+        Offset +/-<input type="number" id="torsoOffsetPercentage" min="0" value="3" step="0.1" />
+      </div>
+
       <button id="apply">Apply</button>
     </div>
 
