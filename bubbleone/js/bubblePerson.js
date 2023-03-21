@@ -16,13 +16,13 @@ const BUBBLE_HEAD_SPHERES = 50;
 
 export let BUBBLE_STICK_FIGURE;
 
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 5) {
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 1) {
   const group = new THREE.Group();
   group.visible = false;
 
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
-    const bubble = Bubble({ x, radius });
+    const bubble = Bubble({ x, radius, offset });
     group.add(bubble);
   }
 
@@ -44,7 +44,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
   for (let i = 0; i < numSpheres; i++) {
     const randomRadius = getRandomFloat(0.1, 0.4);
 
-    const bubble = Bubble({ radius: randomRadius });
+    const bubble = Bubble({ radius: randomRadius, offset: 0 });
     const angle1 = getRandomInt(0, 50);
     const angle2 = getRandomInt(0, 50);
 
@@ -61,8 +61,40 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
 }
 
 export function createBubbleBody() {
+  return [...createBubbleTorso(), ...createLimbs()];
+}
+
+export function createBubbleTorso() {
+  const offset = document.getElementById('offsetPercentage')?.value || 0.5;
+
+  const startKeypointName = 'neck';
+  const endKeypointName = 'stomach';
+  const thickCount = document.getElementById('thickCount')?.value || 5;
+  const thickBubbles = {
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.3, +thickCount * 2.5, offset * 3),
+  };
+
+  const mediumCount = document.getElementById('mediumCount')?.value || 8;
+  const middleBubbles = {
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.15, +mediumCount * 2.5, offset * 3),
+  };
+
+  const smallCount = document.getElementById('smallCount')?.value || 15;
+  const smallBubbles = {
+    startKeypointName,
+    endKeypointName,
+    group: createBubblesGroup(0.08, +smallCount * 2.5, offset * 3),
+  };
+
+  return [thickBubbles, middleBubbles, smallBubbles];
+}
+
+export function createLimbs() {
   const LINES_KEYPOINTS = [
-    ['neck', 'stomach'],
     ['left_elbow', 'neck'],
     ['left_wrist', 'left_elbow'],
     ['stomach', 'left_foot_index'],
@@ -71,25 +103,27 @@ export function createBubbleBody() {
     ['stomach', 'right_foot_index'],
   ];
 
+  const offset = document.getElementById('offsetPercentage')?.value || 0.5;
+
   const thickCount = document.getElementById('thickCount')?.value || 5;
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.3, +thickCount),
+    group: createBubblesGroup(0.3, +thickCount, offset),
   }));
 
   const mediumCount = document.getElementById('mediumCount')?.value || 8;
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.15, +mediumCount),
+    group: createBubblesGroup(0.15, +mediumCount, offset),
   }));
 
   const smallCount = document.getElementById('smallCount')?.value || 15;
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
-    group: createBubblesGroup(0.08, +smallCount),
+    group: createBubblesGroup(0.08, +smallCount, offset),
   }));
 
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];

@@ -11,7 +11,7 @@ export default function Bubble({
   x = 0,
   y = 0,
   z = 0,
-  offset = document.getElementById('offsetPercentage')?.value || 0.5,
+  offset = 1,
   rotation = createRandomEuler(),
   texture = getRandomColorTexture(),
 } = {}) {
