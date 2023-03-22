@@ -30,6 +30,20 @@ const VISIBLE_AREA_MARGIN = 5;
 let VISIBLE_AREA;
 let VISIBLE_AREA_WITH_MARGIN;
 
+const BOTTOM_OF_THE_SCREEN = -7;
+
+const getShapeTrajetoryEntry = () => {
+  const videoTexture = getRandomColorTexture();
+  const createShape = getRandomItem(AVAILABLE_SHAPES);
+  const shape = createShape(videoTexture);
+  const body = createBody(shape);
+
+  const shapeTrajectoryEntry = { shape, body, trajectory: null };
+  applyTrajectory(shapeTrajectoryEntry);
+
+  return shapeTrajectoryEntry;
+}
+
 export let SHAPES_WITH_TRAJECTORIES = [];
 
 export function resetShapes({ scene, world }) {
@@ -39,18 +53,11 @@ export function resetShapes({ scene, world }) {
 
   // Adding different shapes
   for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
-    const videoTexture = getRandomColorTexture();
-    const createShape = getRandomItem(AVAILABLE_SHAPES);
-    const shape = createShape(videoTexture);
-    const body = createBody(shape);
-
-    const shapeTrajectoryEntry = { shape, body, trajectory: null };
-    applyTrajectory(shapeTrajectoryEntry);
+    const shapeTrajectoryEntry = getShapeTrajetoryEntry();
 
     SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
 
     scene.add(shapeTrajectoryEntry.shape);
-
     world.addBody(shapeTrajectoryEntry.body);
   }
 }
@@ -59,6 +66,22 @@ export function renderShapes() {
   for (let shapeTrajectoryEntry of SHAPES_WITH_TRAJECTORIES) {
     if (shapeTrajectoryEntry.shape.visible) {
       applyTrajectory(shapeTrajectoryEntry);
+    }
+  }
+}
+
+export function updateShapes({ scene, world }) {
+  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
+    if (SHAPES_WITH_TRAJECTORIES[i].shape.position.y < BOTTOM_OF_THE_SCREEN) {
+      SHAPES_WITH_TRAJECTORIES[i].shape.visible = false;
+      scene.remove(SHAPES_WITH_TRAJECTORIES.shape);
+
+      const shapeTrajectoryEntry = getShapeTrajetoryEntry();
+
+      SHAPES_WITH_TRAJECTORIES[i] = shapeTrajectoryEntry;
+
+      scene.add(shapeTrajectoryEntry.shape);
+      world.addBody(shapeTrajectoryEntry.body);
     }
   }
 }

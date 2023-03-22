@@ -9,7 +9,7 @@ import {
   BUBBLE_STICK_FIGURE,
   checkBubbleFigureIntersection,
 } from './bubblePerson.js';
-import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
+import { renderShapes, resetShapes, updateShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -134,6 +134,7 @@ const render = async function () {
 
   world.step(1 / 60);
   renderShapes();
+  updateShapes({ scene, world });
   await detectPoses();
   renderer.render(scene, camera);
 };
