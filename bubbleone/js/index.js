@@ -19,7 +19,7 @@ document.querySelectorAll('.video-texture').forEach((video) => {
 
 const CAMERA_Z_POSITION_QUERY_KEY = 'z';
 const CAMERA_ZOOM_QUERY_KEY = 'zoom';
-
+const MINIMUM_POSES_SCORE = 20;
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
@@ -126,6 +126,18 @@ async function detectPoses() {
   detectPersonPresence(hasPoses);
 
   if (!hasPoses) {
+    return;
+  }
+
+  const estimatePosesKeyPoints = poses[0].keypoints;
+  const estimateScore = estimatePosesKeyPoints.reduce((accumulateScore, { score }) => {
+    if (score > 0.5) {
+      accumulateScore += score;
+    }
+    return accumulateScore;
+  }, 0);
+
+  if (estimateScore < MINIMUM_POSES_SCORE) {
     return;
   }
 
