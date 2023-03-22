@@ -205,6 +205,7 @@ function drawBubbleHead({ keypoints }) {
   for (let i = 0; i < headGroup.children.length; i++) {
     const bubble = headGroup.children[i];
     bubble.rotation.z = bubble.userData.rotation.z + angle;
+    alignPhysicalBody(bubble);
   }
 
   HEAD.visible = true;
@@ -328,10 +329,13 @@ export function checkBubbleFigureIntersection(shape) {
 }
 
 function alignPhysicalBody(entry) {
-  const isBubble = !!entry?.userData?.body;
-  if (isBubble) {
-    entry.userData.body.position.copy(entry.position);
-    entry.userData.body.position.z = 0;
-    entry.userData.body.quaternion.copy(entry.quaternion);
+  const body = entry?.userData?.body;
+  if (body) {
+    let target = new THREE.Vector3();
+    entry.getWorldPosition( target );
+    target.z = 0;
+    
+    body.position.copy(target);
+    body.quaternion.copy(entry.quaternion);
   }
 }

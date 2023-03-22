@@ -10,7 +10,6 @@ import {
   BUBBLE_STICK_FIGURE,
   checkBubbleFigureIntersection,
   BUBBLE_BODY_MATERIAL,
-  alignBubblePhysicalBodies,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL } from './shape.js';
 
