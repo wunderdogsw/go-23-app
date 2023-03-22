@@ -151,3 +151,13 @@ export function copyTextureToGroup(mesh, group) {
     child.material.map = sourceTexture;
   }
 }
+
+export function getParameterValue(parameterName, defaultValue) {
+  const valueAsString = parseFloat(document.getElementById(parameterName)?.value);
+  const valueAsFloat = parseFloat(valueAsString);
+  if (Number.isFinite(valueAsFloat)) {
+    return valueAsFloat;
+  }
+
+  return defaultValue;
+}
