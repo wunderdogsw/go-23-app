@@ -8,6 +8,7 @@ import {
   getAverage,
   getObjectX,
   getObjectY,
+  getVectorsRadianAngle,
   getRandomFloat,
   getRandomInt,
 } from './utils.js';
@@ -151,6 +152,7 @@ function drawBubbleHead({ keypoints }) {
   HEAD.visible = true;
 }
 
+
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
   if (!keypoints.length) {
     group.visible = false;
@@ -166,13 +168,18 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   }
 
   const direction = endVector.clone().sub(startVector);
+  const angle = getVectorsRadianAngle(endVector, startVector);
 
   for (let i = 0; i < group.children.length; i++) {
-    const t = i / group.children.length;
-    const position = startVector.clone().add(direction.clone().multiplyScalar(t));
     const bubble = group.children[i];
+
+    const scalar = i / group.children.length;
+    const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
     position.add(bubble.offset);
     bubble.position.copy(position);
+
+    const rotationZ = angle + bubble.userData.rotation.z;
+    bubble.rotation.z = rotationZ;
   }
 
   group.visible = true;
