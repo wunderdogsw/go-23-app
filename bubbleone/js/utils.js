@@ -97,6 +97,13 @@ export const getIdFromPath = (path) => {
   return path.split('/').slice(-1)[0];
 };
 
+export function getVectorsRadianAngle(startVector, endVector) {
+  // the vector angleTo function doesn't seem to produce the desired result
+  const deltaX = endVector.x - startVector.x;
+  const deltaY = endVector.y - startVector.y;
+  return Math.atan2(deltaY, deltaX);
+}
+
 export function getRandomRadianAngle() {
   const degrees = getRandomInt(0, 359);
   return THREE.MathUtils.degToRad(degrees);

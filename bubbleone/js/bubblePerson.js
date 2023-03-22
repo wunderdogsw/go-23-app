@@ -9,6 +9,7 @@ import {
   getObjectX,
   getObjectY,
   getParameterValue,
+  getVectorsRadianAngle,
   getRandomFloat,
   getRandomInt,
 } from './utils.js';
@@ -184,11 +185,19 @@ function drawBubbleHead({ keypoints }) {
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_NECK_LENGTH;
 
-  const sphereRadius = HEAD.children[0].geometry.parameters.radius;
+  const headGroup = HEAD.children[0];
+  const sphereRadius = headGroup.geometry.parameters.radius;
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
   const deltaY = deltaEarToShoulder - radiusY - sphereRadius;
 
   HEAD.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
+
+  const angle = getVectorsRadianAngle(leftOuterEyeVector, rightOuterEyeVector);
+  for (let i = 0; i < headGroup.children.length; i++) {
+    const bubble = headGroup.children[i];
+    bubble.rotation.z = bubble.userData.rotation.z + angle;
+  }
+
   HEAD.visible = true;
 }
 
@@ -207,13 +216,17 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   }
 
   const direction = endVector.clone().sub(startVector);
+  const angle = getVectorsRadianAngle(endVector, startVector);
 
   for (let i = 0; i < group.children.length; i++) {
-    const t = i / group.children.length;
-    const position = startVector.clone().add(direction.clone().multiplyScalar(t));
     const bubble = group.children[i];
+
+    const scalar = i / group.children.length;
+    const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
     position.add(bubble.offset);
     bubble.position.copy(position);
+
+    bubble.rotation.z = bubble.userData.rotation.z + angle;
   }
 
   group.visible = true;
