@@ -9,8 +9,9 @@ import {
   createBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
   checkBubbleFigureIntersection,
+  BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
-import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
+import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL } from './shape.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -57,14 +58,44 @@ let video;
 let detector;
 let isPersonPresent = false;
 
+function addShapeAndBubbleFigureContactMaterial() {
+  const contactMaterial = new CANNON.ContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
+    friction: 0.0,
+    restitution: 1.0
+  });
+  world.addContactMaterial(contactMaterial);
+}
+
 function removeBubbleStickFigure() {
   scene.remove(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.remove(group));
+  BUBBLE_STICK_FIGURE.HEAD.traverse(removePhysicalBodyFromWorld);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    scene.remove(group);
+    group.traverse(removePhysicalBodyFromWorld);
+  });
 }
 
 function addBubbleStickFigure() {
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+  BUBBLE_STICK_FIGURE.HEAD.traverse(addPhysicalBodyToWorld);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    scene.add(group);
+    group.traverse(addPhysicalBodyToWorld);
+  });
+}
+
+function addPhysicalBodyToWorld(entry) {
+  const body = entry?.userData?.body;
+  if (body) {
+    world.addBody(body);
+  } 
+}
+
+function removePhysicalBodyFromWorld(entry) {
+  const body = entry?.userData?.body;
+  if (body) {
+    world.removeBody(body);
+  } 
 }
 
 function personLeft() {
@@ -98,9 +129,8 @@ function renderPose(pose) {
 }
 
 function checkShapeIntersections() {
-  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
-    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
-    checkBubbleFigureIntersection(shape);
+  for (let i = 0; i < SHAPES.length; i++) {
+    checkBubbleFigureIntersection(SHAPES[i]);
   }
 }
 
@@ -145,6 +175,8 @@ async function start() {
   createBubbleStickFigure();
   addBubbleStickFigure();
   resetShapes({ scene, world });
+
+  addShapeAndBubbleFigureContactMaterial();
 
   render();
 

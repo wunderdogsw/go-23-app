@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 import Bubble from './Bubble.js';
 import {
@@ -13,8 +14,11 @@ import {
   getRandomFloat,
   getRandomInt,
 } from './utils.js';
+import { createBody } from './physics.js';
 
 const BUBBLE_HEAD_SPHERES = 50;
+
+export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
 export let BUBBLE_STICK_FIGURE;
 
@@ -25,6 +29,8 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
     const bubble = Bubble({ x, radius, offset });
+    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+    alignPhysicalBody(bubble);
     group.add(bubble);
   }
 
@@ -55,6 +61,9 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
     const z = radius * getRandomFloat(0, 0.5);
 
     bubble.position.set(x, y, z);
+    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+    alignPhysicalBody(bubble);
+
     headSphere.add(bubble);
   }
 
@@ -196,6 +205,7 @@ function drawBubbleHead({ keypoints }) {
   for (let i = 0; i < headGroup.children.length; i++) {
     const bubble = headGroup.children[i];
     bubble.rotation.z = bubble.userData.rotation.z + angle;
+    alignPhysicalBody(bubble);
   }
 
   HEAD.visible = true;
@@ -227,6 +237,7 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
     bubble.position.copy(position);
 
     bubble.rotation.z = bubble.userData.rotation.z + angle;
+    alignPhysicalBody(bubble);
   }
 
   group.visible = true;
@@ -314,5 +325,17 @@ export function checkBubbleFigureIntersection(shape) {
     if (doesIntersect) {
       copyTextureToGroup(shape, group);
     }
+  }
+}
+
+function alignPhysicalBody(entry) {
+  const body = entry?.userData?.body;
+  if (body) {
+    let target = new THREE.Vector3();
+    entry.getWorldPosition( target );
+    target.z = 0;
+    
+    body.position.copy(target);
+    body.quaternion.copy(entry.quaternion);
   }
 }
