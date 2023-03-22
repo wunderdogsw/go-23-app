@@ -144,14 +144,21 @@ function drawBubbleHead({ keypoints }) {
   const radiusX = Math.abs(rightOuterEyeVector.x - leftOuterEyeVector.x);
   const radiusY = radiusX * HUMAN_NECK_LENGTH;
 
-  const sphereRadius = HEAD.children[0].geometry.parameters.radius;
+  const headGroup = HEAD.children[0];
+  const sphereRadius = headGroup.geometry.parameters.radius;
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
   const deltaY = deltaEarToShoulder - radiusY - sphereRadius;
 
   HEAD.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
+
+  const angle = getVectorsRadianAngle(leftOuterEyeVector, rightOuterEyeVector);
+  for (let i = 0; i < headGroup.children.length; i++) {
+    const bubble = headGroup.children[i];
+    bubble.rotation.z = bubble.userData.rotation.z + angle;
+  }
+
   HEAD.visible = true;
 }
-
 
 function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
   if (!keypoints.length) {
@@ -178,8 +185,7 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
     position.add(bubble.offset);
     bubble.position.copy(position);
 
-    const rotationZ = angle + bubble.userData.rotation.z;
-    bubble.rotation.z = rotationZ;
+    bubble.rotation.z = bubble.userData.rotation.z + angle;
   }
 
   group.visible = true;
