@@ -165,16 +165,17 @@ function updateParameters() {
 }
 
 function initControls() {
-  const hasControls = getQueryStringValue('controls');
-  if (!hasControls) {
-    return;
-  }
-
-  const controls = document.getElementById('controls');
-  controls.classList.toggle('hidden');
-
   const applyButton = document.getElementById('apply');
   applyButton.onclick = updateParameters;
+
+  hotkeys('ctrl+k, command+k', () => {
+    toggleControls();
+  });
+}
+
+function toggleControls() {
+  const controls = document.getElementById('controls');
+  controls.classList.toggle('hidden');
 }
 
 initControls();
