@@ -168,6 +168,11 @@ function initControls() {
   const applyButton = document.getElementById('apply');
   applyButton.onclick = updateParameters;
 
+  const hasControls = getQueryStringValue('controls');
+  if (hasControls === 'true') {
+    toggleControls();
+  }
+
   hotkeys('ctrl+k, command+k', () => {
     toggleControls();
   });
