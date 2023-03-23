@@ -115,6 +115,18 @@ function renderPoses(poses) {
   // checkShapeIntersections();
 }
 
+function calculateEstimateScore(keyPoints) {
+  let estimateScore = 0;
+
+  for (const { score } of keyPoints) {
+    if (score > 0.5) {
+      estimateScore += score;
+    }
+  }
+
+  return estimateScore;
+}
+
 async function detectPoses() {
   if (!(detector && video)) {
     return;
@@ -130,12 +142,7 @@ async function detectPoses() {
   }
 
   const estimatePosesKeyPoints = poses[0].keypoints;
-  const estimateScore = estimatePosesKeyPoints.reduce((accumulateScore, { score }) => {
-    if (score > 0.5) {
-      accumulateScore += score;
-    }
-    return accumulateScore;
-  }, 0);
+  const estimateScore = calculateEstimateScore(estimatePosesKeyPoints);
 
   if (estimateScore < MINIMUM_POSES_SCORE) {
     return;
