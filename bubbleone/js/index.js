@@ -91,6 +91,10 @@ function visibilityTraverseObject(object, show) {
 }
 
 function visibilityBubbleStickFigure(show) {
+  if (BUBBLE_STICK_FIGURE.HEAD.children[0].visible === show) {
+    return;
+  }
+
   BUBBLE_STICK_FIGURE.HEAD.traverse((children) => visibilityTraverseObject(children, show));
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
     group.traverse((children) => visibilityTraverseObject(children, show));
