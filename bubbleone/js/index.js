@@ -9,8 +9,9 @@ import {
   createBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
   checkBubbleFigureIntersection,
+  BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
-import { renderShapes, resetShapes, SHAPES_WITH_TRAJECTORIES } from './shape.js';
+import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL } from './shape.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -19,7 +20,7 @@ document.querySelectorAll('.video-texture').forEach((video) => {
 
 const CAMERA_Z_POSITION_QUERY_KEY = 'z';
 const CAMERA_ZOOM_QUERY_KEY = 'zoom';
-
+const MINIMUM_POSES_SCORE = 20;
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
@@ -57,14 +58,70 @@ let video;
 let detector;
 let isPersonPresent = false;
 
+function addShapeAndBubbleFigureContactMaterial() {
+  const contactMaterial = new CANNON.ContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
+    friction: 0.0,
+    restitution: 1.0,
+  });
+  world.addContactMaterial(contactMaterial);
+}
+
 function removeBubbleStickFigure() {
   scene.remove(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.remove(group));
+  BUBBLE_STICK_FIGURE.HEAD.traverse(removePhysicalBodyFromWorld);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    scene.remove(group);
+    group.traverse(removePhysicalBodyFromWorld);
+  });
+}
+
+function visibilityTraverseObject(object, show) {
+  object.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      if (show) {
+        object.traverse(addPhysicalBodyToWorld);
+        child.visible = true;
+        return;
+      }
+
+      object.traverse(removePhysicalBodyFromWorld);
+      child.visible = false;
+    }
+  });
+}
+
+function visibilityBubbleStickFigure(show) {
+  if (BUBBLE_STICK_FIGURE.HEAD.children[0].visible === show) {
+    return;
+  }
+
+  BUBBLE_STICK_FIGURE.HEAD.traverse((children) => visibilityTraverseObject(children, show));
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    group.traverse((children) => visibilityTraverseObject(children, show));
+  });
 }
 
 function addBubbleStickFigure() {
   scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => scene.add(group));
+  BUBBLE_STICK_FIGURE.HEAD.traverse(addPhysicalBodyToWorld);
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    scene.add(group);
+    group.traverse(addPhysicalBodyToWorld);
+  });
+}
+
+function addPhysicalBodyToWorld(entry) {
+  const body = entry?.userData?.body;
+  if (body) {
+    world.addBody(body);
+  }
+}
+
+function removePhysicalBodyFromWorld(entry) {
+  const body = entry?.userData?.body;
+  if (body) {
+    world.removeBody(body);
+  }
 }
 
 function personLeft() {
@@ -98,9 +155,8 @@ function renderPose(pose) {
 }
 
 function checkShapeIntersections() {
-  for (let i = 0; i < SHAPES_WITH_TRAJECTORIES.length; i++) {
-    const { shape } = SHAPES_WITH_TRAJECTORIES[i];
-    checkBubbleFigureIntersection(shape);
+  for (let i = 0; i < SHAPES.length; i++) {
+    checkBubbleFigureIntersection(SHAPES[i]);
   }
 }
 
@@ -113,6 +169,16 @@ function renderPoses(poses) {
   // keeping intersection related code in case anyone changes their minds about using it
   // once we have the final version we can safely remove it
   // checkShapeIntersections();
+}
+
+function calculateEstimateScore(keyPoints) {
+  let estimateScore = 0;
+
+  for (let i = 0; i < keyPoints.length; ++i) {
+    estimateScore += keyPoints[i].score;
+  }
+
+  return estimateScore;
 }
 
 async function detectPoses() {
@@ -129,6 +195,15 @@ async function detectPoses() {
     return;
   }
 
+  const estimatePosesKeyPoints = poses[0].keypoints;
+  const estimateScore = calculateEstimateScore(estimatePosesKeyPoints);
+
+  if (estimateScore < MINIMUM_POSES_SCORE) {
+    visibilityBubbleStickFigure(false);
+    return;
+  }
+
+  visibilityBubbleStickFigure(true);
   renderPoses(poses);
 }
 
@@ -145,6 +220,8 @@ async function start() {
   createBubbleStickFigure();
   addBubbleStickFigure();
   resetShapes({ scene, world });
+
+  addShapeAndBubbleFigureContactMaterial();
 
   render();
 
@@ -165,16 +242,22 @@ function updateParameters() {
 }
 
 function initControls() {
-  const hasControls = getQueryStringValue('controls');
-  if (!hasControls) {
-    return;
-  }
-
-  const controls = document.getElementById('controls');
-  controls.classList.toggle('hidden');
-
   const applyButton = document.getElementById('apply');
   applyButton.onclick = updateParameters;
+
+  const hasControls = getQueryStringValue('controls');
+  if (hasControls === 'true') {
+    toggleControls();
+  }
+
+  hotkeys('ctrl+k, command+k', () => {
+    toggleControls();
+  });
+}
+
+function toggleControls() {
+  const controls = document.getElementById('controls');
+  controls.classList.toggle('hidden');
 }
 
 initControls();

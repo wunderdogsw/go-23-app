@@ -10,7 +10,7 @@ import { createBody } from './physics.js';
 
 const AMOUNT_OF_GENERATED_SHAPES = 3;
 
-const SHAPE_POSITION_DEPTH = -0.01;
+const SHAPE_POSITION_DEPTH = 0;
 
 const DEFAULT_POSITION = new THREE.Vector3(0, 0, SHAPE_POSITION_DEPTH);
 
@@ -37,7 +37,7 @@ let VISIBLE_AREA_WITH_MARGIN;
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
-export let SHAPES_WITH_TRAJECTORIES = [];
+export let SHAPES = [];
 
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
@@ -51,23 +51,23 @@ export function resetShapes({ scene, world }) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
-    const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
+    shape.userData.body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
+    shape.userData.trajectory = null;
 
-    const shapeTrajectoryEntry = { shape, body, trajectory: null };
-    applyTrajectory(shapeTrajectoryEntry);
+    applyTrajectory(shape);
 
-    SHAPES_WITH_TRAJECTORIES.push(shapeTrajectoryEntry);
+    SHAPES.push(shape);
 
-    scene.add(shapeTrajectoryEntry.shape);
+    scene.add(shape);
 
-    world.addBody(shapeTrajectoryEntry.body);
+    world.addBody(shape.userData.body);
   }
 }
 
 export function renderShapes() {
-  for (let shapeTrajectoryEntry of SHAPES_WITH_TRAJECTORIES) {
-    if (shapeTrajectoryEntry.shape.visible) {
-      applyTrajectory(shapeTrajectoryEntry);
+  for (let shape of SHAPES) {
+    if (shape.visible) {
+      applyTrajectory(shape);
     }
   }
 }
@@ -100,14 +100,14 @@ function visibleArea(depth = -1, margin = 0) {
   return new THREE.Box3(bottomLeft, topRight);
 }
 
-function applyTrajectory(shapeTrajectoryEntry) {
-  if (!shapeTrajectoryEntry.trajectory || !isShapeVisible(shapeTrajectoryEntry.shape)) {
-    shapeTrajectoryEntry.trajectory = generateTrajectory(shapeTrajectoryEntry.shape);
+function applyTrajectory(shape) {
+  if (!shape.userData.trajectory || !isShapeVisible(shape)) {
+    shape.userData.trajectory = generateTrajectory(shape);
 
-    updateBody(shapeTrajectoryEntry);
+    updateBody(shape);
   }
 
-  updateShape(shapeTrajectoryEntry);
+  updateShape(shape);
 }
 
 function isShapeVisible(shape) {
@@ -118,18 +118,18 @@ function isShapeVisible(shape) {
   return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
 }
 
-function updateBody(shapeTrajectoryEntry) {
-  const { rotation, velocity, start } = shapeTrajectoryEntry.trajectory;
-  shapeTrajectoryEntry.body.position.copy(start);
-  shapeTrajectoryEntry.body.velocity.x = velocity.x;
-  shapeTrajectoryEntry.body.velocity.y = velocity.y;
-  shapeTrajectoryEntry.body.angularVelocity.copy(rotation);
-  shapeTrajectoryEntry.body.angularVelocity.normalize();
+function updateBody(shape) {
+  const { rotation, velocity, start } = shape.userData.trajectory;
+  shape.userData.body.position.copy(start);
+  shape.userData.body.velocity.x = velocity.x;
+  shape.userData.body.velocity.y = velocity.y;
+  shape.userData.body.angularVelocity.copy(rotation);
+  shape.userData.body.angularVelocity.normalize();
 }
 
-function updateShape(shapeTrajectoryEntry) {
-  shapeTrajectoryEntry.shape.position.copy(shapeTrajectoryEntry.body.position);
-  shapeTrajectoryEntry.shape.quaternion.copy(shapeTrajectoryEntry.body.quaternion);
+function updateShape(shape) {
+  shape.position.copy(shape.userData.body.position);
+  shape.quaternion.copy(shape.userData.body.quaternion);
 }
 
 function generateTrajectory(shape) {
@@ -190,17 +190,17 @@ function calculateAngle(from, to) {
 }
 
 function clearShapes(scene, world) {
-  SHAPES_WITH_TRAJECTORIES.forEach(({ shape, body }) => {
+  SHAPES.forEach(shape => {
     scene.remove(shape);
-    world.remove(body);
+    world.remove(shape.userData.body);
   });
-  SHAPES_WITH_TRAJECTORIES = [];
+  SHAPES = [];
   world.removeEventListener('postStep', keepFixedDepth);
 }
 
 function keepFixedDepth(event) {
-  for (let entry of SHAPES_WITH_TRAJECTORIES) {
-    entry.body.position.z = SHAPE_POSITION_DEPTH;
-    entry.shape.position.copy(entry.body.position);
+  for (let shape of SHAPES) {
+    shape.userData.body.position.z = SHAPE_POSITION_DEPTH;
+    shape.position.copy(shape.userData.body.position);
   }
 }
