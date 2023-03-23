@@ -18,12 +18,12 @@ const AVAILABLE_SHAPES = [Sphere, Cylinder, Cone];
 
 const MOVE_SPEED_RANGE = {
   min: 2,
-  max: 7
+  max: 7,
 };
 
 const ROTATION_RANGE = {
   min: -5,
-  max: 5
+  max: 5,
 };
 
 const VISIBLE_AREA_MARGIN = 5;
@@ -38,8 +38,6 @@ let VISIBLE_AREA_WITH_MARGIN;
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 export let SHAPES = [];
-
-const BOTTOM_OF_THE_SCREEN = -7;
 
 const getShapeTrajetoryEntry = () => {
   const videoTexture = getRandomColorTexture();
@@ -90,12 +88,12 @@ export function renderShapes() {
 export function updateShapes({ scene, world }) {
   for (let i = 0; i < SHAPES.length; i++) {
     const oldShape = SHAPES[i];
-    if (oldShape.position.y < BOTTOM_OF_THE_SCREEN) {
+    if (!isShapeVisible(oldShape)) {
       oldShape.visible = false;
       scene.remove(oldShape);
+      world.removeBody(oldShape.userData.body);
 
       const newShape = getShapeTrajetoryEntry();
-
       SHAPES[i] = newShape;
 
       scene.add(newShape);
@@ -133,7 +131,7 @@ function visibleArea(depth = -1, margin = 0) {
 }
 
 function applyTrajectory(shape) {
-  if (!shape.userData.trajectory || !isShapeVisible(shape)) {
+  if (!shape.userData.trajectory) {
     shape.userData.trajectory = generateTrajectory(shape);
 
     updateBody(shape);
@@ -146,7 +144,6 @@ function isShapeVisible(shape) {
   if (!shape) {
     return false;
   }
-
   return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
 }
 
