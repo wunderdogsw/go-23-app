@@ -61,7 +61,7 @@ let isPersonPresent = false;
 function addShapeAndBubbleFigureContactMaterial() {
   const contactMaterial = new CANNON.ContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
     friction: 0.0,
-    restitution: 1.0
+    restitution: 1.0,
   });
   world.addContactMaterial(contactMaterial);
 }
@@ -72,6 +72,28 @@ function removeBubbleStickFigure() {
   BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
     scene.remove(group);
     group.traverse(removePhysicalBodyFromWorld);
+  });
+}
+
+function visibilityTraverseObject(object, show) {
+  object.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      if (show) {
+        object.traverse(addPhysicalBodyToWorld);
+        child.visible = true;
+        return;
+      }
+
+      object.traverse(removePhysicalBodyFromWorld);
+      child.visible = false;
+    }
+  });
+}
+
+function visibilityBubbleStickFigure(show) {
+  BUBBLE_STICK_FIGURE.HEAD.traverse((children) => visibilityTraverseObject(children, show));
+  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
+    group.traverse((children) => visibilityTraverseObject(children, show));
   });
 }
 
@@ -88,14 +110,14 @@ function addPhysicalBodyToWorld(entry) {
   const body = entry?.userData?.body;
   if (body) {
     world.addBody(body);
-  } 
+  }
 }
 
 function removePhysicalBodyFromWorld(entry) {
   const body = entry?.userData?.body;
   if (body) {
     world.removeBody(body);
-  } 
+  }
 }
 
 function personLeft() {
@@ -173,9 +195,11 @@ async function detectPoses() {
   const estimateScore = calculateEstimateScore(estimatePosesKeyPoints);
 
   if (estimateScore < MINIMUM_POSES_SCORE) {
+    visibilityBubbleStickFigure(false);
     return;
   }
 
+  visibilityBubbleStickFigure(true);
   renderPoses(poses);
 }
 
