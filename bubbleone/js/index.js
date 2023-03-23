@@ -118,10 +118,8 @@ function renderPoses(poses) {
 function calculateEstimateScore(keyPoints) {
   let estimateScore = 0;
 
-  for (const { score } of keyPoints) {
-    if (score > 0.5) {
-      estimateScore += score;
-    }
+  for (let i = 0; i < keyPoints.length; ++i) {
+    estimateScore += keyPoints[i].score;
   }
 
   return estimateScore;
