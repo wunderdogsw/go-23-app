@@ -176,9 +176,9 @@ function drawBubbleHead({ keypoints }) {
   const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'left_eye_outer' });
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'right_eye_outer' });
   const leftShoulderVector = createVectorByKeypointName({ keypoints, name: 'left_shoulder' });
-  const rightShoulderVector = createVectorByKeypointName({ keypoints, name: 'right_shoulder' }); //added
+  const rightShoulderVector = createVectorByKeypointName({ keypoints, name: 'right_shoulder' });
 
-  if (!(leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector || rightShoulderVector)) { //added rightShoulderVector
+  if (!(leftOuterEyeVector || rightOuterEyeVector || leftShoulderVector || rightShoulderVector)) {
     HEAD.visible = false;
     return;
   }
@@ -188,11 +188,10 @@ function drawBubbleHead({ keypoints }) {
 
   const headGroup = HEAD.children[0];
   const sphereRadius = headGroup.geometry.parameters.radius;
-  const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y; //experiment -rightshoulder
-  //const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
-  const deltaY = (deltaEarToShoulder) - radiusY - sphereRadius;
+  const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
+  const deltaY = deltaEarToShoulder - radiusY - sphereRadius;
 
-  HEAD.position.set(leftOuterEyeVector.x, leftOuterEyeVector.y - deltaY);
+  HEAD.position.set(leftOuterEyeVector.x+1, leftOuterEyeVector.y - (deltaY));
 
   const angle = getVectorsRadianAngle(leftOuterEyeVector, rightOuterEyeVector);
   for (let i = 0; i < headGroup.children.length; i++) {
