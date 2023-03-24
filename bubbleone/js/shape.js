@@ -172,17 +172,13 @@ function generateTrajectoryVelocity(start) {
 }
 
 function calculateVelocity(angleRadians, speed, depth) {
-  return new THREE.Vector3(
-    speed * Math.cos(angleRadians),
-    speed * Math.sin(angleRadians),
-    depth
-  );
+  return new THREE.Vector3(speed * Math.cos(angleRadians), speed * Math.sin(angleRadians), depth);
 }
 
 /**
- * 
- * @param {THREE.Vector3} from 
- * @param {THREE.Vector3} to 
+ *
+ * @param {THREE.Vector3} from
+ * @param {THREE.Vector3} to
  * @returns angle (in radians)
  */
 function calculateAngle(from, to) {
@@ -190,9 +186,9 @@ function calculateAngle(from, to) {
 }
 
 function clearShapes(scene, world) {
-  SHAPES.forEach(shape => {
+  SHAPES.forEach((shape) => {
     scene.remove(shape);
-    world.remove(shape.userData.body);
+    world.removeBody(shape.userData.body);
   });
   SHAPES = [];
   world.removeEventListener('postStep', keepFixedDepth);
