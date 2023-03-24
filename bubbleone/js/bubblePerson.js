@@ -111,10 +111,12 @@ export function createLimbs() {
   const LINES_KEYPOINTS = [
     ['left_elbow', 'neck'],
     ['left_wrist', 'left_elbow'],
-    ['stomach', 'left_foot_index'],
+    ['stomach', 'left_knee'],
     ['neck', 'right_elbow'],
     ['right_elbow', 'right_wrist'],
-    ['stomach', 'right_foot_index'],
+    ['stomach', 'right_knee'],
+    ['left_knee', 'left_foot_index'],
+    ['right_knee', 'right_foot_index'],
   ];
 
   const offset = getParameterValue('limbsOffsetPercentage', 0.5);
@@ -332,9 +334,9 @@ function alignPhysicalBody(entry) {
   const body = entry?.userData?.body;
   if (body) {
     let target = new THREE.Vector3();
-    entry.getWorldPosition( target );
+    entry.getWorldPosition(target);
     target.z = 0;
-    
+
     body.position.copy(target);
     body.quaternion.copy(entry.quaternion);
   }
