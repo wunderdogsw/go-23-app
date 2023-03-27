@@ -76,28 +76,28 @@ export function createBubbleBody() {
 }
 
 export function createBubbleTorso() {
-  const offset = getParameterValue('torsoOffsetPercentage', 0.5);
+  const offset = getParameterValue('torsoOffsetPercentage');
 
   const startKeypointName = 'neck';
   const endKeypointName = 'stomach';
-  const thickCount = getParameterValue('torsoThickCount', 5);
-  const thickRadius = getParameterValue('torsoThickRadius', 0.5);
+  const thickCount = getParameterValue('torsoThickCount');
+  const thickRadius = getParameterValue('torsoThickRadius');
   const thickBubbles = {
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(thickRadius, thickCount, offset),
   };
 
-  const mediumCount = getParameterValue('torsoMediumCount', 8);
-  const mediumRadius = getParameterValue('torsoMediumRadius', 0.3);
+  const mediumCount = getParameterValue('torsoMediumCount');
+  const mediumRadius = getParameterValue('torsoMediumRadius');
   const middleBubbles = {
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(mediumRadius, mediumCount, offset),
   };
 
-  const smallCount = getParameterValue('torsoSmallCount', 15);
-  const smallRadius = getParameterValue('torsoSmallRadius', 0.1);
+  const smallCount = getParameterValue('torsoSmallCount');
+  const smallRadius = getParameterValue('torsoSmallRadius');
   const smallBubbles = {
     startKeypointName,
     endKeypointName,
@@ -119,26 +119,26 @@ export function createLimbs() {
     ['right_knee', 'right_foot_index'],
   ];
 
-  const offset = getParameterValue('limbsOffsetPercentage', 0.5);
+  const offset = getParameterValue('limbsOffsetPercentage');
 
-  const thickCount = getParameterValue('limbsThickCount', 5);
-  const thickRadius = getParameterValue('limbsThickRadius', 0.5);
+  const thickCount = getParameterValue('limbsThickCount');
+  const thickRadius = getParameterValue('limbsThickRadius');
   const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(thickRadius, thickCount, offset),
   }));
 
-  const mediumCount = getParameterValue('limbsMediumCount', 8);
-  const mediumRadius = getParameterValue('limbsMediumRadius', 0.3);
+  const mediumCount = getParameterValue('limbsMediumCount');
+  const mediumRadius = getParameterValue('limbsMediumRadius');
   const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
     group: createBubblesGroup(mediumRadius, mediumCount, offset),
   }));
 
-  const smallCount = getParameterValue('limbsSmallCount', 15);
-  const smallRadius = getParameterValue('limbsSmallRadius', 0.1);
+  const smallCount = getParameterValue('limbsSmallCount');
+  const smallRadius = getParameterValue('limbsSmallRadius');
   const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
     startKeypointName,
     endKeypointName,
