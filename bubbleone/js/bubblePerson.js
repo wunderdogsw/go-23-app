@@ -188,7 +188,7 @@ function drawBubbleHead({ keypoints }) {
   const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'right_eye_outer' });
   const neckVector = createVectorByKeypointName({ keypoints, name: 'neck' });
 
-  if (!(leftOuterEyeVector || rightOuterEyeVector || neckVector)) {
+  if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector)) {
     HEAD.visible = false;
     return;
   }
@@ -217,7 +217,7 @@ function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }
   const startVector = createVectorByKeypointName({ keypoints, name: startKeypointName });
   const endVector = createVectorByKeypointName({ keypoints, name: endKeypointName });
 
-  if (!(startVector || endVector)) {
+  if (!(startVector && endVector)) {
     group.visible = false;
     return;
   }
