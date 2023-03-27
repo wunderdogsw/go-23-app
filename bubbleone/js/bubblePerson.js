@@ -16,7 +16,7 @@ import {
 } from './utils.js';
 import { createBody } from './physics.js';
 
-const BUBBLE_HEAD_SPHERES = 50;
+const BUBBLE_HEAD_SPHERES = 15;
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
@@ -43,14 +43,14 @@ function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
   return new THREE.Mesh(sphereGeometry, sphereMaterial);
 }
 
-export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
+export function createBubbleHead(radius = 1, numSpheres = BUBBLE_HEAD_SPHERES) {
   const group = new THREE.Group();
   const headSphere = createHeadSphere({ radius });
 
   group.visible = false;
 
   for (let i = 0; i < numSpheres; i++) {
-    const randomRadius = getRandomFloat(0.1, 0.4);
+    const randomRadius = 0.4; //getRandomFloat(0.1, 0.4);
 
     const bubble = Bubble({ radius: randomRadius, offset: 0 });
     const angle1 = getRandomInt(0, 50);
