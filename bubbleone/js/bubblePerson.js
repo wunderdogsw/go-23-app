@@ -109,14 +109,16 @@ export function createBubbleTorso() {
 
 export function createLimbs() {
   const LINES_KEYPOINTS = [
-    ['left_elbow', 'neck'],
+    ['left_elbow', 'left_shoulder'],
     ['left_wrist', 'left_elbow'],
     ['stomach', 'left_knee'],
-    ['neck', 'right_elbow'],
+    ['neck', 'right_shoulder'],
     ['right_elbow', 'right_wrist'],
     ['stomach', 'right_knee'],
     ['left_knee', 'left_foot_index'],
     ['right_knee', 'right_foot_index'],
+    ['right_shoulder', 'right_elbow'],
+    ['left_shoulder', 'neck'],
   ];
 
   const offset = getParameterValue('limbsOffsetPercentage', 0.5);
