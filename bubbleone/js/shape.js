@@ -18,12 +18,12 @@ const AVAILABLE_SHAPES = [Sphere, Cylinder, Cone];
 
 const MOVE_SPEED_RANGE = {
   min: 2,
-  max: 7
+  max: 7,
 };
 
 const ROTATION_RANGE = {
   min: -5,
-  max: 5
+  max: 5,
 };
 
 const VISIBLE_AREA_MARGIN = 5;
@@ -38,6 +38,19 @@ let VISIBLE_AREA_WITH_MARGIN;
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 export let SHAPES = [];
+
+const getShapeTrajetoryEntry = () => {
+  const videoTexture = getRandomColorTexture();
+  const createShape = getRandomItem(AVAILABLE_SHAPES);
+  const shape = createShape(videoTexture);
+  const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
+
+  const shapeTrajectoryEntry = { body, trajectory: null };
+  shape.userData = shapeTrajectoryEntry;
+  applyTrajectory(shape);
+
+  return shape;
+};
 
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
@@ -72,6 +85,23 @@ export function renderShapes() {
   }
 }
 
+export function updateShapes({ scene, world }) {
+  for (let i = 0; i < SHAPES.length; i++) {
+    const oldShape = SHAPES[i];
+    if (!isShapeVisible(oldShape)) {
+      oldShape.visible = false;
+      scene.remove(oldShape);
+      world.removeBody(oldShape.userData.body);
+
+      const newShape = getShapeTrajetoryEntry();
+      SHAPES[i] = newShape;
+
+      scene.add(newShape);
+      world.addBody(newShape.userData.body);
+    }
+  }
+}
+
 function setupWorld(world) {
   // For keeping shape position z fixed
   world.addEventListener('postStep', keepFixedDepth);
@@ -80,7 +110,7 @@ function setupWorld(world) {
   if (SHAPES_COLLIDE_EACH_OTHER) {
     const contactMaterial = new CANNON.ContactMaterial(SHAPE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
       friction: 0.0,
-      restitution: 1.0
+      restitution: 1.0,
     });
     world.addContactMaterial(contactMaterial);
   }
@@ -101,7 +131,7 @@ function visibleArea(depth = -1, margin = 0) {
 }
 
 function applyTrajectory(shape) {
-  if (!shape.userData.trajectory || !isShapeVisible(shape)) {
+  if (!shape.userData.trajectory) {
     shape.userData.trajectory = generateTrajectory(shape);
 
     updateBody(shape);
@@ -114,7 +144,6 @@ function isShapeVisible(shape) {
   if (!shape) {
     return false;
   }
-
   return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
 }
 
@@ -154,7 +183,7 @@ function generateTrajectory(shape) {
   return {
     start,
     rotation,
-    velocity
+    velocity,
   };
 }
 
@@ -172,17 +201,13 @@ function generateTrajectoryVelocity(start) {
 }
 
 function calculateVelocity(angleRadians, speed, depth) {
-  return new THREE.Vector3(
-    speed * Math.cos(angleRadians),
-    speed * Math.sin(angleRadians),
-    depth
-  );
+  return new THREE.Vector3(speed * Math.cos(angleRadians), speed * Math.sin(angleRadians), depth);
 }
 
 /**
- * 
- * @param {THREE.Vector3} from 
- * @param {THREE.Vector3} to 
+ *
+ * @param {THREE.Vector3} from
+ * @param {THREE.Vector3} to
  * @returns angle (in radians)
  */
 function calculateAngle(from, to) {
@@ -190,9 +215,9 @@ function calculateAngle(from, to) {
 }
 
 function clearShapes(scene, world) {
-  SHAPES.forEach(shape => {
+  SHAPES.forEach((shape) => {
     scene.remove(shape);
-    world.remove(shape.userData.body);
+    world.removeBody(shape.userData.body);
   });
   SHAPES = [];
   world.removeEventListener('postStep', keepFixedDepth);
