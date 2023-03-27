@@ -21,6 +21,7 @@ export function setLocalStorageKey(key, value) {
   if (supportLocalStorage()) {
     try {
       window.localStorage.setItem(key, value);
+      return true;
     } catch (e) {
       throw new TypeError('Exceeded Storage Quota!');
     }
@@ -65,7 +66,6 @@ export function initControlInputs() {
 
 export function updateControlInputs() {
   for (const parameterName of Object.keys(DEFAULT_INPUT_CONTROLS)) {
-    console.log(document.getElementById(parameterName).value || DEFAULT_INPUT_CONTROLS[parameterName]);
     setLocalStorageKey(
       parameterName,
       document.getElementById(parameterName).value || DEFAULT_INPUT_CONTROLS[parameterName]
