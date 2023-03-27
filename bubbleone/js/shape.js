@@ -8,7 +8,7 @@ import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
 import { createBody } from './physics.js';
 
-const AMOUNT_OF_GENERATED_SHAPES = 3;
+const AMOUNT_OF_GENERATED_SHAPES = 7;
 
 const SHAPE_POSITION_DEPTH = 0;
 
