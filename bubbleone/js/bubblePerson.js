@@ -170,7 +170,7 @@ export function createLimbs() {
 
 export function createBubbleStickFigure() {
   BUBBLE_STICK_FIGURE = new THREE.Group();
-  BUBBLE_STICK_FIGURE.name = 'PERSON';
+  BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());
   BUBBLE_STICK_FIGURE.add(createBubbleBody());
 }
