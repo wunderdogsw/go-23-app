@@ -14,7 +14,6 @@ import {
   getRandomFloat,
   getRandomInt,
   disposeGroup,
-  disposeMesh,
 } from './utils.js';
 import { createBody } from './physics.js';
 
@@ -47,6 +46,7 @@ function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
 
 export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
   const group = new THREE.Group();
+  group.name = 'HEAD';
   const headSphere = createHeadSphere({ radius });
 
   group.visible = false;
@@ -74,39 +74,45 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
 }
 
 export function createBubbleBody() {
-  return [...createBubbleTorso(), ...createLimbs()];
+  const body = new THREE.Group();
+  body.name = 'BODY';
+  body.add(createBubbleTorso());
+  body.add(createLimbs());
+
+  return body;
 }
 
 export function createBubbleTorso() {
-  const offset = getParameterValue('torsoOffsetPercentage', 0.5);
+  const offset = getParameterValue('torsoOffsetPercentage');
 
   const startKeypointName = 'neck';
   const endKeypointName = 'stomach';
-  const thickCount = getParameterValue('torsoThickCount', 5);
-  const thickRadius = getParameterValue('torsoThickRadius', 0.5);
-  const thickBubbles = {
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(thickRadius, thickCount, offset),
-  };
 
-  const mediumCount = getParameterValue('torsoMediumCount', 8);
-  const mediumRadius = getParameterValue('torsoMediumRadius', 0.3);
-  const middleBubbles = {
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(mediumRadius, mediumCount, offset),
-  };
+  const thickCount = getParameterValue('torsoThickCount');
+  const thickRadius = getParameterValue('torsoThickRadius');
+  const thickBubbles = createBubblesGroup(thickRadius, thickCount, offset);
+  thickBubbles.userData.startKeypointName = startKeypointName;
+  thickBubbles.userData.endKeypointName = endKeypointName;
 
-  const smallCount = getParameterValue('torsoSmallCount', 15);
-  const smallRadius = getParameterValue('torsoSmallRadius', 0.1);
-  const smallBubbles = {
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(smallRadius, smallCount, offset),
-  };
+  const mediumCount = getParameterValue('torsoMediumCount');
+  const mediumRadius = getParameterValue('torsoMediumRadius');
+  const middleBubbles = createBubblesGroup(mediumRadius, mediumCount, offset);
+  middleBubbles.userData.startKeypointName = startKeypointName;
+  middleBubbles.userData.endKeypointName = endKeypointName;
 
-  return [thickBubbles, middleBubbles, smallBubbles];
+  const smallCount = getParameterValue('torsoSmallCount');
+  const smallRadius = getParameterValue('torsoSmallRadius');
+  const smallBubbles = createBubblesGroup(smallRadius, smallCount, offset);
+  smallBubbles.userData.startKeypointName = startKeypointName;
+  smallBubbles.userData.endKeypointName = endKeypointName;
+
+  const torso = new THREE.Group();
+  torso.name = 'TORSO';
+  torso.add(thickBubbles);
+  torso.add(middleBubbles);
+  torso.add(smallBubbles);
+
+  return torso;
 }
 
 export function createLimbs() {
@@ -123,76 +129,74 @@ export function createLimbs() {
     ['left_shoulder', 'neck'],
   ];
 
-  const offset = getParameterValue('limbsOffsetPercentage', 0.5);
+  const offset = getParameterValue('limbsOffsetPercentage');
 
-  const thickCount = getParameterValue('limbsThickCount', 5);
-  const thickRadius = getParameterValue('limbsThickRadius', 0.5);
-  const thickBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(thickRadius, thickCount, offset),
-  }));
+  const thickCount = getParameterValue('limbsThickCount');
+  const thickRadius = getParameterValue('limbsThickRadius');
+  const thickBubbles = new THREE.Group();
 
-  const mediumCount = getParameterValue('limbsMediumCount', 8);
-  const mediumRadius = getParameterValue('limbsMediumRadius', 0.3);
-  const middleBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(mediumRadius, mediumCount, offset),
-  }));
+  const mediumCount = getParameterValue('limbsMediumCount');
+  const mediumRadius = getParameterValue('limbsMediumRadius');
+  const middleBubbles = new THREE.Group();
 
-  const smallCount = getParameterValue('limbsSmallCount', 15);
-  const smallRadius = getParameterValue('limbsSmallRadius', 0.1);
-  const smallBubbles = LINES_KEYPOINTS.map(([startKeypointName, endKeypointName]) => ({
-    startKeypointName,
-    endKeypointName,
-    group: createBubblesGroup(smallRadius, smallCount, offset),
-  }));
+  const smallCount = getParameterValue('limbsSmallCount');
+  const smallRadius = getParameterValue('limbsSmallRadius');
+  const smallBubbles = new THREE.Group();
 
-  return [...thickBubbles, ...middleBubbles, ...smallBubbles];
+  for (let [startKeypointName, endKeypointName] of LINES_KEYPOINTS) {
+    const thick = createBubblesGroup(thickRadius, thickCount, offset);
+    thick.userData.startKeypointName = startKeypointName;
+    thick.userData.endKeypointName = endKeypointName;
+    thickBubbles.add(thick);
+
+    const middle = createBubblesGroup(mediumRadius, mediumCount, offset);
+    middle.userData.startKeypointName = startKeypointName;
+    middle.userData.endKeypointName = endKeypointName;
+    middleBubbles.add(middle);
+
+    const small = createBubblesGroup(smallRadius, smallCount, offset);
+    small.userData.startKeypointName = startKeypointName;
+    small.userData.endKeypointName = endKeypointName;
+    smallBubbles.add(middle);
+  }
+
+  const limbs = new THREE.Group();
+  limbs.add(thickBubbles);
+  limbs.add(middleBubbles);
+  limbs.add(smallBubbles);
+  limbs.name = 'LIMBS';
+
+  return limbs;
 }
 
 function removeBubbleHead() {
-  if (!BUBBLE_STICK_FIGURE?.HEAD) {
-    return;
-  }
-
-  const { HEAD } = BUBBLE_STICK_FIGURE;
+  const HEAD = BUBBLE_STICK_FIGURE.getObjectByName('HEAD');
   const headSphere = HEAD.children[0];
-
   disposeGroup(headSphere);
-  disposeMesh(headSphere);
-
-  BUBBLE_STICK_FIGURE.HEAD = null;
 }
 
 function removeBubbleBody() {
-  if (!BUBBLE_STICK_FIGURE?.BODY) {
-    return;
-  }
-
-  const { BODY } = BUBBLE_STICK_FIGURE;
-
-  for (let i = 0; i < BODY.length; i++) {
-    const { group } = BODY[i];
-    disposeGroup(group);
-  }
-
-  BUBBLE_STICK_FIGURE.BODY = null;
+  const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
+  disposeGroup(BODY);
 }
 
 function removeBubbleStickFigure() {
+  if (!BUBBLE_STICK_FIGURE) {
+    return;
+  }
+
   removeBubbleHead();
   removeBubbleBody();
+  BUBBLE_STICK_FIGURE = null;
 }
 
 export function createBubbleStickFigure() {
   removeBubbleStickFigure();
 
-  BUBBLE_STICK_FIGURE = {
-    HEAD: createBubbleHead(),
-    BODY: createBubbleBody(),
-  };
+  BUBBLE_STICK_FIGURE = new THREE.Group();
+  BUBBLE_STICK_FIGURE.name = 'FIGURE';
+  BUBBLE_STICK_FIGURE.add(createBubbleHead());
+  BUBBLE_STICK_FIGURE.add(createBubbleBody());
 }
 
 function findKeypointByName({ name, keypoints }) {
@@ -215,7 +219,7 @@ function createVectorByKeypointName({ keypoints, name }) {
 }
 
 function drawBubbleHead({ keypoints }) {
-  const { HEAD } = BUBBLE_STICK_FIGURE;
+  const HEAD = BUBBLE_STICK_FIGURE.getObjectByName('HEAD');
 
   if (!keypoints.length) {
     HEAD.visible = false;
@@ -246,14 +250,18 @@ function drawBubbleHead({ keypoints }) {
   HEAD.visible = true;
 }
 
-function drawBubbleLine({ startKeypointName, endKeypointName, keypoints, group }) {
+function drawBubbleLine({ keypoints, group }) {
   if (!keypoints.length) {
     group.visible = false;
     return;
   }
 
-  const startVector = createVectorByKeypointName({ keypoints, name: startKeypointName });
-  const endVector = createVectorByKeypointName({ keypoints, name: endKeypointName });
+  if (!group?.userData?.startKeypointName || !group?.userData?.endKeypointName) {
+    return;
+  }
+
+  const startVector = createVectorByKeypointName({ keypoints, name: group.userData.startKeypointName });
+  const endVector = createVectorByKeypointName({ keypoints, name: group.userData.endKeypointName });
 
   if (!(startVector && endVector)) {
     group.visible = false;
@@ -307,12 +315,13 @@ function createExtraKeypoints(keypoints) {
 }
 
 function drawBubbleBody({ keypoints }) {
-  const { BODY } = BUBBLE_STICK_FIGURE;
+  const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
 
-  for (let i = 0; i < BODY.length; i++) {
-    const { group, startKeypointName, endKeypointName } = BODY[i];
-    drawBubbleLine({ startKeypointName, endKeypointName, group, keypoints });
-  }
+  BODY.traverse((entry) => {
+    if (entry.type === 'Group') {
+      drawBubbleLine({ group: entry, keypoints });
+    }
+  });
 }
 
 export function drawBubbleStickFigure({ pose }) {

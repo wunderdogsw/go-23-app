@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
+import { getSizes, setSceneSize, getQueryStringValue, getParameterValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
   drawBubbleStickFigure,
@@ -12,14 +12,13 @@ import {
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
+import { updateControlInputs, resetParameters, initControlInputs } from './localStorage.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
   video.play();
 });
 
-const CAMERA_Z_POSITION_QUERY_KEY = 'z';
-const CAMERA_ZOOM_QUERY_KEY = 'zoom';
 const MINIMUM_POSES_SCORE = 20;
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -28,11 +27,7 @@ const canvas = document.querySelector('#canvas');
 // Create a basic perspective camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// Adjusting camera z position via querystring. 6 by default
-camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
-// Adjusting camera zoom percent via querystring. 100 % by default
-camera.zoom = (parseFloat(getQueryStringValue(CAMERA_ZOOM_QUERY_KEY)) || 100) / 100;
-
+updateCamera();
 camera.updateProjectionMatrix();
 
 setSceneSize(camera);
@@ -67,12 +62,8 @@ function addShapeAndBubbleFigureContactMaterial() {
 }
 
 function removeBubbleStickFigure() {
-  scene.remove(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.HEAD.traverse(removePhysicalBodyFromWorld);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    scene.remove(group);
-    group.traverse(removePhysicalBodyFromWorld);
-  });
+  scene.remove(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE.traverse(removePhysicalBodyFromWorld);
 }
 
 function visibilityTraverseObject(object, show) {
@@ -91,23 +82,16 @@ function visibilityTraverseObject(object, show) {
 }
 
 function visibilityBubbleStickFigure(show) {
-  if (BUBBLE_STICK_FIGURE.HEAD.children[0].visible === show) {
+  if (BUBBLE_STICK_FIGURE.children[0].visible === show) {
     return;
   }
 
-  BUBBLE_STICK_FIGURE.HEAD.traverse((children) => visibilityTraverseObject(children, show));
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    group.traverse((children) => visibilityTraverseObject(children, show));
-  });
+  BUBBLE_STICK_FIGURE.traverse((children) => visibilityTraverseObject(children, show));
 }
 
 function addBubbleStickFigure() {
-  scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.HEAD.traverse(addPhysicalBodyToWorld);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    scene.add(group);
-    group.traverse(addPhysicalBodyToWorld);
-  });
+  scene.add(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE.traverse(addPhysicalBodyToWorld);
 }
 
 function addPhysicalBodyToWorld(entry) {
@@ -234,17 +218,35 @@ async function start() {
 start();
 
 function updateParameters() {
+  updateControlInputs();
   scene.clear();
   scene.add(ambientLight);
   removeBubbleStickFigure();
   createBubbleStickFigure();
   addBubbleStickFigure();
+  updateCamera();
   resetShapes({ scene, world });
 }
 
+function resetInputValues() {
+  resetParameters();
+  updateParameters();
+}
+
+function updateCamera() {
+  const cameraPositionZ = parseInt(getParameterValue('camera_z'));
+  const cameraZoom = parseFloat(getParameterValue('camera_zoom'));
+
+  camera.position.z = cameraPositionZ;
+  camera.zoom = cameraZoom / 100;
+}
+
 function initControls() {
+  initControlInputs();
   const applyButton = document.getElementById('apply');
+  const resetButton = document.getElementById('reset');
   applyButton.onclick = updateParameters;
+  resetButton.onclick = resetInputValues;
 
   const hasControls = getQueryStringValue('controls');
   if (hasControls === 'true') {
