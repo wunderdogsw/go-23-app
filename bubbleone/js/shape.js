@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import { getRandomInt, getRandomFloat, visibleBoundingBox, getRandomItem } from './utils.js';
+import { getRandomFloat, visibleBoundingBox, getRandomItem, disposeMesh } from './utils.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
@@ -88,10 +88,12 @@ export function renderShapes() {
 export function updateShapes({ scene, world }) {
   for (let i = 0; i < SHAPES.length; i++) {
     const oldShape = SHAPES[i];
+
     if (!isShapeVisible(oldShape)) {
       oldShape.visible = false;
       scene.remove(oldShape);
       world.removeBody(oldShape.userData.body);
+      disposeMesh(oldShape);
 
       const newShape = getShapeTrajetoryEntry();
       SHAPES[i] = newShape;
@@ -218,6 +220,7 @@ function clearShapes(scene, world) {
   SHAPES.forEach((shape) => {
     scene.remove(shape);
     world.removeBody(shape.userData.body);
+    disposeMesh(shape);
   });
   SHAPES = [];
   world.removeEventListener('postStep', keepFixedDepth);

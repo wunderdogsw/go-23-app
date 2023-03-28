@@ -13,6 +13,8 @@ import {
   getVectorsRadianAngle,
   getRandomFloat,
   getRandomInt,
+  disposeGroup,
+  disposeMesh,
 } from './utils.js';
 import { createBody } from './physics.js';
 
@@ -148,21 +150,6 @@ export function createLimbs() {
   }));
 
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
-}
-
-function disposeMesh(mesh, disposeTexture = false) {
-  if (disposeTexture) {
-    mesh.material.dispose();
-  }
-
-  mesh.geometry.dispose();
-}
-
-function disposeGroup(group, disposeTexture = false) {
-  for (let i = 0; i < group.children.length; i++) {
-    const mesh = group.children[i];
-    disposeMesh(mesh, disposeTexture);
-  }
 }
 
 function removeBubbleHead() {
