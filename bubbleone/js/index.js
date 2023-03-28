@@ -12,13 +12,7 @@ import {
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
-import {
-  updateControlInputs,
-  clearLocalStorage,
-  resetControlInputs,
-  initControlInputs,
-  setLocalStorageKey,
-} from './localStorage.js';
+import { updateControlInputs, resetParameters, initControlInputs } from './localStorage.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -34,7 +28,6 @@ const canvas = document.querySelector('#canvas');
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 updateCamera();
-
 camera.updateProjectionMatrix();
 
 setSceneSize(camera);
@@ -236,32 +229,19 @@ function updateParameters() {
 }
 
 function resetInputValues() {
-  clearLocalStorage();
-  resetControlInputs();
+  resetParameters();
   updateParameters();
-}
-
-function initCameraInputs() {
-  const cameraPositionZ = document.getElementById('camera_z');
-  const cameraZoom = document.getElementById('camera_zoom');
-  cameraPositionZ.value = getParameterValue('camera_z');
-  cameraZoom.value = getParameterValue('camera_zoom');
 }
 
 function updateCamera() {
   const cameraPositionZ = parseInt(getParameterValue('camera_z'));
   const cameraZoom = parseFloat(getParameterValue('camera_zoom'));
 
-  // Adjusting camera z position via querystring. 6 by default
   camera.position.z = cameraPositionZ;
-  setLocalStorageKey('camera_z', cameraPositionZ);
-  // Adjusting camera zoom percent via querystring. 100 % by default
   camera.zoom = cameraZoom / 100;
-  setLocalStorageKey('camera_zoom', cameraZoom);
 }
 
 function initControls() {
-  initCameraInputs();
   initControlInputs();
   const applyButton = document.getElementById('apply');
   const resetButton = document.getElementById('reset');
