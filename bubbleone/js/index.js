@@ -69,12 +69,8 @@ function addShapeAndBubbleFigureContactMaterial() {
 }
 
 function removeBubbleStickFigure() {
-  scene.remove(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.HEAD.traverse(removePhysicalBodyFromWorld);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    scene.remove(group);
-    group.traverse(removePhysicalBodyFromWorld);
-  });
+  scene.remove(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE.traverse(removePhysicalBodyFromWorld);
 }
 
 function visibilityTraverseObject(object, show) {
@@ -93,23 +89,16 @@ function visibilityTraverseObject(object, show) {
 }
 
 function visibilityBubbleStickFigure(show) {
-  if (BUBBLE_STICK_FIGURE.HEAD.children[0].visible === show) {
+  if (BUBBLE_STICK_FIGURE.children[0].visible === show) {
     return;
   }
 
-  BUBBLE_STICK_FIGURE.HEAD.traverse((children) => visibilityTraverseObject(children, show));
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    group.traverse((children) => visibilityTraverseObject(children, show));
-  });
+  BUBBLE_STICK_FIGURE.traverse((children) => visibilityTraverseObject(children, show));
 }
 
 function addBubbleStickFigure() {
-  scene.add(BUBBLE_STICK_FIGURE.HEAD);
-  BUBBLE_STICK_FIGURE.HEAD.traverse(addPhysicalBodyToWorld);
-  BUBBLE_STICK_FIGURE.BODY.forEach(({ group }) => {
-    scene.add(group);
-    group.traverse(addPhysicalBodyToWorld);
-  });
+  scene.add(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE.traverse(addPhysicalBodyToWorld);
 }
 
 function addPhysicalBodyToWorld(entry) {
