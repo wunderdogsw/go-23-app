@@ -22,7 +22,7 @@ export function setLocalStorageKey(key, value) {
 }
 
 export function getLocalStorageKey(key) {
-  return window.localStorage.getItem(key) || DEFAULT_INPUT_CONTROLS[parameterName];
+  return window.localStorage.getItem(key) || DEFAULT_INPUT_CONTROLS[key];
 }
 
 export function clearLocalStorage() {
