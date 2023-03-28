@@ -5,18 +5,17 @@ body {
     justify-content: center;
     margin: 0;
     padding: 0;
-  }
+}
 
-  video {
+video {
     display: none;
-  }
+}
 
-  .hidden {
+.hidden {
     display: none;
-  }
+}
 
-  input {
+input {
     width: 50px;
     margin: 3px;
-  }
-  
+}
