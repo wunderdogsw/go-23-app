@@ -68,26 +68,27 @@ function removeBubbleStickFigure() {
 
 function visibilityTraverseObject(object, show) {
   object.traverse((child) => {
-    if (child instanceof THREE.Mesh) {
+    if (child instanceof THREE.Mesh && child.visible !== show) {
       if (show) {
-        child.traverse(addPhysicalBodyToWorld);
+        addPhysicalBodyToWorld(child);
         child.visible = true;
         return;
       }
-      if (!show) {
-        child.traverse(removePhysicalBodyFromWorld);
-        child.visible = false;
-      }
+
+      removePhysicalBodyFromWorld(child);
+      child.visible = false;
     }
   });
+
+  object.visible = show;
 }
 
 function visibilityBubbleStickFigure(show) {
-  if (BUBBLE_STICK_FIGURE.children[0].visible === show) {
+  if (BUBBLE_STICK_FIGURE.visible === show) {
     return;
   }
 
-  BUBBLE_STICK_FIGURE.traverse((children) => visibilityTraverseObject(children, show));
+  visibilityTraverseObject(BUBBLE_STICK_FIGURE, show);
 }
 
 function addBubbleStickFigure() {
