@@ -70,13 +70,14 @@ function visibilityTraverseObject(object, show) {
   object.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       if (show) {
-        object.traverse(addPhysicalBodyToWorld);
+        child.traverse(addPhysicalBodyToWorld);
         child.visible = true;
         return;
       }
-
-      object.traverse(removePhysicalBodyFromWorld);
-      child.visible = false;
+      if (!show) {
+        child.traverse(removePhysicalBodyFromWorld);
+        child.visible = false;
+      }
     }
   });
 }
