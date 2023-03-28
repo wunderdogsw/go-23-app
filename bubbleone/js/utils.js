@@ -152,18 +152,15 @@ export function copyTextureToGroup(mesh, group) {
   }
 }
 
-export function disposeMesh(mesh, disposeTexture = false) {
-  if (disposeTexture) {
-    mesh.material.dispose();
-  }
-
+export function disposeMesh(mesh) {
+  mesh.material.dispose();
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group, disposeTexture = false) {
+export function disposeGroup(group) {
   for (let i = 0; i < group.children.length; i++) {
     const mesh = group.children[i];
-    disposeMesh(mesh, disposeTexture);
+    disposeMesh(mesh);
   }
 }
 
