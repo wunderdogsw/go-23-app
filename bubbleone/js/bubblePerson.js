@@ -150,7 +150,58 @@ export function createLimbs() {
   return [...thickBubbles, ...middleBubbles, ...smallBubbles];
 }
 
+function disposeMesh(mesh, disposeTexture = false) {
+  if (disposeTexture) {
+    mesh.material.dispose();
+  }
+
+  mesh.geometry.dispose();
+}
+
+function disposeGroup(group, disposeTexture = false) {
+  for (let i = 0; i < group.children.length; i++) {
+    const mesh = group.children[i];
+    disposeMesh(mesh, disposeTexture);
+  }
+}
+
+function removeBubbleHead() {
+  if (!BUBBLE_STICK_FIGURE?.HEAD) {
+    return;
+  }
+
+  const { HEAD } = BUBBLE_STICK_FIGURE;
+  const headSphere = HEAD.children[0];
+
+  disposeGroup(headSphere);
+  disposeMesh(headSphere);
+
+  BUBBLE_STICK_FIGURE.HEAD = null;
+}
+
+function removeBubbleBody() {
+  if (!BUBBLE_STICK_FIGURE?.BODY) {
+    return;
+  }
+
+  const { BODY } = BUBBLE_STICK_FIGURE;
+
+  for (let i = 0; i < BODY.length; i++) {
+    const { group } = BODY[i];
+    disposeGroup(group);
+  }
+
+  BUBBLE_STICK_FIGURE.BODY = null;
+}
+
+function removeBubbleStickFigure() {
+  removeBubbleHead();
+  removeBubbleBody();
+}
+
 export function createBubbleStickFigure() {
+  removeBubbleStickFigure();
+
   BUBBLE_STICK_FIGURE = {
     HEAD: createBubbleHead(),
     BODY: createBubbleBody(),
