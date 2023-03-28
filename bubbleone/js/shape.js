@@ -1,14 +1,12 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import { getRandomFloat, visibleBoundingBox, getRandomItem, disposeMesh } from './utils.js';
+import { getRandomFloat, visibleBoundingBox, getRandomItem, disposeMesh, getParameterValue } from './utils.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
 import { createBody } from './physics.js';
-
-const AMOUNT_OF_GENERATED_SHAPES = 3;
 
 const SHAPE_POSITION_DEPTH = 0;
 
@@ -60,7 +58,8 @@ export function resetShapes({ scene, world }) {
   setupWorld(world);
 
   // Adding different shapes
-  for (let i = 0; i < AMOUNT_OF_GENERATED_SHAPES; i++) {
+  const amountOfShapes = getParameterValue('amountShapes');
+  for (let i = 0; i < amountOfShapes; i++) {
     const videoTexture = getRandomColorTexture();
     const createShape = getRandomItem(AVAILABLE_SHAPES);
     const shape = createShape(videoTexture);
