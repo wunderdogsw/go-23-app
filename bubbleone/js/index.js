@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
 import { getCameraVideo } from './media.js';
-import { getSizes, setSceneSize, getQueryStringValue } from './utils.js';
+import { getSizes, setSceneSize, getQueryStringValue, getParameterValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
   drawBubbleStickFigure,
@@ -12,14 +12,19 @@ import {
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
+import {
+  updateControlInputs,
+  clearLocalStorage,
+  resetControlInputs,
+  initControlInputs,
+  setLocalStorageKey,
+} from './localStorage.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
   video.play();
 });
 
-const CAMERA_Z_POSITION_QUERY_KEY = 'z';
-const CAMERA_ZOOM_QUERY_KEY = 'zoom';
 const MINIMUM_POSES_SCORE = 20;
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -28,10 +33,7 @@ const canvas = document.querySelector('#canvas');
 // Create a basic perspective camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// Adjusting camera z position via querystring. 6 by default
-camera.position.z = parseInt(getQueryStringValue(CAMERA_Z_POSITION_QUERY_KEY)) || 6;
-// Adjusting camera zoom percent via querystring. 100 % by default
-camera.zoom = (parseFloat(getQueryStringValue(CAMERA_ZOOM_QUERY_KEY)) || 100) / 100;
+updateCamera();
 
 camera.updateProjectionMatrix();
 
@@ -234,17 +236,48 @@ async function start() {
 start();
 
 function updateParameters() {
+  updateControlInputs();
   scene.clear();
   scene.add(ambientLight);
   removeBubbleStickFigure();
   createBubbleStickFigure();
   addBubbleStickFigure();
+  updateCamera();
   resetShapes({ scene, world });
 }
 
+function resetInputValues() {
+  clearLocalStorage();
+  resetControlInputs();
+  updateParameters();
+}
+
+function initCameraInputs() {
+  const cameraPositionZ = document.getElementById('camera_z');
+  const cameraZoom = document.getElementById('camera_zoom');
+  cameraPositionZ.value = getParameterValue('camera_z');
+  cameraZoom.value = getParameterValue('camera_zoom');
+}
+
+function updateCamera() {
+  const cameraPositionZ = parseInt(getParameterValue('camera_z'));
+  const cameraZoom = parseFloat(getParameterValue('camera_zoom'));
+
+  // Adjusting camera z position via querystring. 6 by default
+  camera.position.z = cameraPositionZ;
+  setLocalStorageKey('camera_z', cameraPositionZ);
+  // Adjusting camera zoom percent via querystring. 100 % by default
+  camera.zoom = cameraZoom / 100;
+  setLocalStorageKey('camera_zoom', cameraZoom);
+}
+
 function initControls() {
+  initCameraInputs();
+  initControlInputs();
   const applyButton = document.getElementById('apply');
+  const resetButton = document.getElementById('reset');
   applyButton.onclick = updateParameters;
+  resetButton.onclick = resetInputValues;
 
   const hasControls = getQueryStringValue('controls');
   if (hasControls === 'true') {

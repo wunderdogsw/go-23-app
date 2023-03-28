@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getLocalStorageKey, DEFAULT_INPUT_CONTROLS } from './localStorage.js';
 
 let sizes = {
   video: {
@@ -152,12 +153,12 @@ export function copyTextureToGroup(mesh, group) {
   }
 }
 
-export function getParameterValue(parameterName, defaultValue) {
+export function getParameterValue(parameterName) {
   const valueAsString = parseFloat(document.getElementById(parameterName)?.value);
   const valueAsFloat = parseFloat(valueAsString);
+
   if (Number.isFinite(valueAsFloat)) {
     return valueAsFloat;
   }
-
-  return defaultValue;
+  return getLocalStorageKey(parameterName) || DEFAULT_INPUT_CONTROLS[parameterName];
 }
