@@ -200,7 +200,7 @@ function drawBubbleHead({ keypoints }) {
   const deltaEarToShoulder = leftOuterEyeVector.y - leftShoulderVector.y;
   const deltaY = deltaEarToShoulder - radiusY - sphereRadius;
 
-  HEAD.position.set(leftOuterEyeVector.x+1, leftOuterEyeVector.y - deltaY);
+  HEAD.position.set(leftOuterEyeVector.x+1, leftOuterEyeVector.y - (deltaY));
 
   const angle = getVectorsRadianAngle(leftOuterEyeVector, rightOuterEyeVector);
   for (let i = 0; i < headGroup.children.length; i++) {
