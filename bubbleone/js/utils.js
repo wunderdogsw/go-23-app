@@ -160,5 +160,6 @@ export function getParameterValue(parameterName) {
   if (Number.isFinite(valueAsFloat)) {
     return valueAsFloat;
   }
-  return getLocalStorageKey(parameterName) || DEFAULT_INPUT_CONTROLS[parameterName];
+
+  return getLocalStorageKey(parameterName);
 }
