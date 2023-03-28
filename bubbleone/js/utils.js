@@ -153,6 +153,21 @@ export function copyTextureToGroup(mesh, group) {
   }
 }
 
+export function disposeMesh(mesh) {
+  mesh.material.dispose();
+  mesh.geometry.dispose();
+}
+
+export function disposeGroup(group) {
+  group.traverse((object) => {
+    if (object.type !== 'Mesh') {
+      return;
+    }
+
+    disposeMesh(object);
+  });
+}
+
 export function getParameterValue(parameterName) {
   const valueAsString = parseFloat(document.getElementById(parameterName)?.value);
   const valueAsFloat = parseFloat(valueAsString);
