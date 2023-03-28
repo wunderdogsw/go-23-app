@@ -12,7 +12,7 @@ import {
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
-import { updateControlInputs, resetControlInputs, initControlInputs } from './localStorage.js';
+import { updateControlInputs, resetParameters, initControlInputs } from './localStorage.js';
 
 document.querySelectorAll('.video-texture').forEach((video) => {
   // need to play texture videos programmatically, otherwise it doesn't work :(
@@ -28,7 +28,6 @@ const canvas = document.querySelector('#canvas');
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 updateCamera();
-
 camera.updateProjectionMatrix();
 
 setSceneSize(camera);
@@ -241,7 +240,7 @@ function updateParameters() {
 }
 
 function resetInputValues() {
-  resetControlInputs();
+  resetParameters();
   updateParameters();
 }
 

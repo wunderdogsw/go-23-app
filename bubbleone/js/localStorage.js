@@ -22,18 +22,14 @@ export function setLocalStorageKey(key, value) {
 }
 
 export function getLocalStorageKey(key) {
-  const data = window.localStorage.getItem(key);
-  if (data && typeof data === 'object') {
-    return JSON.parse(data);
-  }
-  return data;
+  return window.localStorage.getItem(key) || DEFAULT_INPUT_CONTROLS[parameterName];
 }
 
 export function clearLocalStorage() {
   window.localStorage.clear();
 }
 
-export function resetControlInputs() {
+export function resetParameters() {
   for (const parameterName of Object.keys(DEFAULT_INPUT_CONTROLS)) {
     setLocalStorageKey(parameterName, DEFAULT_INPUT_CONTROLS[parameterName]);
     document.getElementById(parameterName).value = DEFAULT_INPUT_CONTROLS[parameterName];
