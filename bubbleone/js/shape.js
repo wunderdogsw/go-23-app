@@ -1,7 +1,14 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import { getRandomFloat, visibleBoundingBox, getRandomItem, disposeMesh, getParameterValue } from './utils.js';
+import {
+  getRandomFloat,
+  visibleBoundingBox,
+  getRandomItem,
+  disposeMesh,
+  getParameterValue,
+  getCheckBoxValue,
+} from './utils.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
@@ -37,9 +44,19 @@ export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 export let SHAPES = [];
 
+function checkAvailableShapes() {
+  const onlySpheres = getCheckBoxValue('onlySpheres');
+  console.log({ onlySpheres });
+  if (onlySpheres) {
+    console.log('npo entra');
+    return Sphere;
+  }
+  return getRandomItem(AVAILABLE_SHAPES);
+}
+
 const getShapeTrajetoryEntry = () => {
   const videoTexture = getRandomColorTexture();
-  const createShape = getRandomItem(AVAILABLE_SHAPES);
+  const createShape = checkAvailableShapes();
   const shape = createShape(videoTexture);
   const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
 
@@ -61,13 +78,12 @@ export function resetShapes({ scene, world }) {
   const amountOfShapes = getParameterValue('amountShapes');
   for (let i = 0; i < amountOfShapes; i++) {
     const videoTexture = getRandomColorTexture();
-    const createShape = getRandomItem(AVAILABLE_SHAPES);
+    const createShape = checkAvailableShapes();
     const shape = createShape(videoTexture);
     shape.userData.body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
     shape.userData.trajectory = null;
 
     applyTrajectory(shape);
-
     SHAPES.push(shape);
 
     scene.add(shape);

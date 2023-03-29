@@ -18,6 +18,10 @@ export const DEFAULT_INPUT_CONTROLS = {
   amountShapes: 3,
 };
 
+export const DEFAULT_CHECKBOX_CONTROLS = {
+  onlySpheres: false,
+};
+
 export function setLocalStorageKey(key, value) {
   window.localStorage.setItem(key, value);
 }
@@ -35,12 +39,25 @@ export function resetParameters() {
     setLocalStorageKey(parameterName, DEFAULT_INPUT_CONTROLS[parameterName]);
     document.getElementById(parameterName).value = DEFAULT_INPUT_CONTROLS[parameterName];
   }
+
+  for (const parameterName of Object.keys(DEFAULT_CHECKBOX_CONTROLS)) {
+    setLocalStorageKey(parameterName, DEFAULT_CHECKBOX_CONTROLS[parameterName]);
+    document.getElementById(parameterName).checked = DEFAULT_CHECKBOX_CONTROLS[parameterName];
+  }
 }
 
 export function initControlInputs() {
   for (const parameterName of Object.keys(DEFAULT_INPUT_CONTROLS)) {
     document.getElementById(parameterName).value =
       getLocalStorageKey(parameterName) || DEFAULT_INPUT_CONTROLS[parameterName];
+  }
+
+  for (const parameterName of Object.keys(DEFAULT_CHECKBOX_CONTROLS)) {
+    const checked = getLocalStorageKey(parameterName)
+      ? getLocalStorageKey(parameterName) === 'true'
+      : DEFAULT_CHECKBOX_CONTROLS[parameterName];
+
+    document.getElementById(parameterName).checked = checked;
   }
 }
 
@@ -49,6 +66,13 @@ export function updateControlInputs() {
     setLocalStorageKey(
       parameterName,
       document.getElementById(parameterName).value || DEFAULT_INPUT_CONTROLS[parameterName]
+    );
+  }
+
+  for (const parameterName of Object.keys(DEFAULT_CHECKBOX_CONTROLS)) {
+    setLocalStorageKey(
+      parameterName,
+      document.getElementById(parameterName).checked || DEFAULT_CHECKBOX_CONTROLS[parameterName]
     );
   }
 }

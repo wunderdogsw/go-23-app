@@ -178,3 +178,9 @@ export function getParameterValue(parameterName) {
 
   return parseFloat(localStorageValue);
 }
+
+export function getCheckBoxValue(parameterName) {
+  const checked = document.getElementById(parameterName)?.checked;
+  console.log(getLocalStorageKey(parameterName), checked);
+  return getLocalStorageKey(parameterName) ? getLocalStorageKey(parameterName) === 'true' : checked;
+}
