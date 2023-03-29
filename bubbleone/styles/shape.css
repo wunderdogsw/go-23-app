@@ -5,18 +5,6 @@ body {
     justify-content: center;
 }
 
-#video {
-    display: none;
-}
-
 #canvas {
     transform: scaleX(-1);
-}
-
-#status {
-    display: flex;
-    font-size: 3rem;
-    justify-content: space-between;
-    padding: 1rem 0;
-    width: 640px;
 }
