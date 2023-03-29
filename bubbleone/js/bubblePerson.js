@@ -13,6 +13,7 @@ import {
   getVectorsRadianAngle,
   getRandomFloat,
   getRandomInt,
+  disposeGroup,
 } from './utils.js';
 import { createBody } from './physics.js';
 
@@ -86,7 +87,7 @@ export function createBubbleTorso() {
 
   const startKeypointName = 'neck';
   const endKeypointName = 'stomach';
-  
+
   const thickCount = getParameterValue('torsoThickCount');
   const thickRadius = getParameterValue('torsoThickRadius');
   const thickBubbles = createBubblesGroup(thickRadius, thickCount, offset);
@@ -137,7 +138,7 @@ export function createLimbs() {
   const mediumCount = getParameterValue('limbsMediumCount');
   const mediumRadius = getParameterValue('limbsMediumRadius');
   const middleBubbles = new THREE.Group();
-  
+
   const smallCount = getParameterValue('limbsSmallCount');
   const smallRadius = getParameterValue('limbsSmallRadius');
   const smallBubbles = new THREE.Group();
@@ -147,12 +148,12 @@ export function createLimbs() {
     thick.userData.startKeypointName = startKeypointName;
     thick.userData.endKeypointName = endKeypointName;
     thickBubbles.add(thick);
-   
+
     const middle = createBubblesGroup(mediumRadius, mediumCount, offset);
     middle.userData.startKeypointName = startKeypointName;
     middle.userData.endKeypointName = endKeypointName;
     middleBubbles.add(middle);
-   
+
     const small = createBubblesGroup(smallRadius, smallCount, offset);
     small.userData.startKeypointName = startKeypointName;
     small.userData.endKeypointName = endKeypointName;
@@ -168,7 +169,18 @@ export function createLimbs() {
   return limbs;
 }
 
+function removeBubbleStickFigure() {
+  if (!BUBBLE_STICK_FIGURE) {
+    return;
+  }
+
+  disposeGroup(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE = null;
+}
+
 export function createBubbleStickFigure() {
+  removeBubbleStickFigure();
+
   BUBBLE_STICK_FIGURE = new THREE.Group();
   BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());
@@ -293,11 +305,11 @@ function createExtraKeypoints(keypoints) {
 function drawBubbleBody({ keypoints }) {
   const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
 
-  BODY.traverse(entry => {
+  BODY.traverse((entry) => {
     if (entry.type === 'Group') {
       drawBubbleLine({ group: entry, keypoints });
     }
-  })
+  });
 }
 
 export function drawBubbleStickFigure({ pose }) {

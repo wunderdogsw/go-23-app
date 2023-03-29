@@ -29,24 +29,32 @@
         Med:
         <input type="number" id="limbsMediumCount" min="0" /> of radius
         <input type="number" id="limbsMediumRadius" min="0.05" step="0.05" /> Small:
-        <input type="number" id="limbsSmallCount" min="0"  /> of radius
+        <input type="number" id="limbsSmallCount" min="0" /> of radius
         <input type="number" id="limbsSmallRadius" min="0.05" step="0.05" />
         Offset +/-<input type="number" id="limbsOffsetPercentage" min="0" step="0.1" />
       </div>
       <div>
         Torso Big: <input type="number" id="torsoThickCount" min="0" /> of radius
         <input type="number" id="torsoThickRadius" min="0.05" step="0.05" />Med:
-        <input type="number" id="torsoMediumCount" min="0"  />of radius
-        <input type="number" id="torsoMediumRadius" min="0.05"  step="0.05" /> Small:
+        <input type="number" id="torsoMediumCount" min="0" />of radius
+        <input type="number" id="torsoMediumRadius" min="0.05" step="0.05" /> Small:
         <input type="number" id="torsoSmallCount" min="0" />of radius
-        <input type="number" id="torsoSmallRadius" min="0.05"  step="0.05" />
-        Offset +/-<input type="number" id="torsoOffsetPercentage" min="0"  step="0.1" />
+        <input type="number" id="torsoSmallRadius" min="0.05" step="0.05" />
+        Offset +/-<input type="number" id="torsoOffsetPercentage" min="0" step="0.1" />
       </div>
       <div>
-        Camera Z position: 
+        Camera Z position:
         <input type="number" id="camera_z" step="1" />
-        Camera Zoom: 
+        Camera Zoom:
         <input type="number" id="camera_zoom" min="0" step="5" />
+      </div>
+      <div>
+        Amount of shapes:
+        <input type="number" id="amountShapes" min="0" step="1" />
+      </div>
+      <div>
+        Video input (refresh browser after Apply):
+        <select id="videoDeviceId"></select>
       </div>
 
       <button id="apply">Apply</button>

@@ -153,13 +153,28 @@ export function copyTextureToGroup(mesh, group) {
   }
 }
 
-export function getParameterValue(parameterName) {
-  const valueAsString = parseFloat(document.getElementById(parameterName)?.value);
-  const valueAsFloat = parseFloat(valueAsString);
+export function disposeMesh(mesh) {
+  mesh.material.dispose();
+  mesh.geometry.dispose();
+}
 
-  if (Number.isFinite(valueAsFloat)) {
-    return valueAsFloat;
+export function disposeGroup(group) {
+  group.traverse((object) => {
+    if (object.type !== 'Mesh') {
+      return;
+    }
+
+    disposeMesh(object);
+  });
+}
+
+export function getParameterValue(parameterName) {
+  const valueAsString = document.getElementById(parameterName)?.value;
+  if (valueAsString) {
+    return parseFloat(valueAsString);
   }
 
-  return getLocalStorageKey(parameterName);
+  const localStorageValue = getLocalStorageKey(parameterName);
+
+  return parseFloat(localStorageValue);
 }
