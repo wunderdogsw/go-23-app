@@ -169,24 +169,12 @@ export function createLimbs() {
   return limbs;
 }
 
-function removeBubbleHead() {
-  const HEAD = BUBBLE_STICK_FIGURE.getObjectByName('HEAD');
-  const headSphere = HEAD.children[0];
-  disposeGroup(headSphere);
-}
-
-function removeBubbleBody() {
-  const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
-  disposeGroup(BODY);
-}
-
 function removeBubbleStickFigure() {
   if (!BUBBLE_STICK_FIGURE) {
     return;
   }
 
-  removeBubbleHead();
-  removeBubbleBody();
+  disposeGroup(BUBBLE_STICK_FIGURE);
   BUBBLE_STICK_FIGURE = null;
 }
 
