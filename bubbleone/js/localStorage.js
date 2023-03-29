@@ -15,6 +15,7 @@ export const DEFAULT_INPUT_CONTROLS = {
   limbsSmallRadius: 0.05,
   camera_z: 6,
   camera_zoom: 100,
+  amountShapes: 3,
 };
 
 export function setLocalStorageKey(key, value) {
