@@ -19,7 +19,7 @@ export default function Bubble({
   bubble.position.set(x, y, z);
   bubble.userData.rotation = rotation;
 
-  const randomOffset = new THREE.Vector3(Point(offset), Point(offset), 0);
+  const randomOffset = new THREE.Vector3(Point(offset), Point(offset), Point(offset));
   // Custom property to draw the bubble always with the same offset.
   bubble.offset = randomOffset;
   return bubble;
