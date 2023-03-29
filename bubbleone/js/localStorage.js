@@ -16,6 +16,7 @@ export const DEFAULT_INPUT_CONTROLS = {
   camera_z: 6,
   camera_zoom: 100,
   amountShapes: 3,
+  videoDeviceId: '',
 };
 
 export function setLocalStorageKey(key, value) {
