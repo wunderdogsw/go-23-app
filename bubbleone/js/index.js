@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import { getCameraVideo } from './media.js';
+import { getCameraVideoElement, getVideoInputDeviceId, getVideoInputDevices } from './media.js';
 import { getSizes, setSceneSize, getQueryStringValue, getParameterValue } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
@@ -14,12 +14,8 @@ import {
 import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
 import { updateControlInputs, resetParameters, initControlInputs } from './localStorage.js';
 
-document.querySelectorAll('.video-texture').forEach((video) => {
-  // need to play texture videos programmatically, otherwise it doesn't work :(
-  video.play();
-});
-
 const MINIMUM_POSES_SCORE = 20;
+
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
@@ -214,7 +210,9 @@ async function start() {
   render();
 
   const sizes = getSizes();
-  video = await getCameraVideo(sizes.video.width, sizes.video.height);
+  const videoInputDeviceId = await getVideoInputDeviceId();
+  video = await getCameraVideoElement(videoInputDeviceId, sizes.video.width, sizes.video.height);
+
   detector = await getDetector();
 }
 
@@ -244,8 +242,27 @@ function updateCamera() {
   camera.zoom = cameraZoom / 100;
 }
 
-function initControls() {
+async function initVideoInputControl() {
+  const videoInputControl = document.getElementById('videoDeviceId');
+  const videoInputDevices = await getVideoInputDevices();
+  const selectedVideoDeviceId = await getVideoInputDeviceId();
+
+  videoInputDevices.forEach(({ deviceId, label }) => {
+    const option = document.createElement('option');
+    option.value = deviceId;
+    option.textContent = label;
+
+    if (deviceId === selectedVideoDeviceId) {
+      option.selected = true;
+    }
+
+    videoInputControl.appendChild(option);
+  });
+}
+
+async function initControls() {
   initControlInputs();
+  await initVideoInputControl();
   const applyButton = document.getElementById('apply');
   const resetButton = document.getElementById('reset');
   applyButton.onclick = updateParameters;

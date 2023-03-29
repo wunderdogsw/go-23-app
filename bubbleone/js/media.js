@@ -1,11 +1,13 @@
-export function getCameraVideo(width = 640, height = 480) {
+import { getLocalStorageKey } from './localStorage.js';
+
+export function getCameraVideoElement(deviceId, width = 640, height = 480) {
   return new Promise((resolve, reject) => {
     if (!navigator?.mediaDevices) {
       reject('No media devices');
     }
 
     navigator.mediaDevices
-      .getUserMedia({ video: { width, height } })
+      .getUserMedia({ video: { deviceId, width, height } })
       .then((stream) => {
         const video = document.createElement('video');
         video.srcObject = stream;
@@ -16,4 +18,19 @@ export function getCameraVideo(width = 640, height = 480) {
       })
       .catch(reject);
   });
+}
+
+export async function getVideoInputDevices() {
+  if (!navigator?.mediaDevices) {
+    return [];
+  }
+
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.filter(({ kind }) => kind === 'videoinput');
+}
+
+export async function getVideoInputDeviceId() {
+  const videoInputDevices = await getVideoInputDevices();
+  const defaultInputDeviceId = videoInputDevices[0]?.deviceId ?? null;
+  return getLocalStorageKey('videoDeviceId') ?? defaultInputDeviceId;
 }
