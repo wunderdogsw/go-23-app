@@ -7,7 +7,7 @@ export function getCameraVideoElement(deviceId, width = 640, height = 480) {
     }
 
     navigator.mediaDevices
-      .getUserMedia({ video: { width, height } })
+      .getUserMedia({ video: { deviceId, width, height } })
       .then((stream) => {
         const video = document.createElement('video');
         video.srcObject = stream;
