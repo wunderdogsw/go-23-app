@@ -63,12 +63,12 @@ function addShapeAndBubbleFigureContactMaterial() {
 
 function removeBubbleStickFigure() {
   scene.remove(BUBBLE_STICK_FIGURE);
-  BUBBLE_STICK_FIGURE.traverse(removePhysicalBodyFromWorld);
+  visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
 }
 
-function visibilityTraverseObject(object, show) {
+function visibilityTraverseObject(object, show, force = false) {
   object.traverse((child) => {
-    if (child instanceof THREE.Mesh && child.visible !== show) {
+    if (child instanceof THREE.Mesh && (force || child.visible !== show)) {
       if (show) {
         addPhysicalBodyToWorld(child);
         child.visible = true;
@@ -93,7 +93,7 @@ function visibilityBubbleStickFigure(show) {
 
 function addBubbleStickFigure() {
   scene.add(BUBBLE_STICK_FIGURE);
-  BUBBLE_STICK_FIGURE.traverse(addPhysicalBodyToWorld);
+  visibilityTraverseObject(BUBBLE_STICK_FIGURE, true, true);
 }
 
 function addPhysicalBodyToWorld(entry) {
@@ -114,6 +114,7 @@ function personLeft() {
   isPersonPresent = false;
   removeBubbleStickFigure();
   createBubbleStickFigure();
+  visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
 }
 
 function personEntered() {
