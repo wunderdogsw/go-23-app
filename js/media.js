@@ -1,4 +1,4 @@
-import { getLocalStorageKey } from './localStorage.js';
+import { getParameters } from './parameters.js';
 
 export function getCameraVideoElement(deviceId, width = 640, height = 480) {
   return new Promise((resolve, reject) => {
@@ -32,5 +32,6 @@ export async function getVideoInputDevices() {
 export async function getVideoInputDeviceId() {
   const videoInputDevices = await getVideoInputDevices();
   const defaultInputDeviceId = videoInputDevices[0]?.deviceId ?? null;
-  return getLocalStorageKey('videoDeviceId') ?? defaultInputDeviceId;
+  const { videoDeviceId } = getParameters();
+  return videoDeviceId ?? defaultInputDeviceId;
 }

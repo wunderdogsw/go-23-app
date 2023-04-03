@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { getLocalStorageKey } from './localStorage.js';
 
 let sizes = {
   video: {
@@ -132,13 +131,21 @@ export function disposeGroup(group) {
   });
 }
 
-export function getParameterValue(parameterName) {
-  const valueAsString = document.getElementById(parameterName)?.value;
-  if (valueAsString) {
-    return parseFloat(valueAsString);
+// reference: https://stackoverflow.com/questions/175739/how-can-i-check-if-a-string-is-a-valid-number
+function isNumeric(str) {
+  if (typeof str != 'string') return false;
+  return !isNaN(str) && !isNaN(parseFloat(str));
+}
+
+export function convertFormToJson(form) {
+  const formData = new FormData(form);
+  const entries = formData.entries();
+  const json = {};
+
+  for (const [key, value] of entries) {
+    const isNumber = isNumeric(value);
+    json[key] = isNumber ? parseFloat(value) : value;
   }
 
-  const localStorageValue = getLocalStorageKey(parameterName);
-
-  return parseFloat(localStorageValue);
+  return json;
 }
