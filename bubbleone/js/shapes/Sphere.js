@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 /**
  *
  * @param {THREE.VideoTexture} texture
