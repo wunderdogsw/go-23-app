@@ -5,12 +5,12 @@
 ## What is this?
 
 The Bubble Figure is an interactive art installation that runs in the browser. When a person is recognized in the webcam
-it makes them appear as a colorful bubble figure. The can then interact with various shapes that fall from above, for
+it makes them appear as a colorful bubble figure. They can then interact with various shapes that fall from above, for
 example, by hitting them. Simple and fun.
 
 ## Who was it made for?
 
-The installation was made for [Grand One](https://grandone.fi), the 2023 edition. These are annual design awards that
+The installation was made for [Grand One](https://grandone.fi), 2023 edition. These are annual design awards that
 take place in Helsinki, Finland. Please see [event photos](https://www.paavopykalainen.com/2023/Grand-One-2023/n-FrhNhf/).
 
 ## Why was it built?
