@@ -1,6 +1,0 @@
-node_modules
-dist
-.vscode
-.idea
-package.json
-package-lock.json

@@ -34,7 +34,7 @@ To simulate physics, [cannon-es](https://pmndrs.github.io/cannon-es/) is used.
 
 ## How can I run it?
 
-The project is built using plain HTML/CSS/JS. To run it, use a web server, for example `npx http-server bubbleone`,
+The project is built using plain HTML/CSS/JS. To run it, use a web server, for example `npx http-server`,
 and simply open the URL. Please use Google Chrome, other browsers are not officially supported.
 
 When the app is running, hit Command + K on Mac or Ctrl + K on Windows to adjust various parameters. Clicking Apply will
