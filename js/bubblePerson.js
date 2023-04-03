@@ -4,10 +4,7 @@ import * as THREE from 'three';
 import Bubble from './Bubble.js';
 import { createBody } from './physics.js';
 import {
-  copyTextureToGroup,
-  createGroupBoundingBoxes,
   disposeGroup,
-  doesBoxIntersectBoxes,
   getAverage,
   getObjectX,
   getObjectY,
@@ -22,20 +19,6 @@ export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 export let BUBBLE_STICK_FIGURE;
 
 const BUBBLE_HEAD_SPHERES = 50;
-
-export function checkBubbleFigureIntersection(shape) {
-  const box = new THREE.Box3().setFromObject(shape);
-  const bubbleFigureBoxes = createBubbleFigureBoxes();
-
-  for (let i = 0; i < bubbleFigureBoxes.length; i++) {
-    const { group, boxes } = bubbleFigureBoxes[i];
-    const doesIntersect = doesBoxIntersectBoxes(box, boxes);
-
-    if (doesIntersect) {
-      copyTextureToGroup(shape, group);
-    }
-  }
-}
 
 export function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
@@ -279,7 +262,7 @@ function drawBubbleLine({ keypoints, group }) {
 
     const scalar = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
-    position.add(bubble.offset);
+    position.add(bubble.userData.offset);
     bubble.position.copy(position);
 
     bubble.rotation.z = bubble.userData.rotation.z + angle;
@@ -334,32 +317,6 @@ function createExtraKeypoints(keypoints) {
     endKeypointName: 'right_hip',
   });
   return [neck, stomach];
-}
-
-function createHeadBox() {
-  const group = BUBBLE_STICK_FIGURE.HEAD.children[0];
-  const boxes = createGroupBoundingBoxes(group);
-
-  return { group, boxes };
-}
-
-function createBodyBoxes() {
-  const bodyBoxes = [];
-
-  for (let i = 0; i < BUBBLE_STICK_FIGURE.BODY.length; i++) {
-    const { group } = BUBBLE_STICK_FIGURE.BODY[i];
-    const boxes = createGroupBoundingBoxes(group);
-    bodyBoxes.push({ group, boxes });
-  }
-
-  return bodyBoxes;
-}
-
-function createBubbleFigureBoxes() {
-  const headBox = createHeadBox();
-  const bodyBoxes = createBodyBoxes();
-
-  return [headBox, ...bodyBoxes];
 }
 
 function alignPhysicalBody(entry) {

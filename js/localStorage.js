@@ -1,4 +1,4 @@
-export const DEFAULT_INPUT_CONTROLS = {
+const DEFAULT_INPUT_CONTROLS = {
   torsoOffsetPercentage: 3,
   torsoThickCount: 120,
   torsoThickRadius: 0.4,

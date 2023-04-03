@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { getLocalStorageKey, DEFAULT_INPUT_CONTROLS } from './localStorage.js';
+import { getLocalStorageKey } from './localStorage.js';
 
 let sizes = {
   video: {
@@ -30,7 +30,7 @@ export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
-export function visibleBoundingBox(depth = 0) {
+export function visibleBoundingBox() {
   const { width, height } = sizes.scene;
 
   const left = -width / 2;
@@ -115,42 +115,6 @@ export function createRandomEuler() {
   const y = getRandomRadianAngle();
   const z = getRandomRadianAngle();
   return new THREE.Euler(x, y, z);
-}
-
-export function createGroupBoundingBoxes(group) {
-  const boxes = [];
-
-  for (let i = 0; i < group.children.length; i++) {
-    const child = group.children[i];
-    const box = new THREE.Box3().setFromObject(child);
-    boxes.push(box);
-  }
-
-  return boxes;
-}
-
-// reference: ChatGPT
-export function doesBoxIntersectBoxes(box, boxes) {
-  for (let i = 0; i < boxes.length; i++) {
-    const bubbleBox = boxes[i];
-    if (box.intersectsBox(bubbleBox)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-export function copyTextureToGroup(mesh, group) {
-  const sourceTexture = mesh.material.map;
-  if (group.children[0]?.material?.map === sourceTexture) {
-    return;
-  }
-
-  for (let i = 0; i < group.children.length; i++) {
-    const child = group.children[i];
-    child.material.map = sourceTexture;
-  }
 }
 
 export function disposeMesh(mesh) {
