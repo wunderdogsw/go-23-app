@@ -262,7 +262,7 @@ function drawBubbleLine({ keypoints, group }) {
 
     const scalar = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
-    position.add(bubble.offset);
+    position.add(bubble.userData.offset);
     bubble.position.copy(position);
 
     bubble.rotation.z = bubble.userData.rotation.z + angle;

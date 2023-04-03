@@ -21,6 +21,6 @@ export default function Bubble({
 
   const randomOffset = new THREE.Vector3(Point(offset), Point(offset), Point(offset));
   // Custom property to draw the bubble always with the same offset.
-  bubble.offset = randomOffset;
+  bubble.userData.offset = randomOffset;
   return bubble;
 }
