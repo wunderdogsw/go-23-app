@@ -1,12 +1,16 @@
-import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
 
-import { getRandomFloat, visibleBoundingBox, getRandomItem, disposeMesh, getParameterValue } from './utils.js';
+import { createBody } from './physics.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
-import { createBody } from './physics.js';
+import { disposeMesh, getParameterValue, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
+
+export let SHAPES = [];
+
+export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 const SHAPE_POSITION_DEPTH = 0;
 
@@ -32,10 +36,6 @@ const SHAPE_BODY_MASS = 1;
 
 let VISIBLE_AREA;
 let VISIBLE_AREA_WITH_MARGIN;
-
-export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
-
-export let SHAPES = [];
 
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
@@ -94,7 +94,7 @@ const createNewShape = () => {
   applyTrajectory(shape);
 
   return shape;
-};
+}
 
 function setupWorld(world) {
   // For keeping shape position z fixed
