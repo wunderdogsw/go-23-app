@@ -37,19 +37,6 @@ export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
 export let SHAPES = [];
 
-const getShapeTrajetoryEntry = () => {
-  const videoTexture = getRandomColorTexture();
-  const createShape = getRandomItem(AVAILABLE_SHAPES);
-  const shape = createShape(videoTexture);
-  const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
-
-  const shapeTrajectoryEntry = { body, trajectory: null };
-  shape.userData = shapeTrajectoryEntry;
-  applyTrajectory(shape);
-
-  return shape;
-};
-
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
 
@@ -60,13 +47,7 @@ export function resetShapes({ scene, world }) {
   // Adding different shapes
   const amountOfShapes = getParameterValue('amountShapes');
   for (let i = 0; i < amountOfShapes; i++) {
-    const videoTexture = getRandomColorTexture();
-    const createShape = getRandomItem(AVAILABLE_SHAPES);
-    const shape = createShape(videoTexture);
-    shape.userData.body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
-    shape.userData.trajectory = null;
-
-    applyTrajectory(shape);
+    const shape = createNewShape();
 
     SHAPES.push(shape);
 
@@ -94,7 +75,7 @@ export function updateShapes({ scene, world }) {
       world.removeBody(oldShape.userData.body);
       disposeMesh(oldShape);
 
-      const newShape = getShapeTrajetoryEntry();
+      const newShape = createNewShape();
       SHAPES[i] = newShape;
 
       scene.add(newShape);
@@ -102,6 +83,18 @@ export function updateShapes({ scene, world }) {
     }
   }
 }
+
+const createNewShape = () => {
+  const videoTexture = getRandomColorTexture();
+  const createShape = getRandomItem(AVAILABLE_SHAPES);
+  const shape = createShape(videoTexture);
+  const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
+  shape.userData = { body, trajectory: null };
+
+  applyTrajectory(shape);
+
+  return shape;
+};
 
 function setupWorld(world) {
   // For keeping shape position z fixed
