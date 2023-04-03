@@ -208,11 +208,7 @@ async function start() {
 
 start();
 
-function updateParameters(event) {
-  event.preventDefault();
-  const parameters = convertFormToJson(event.target);
-  setParameters(parameters);
-
+function updateParameters() {
   scene.clear();
   scene.add(ambientLight);
 
@@ -224,8 +220,18 @@ function updateParameters(event) {
   resetShapes({ scene, world });
 }
 
+function submitControlsForm(event) {
+  event.preventDefault();
+
+  const parameters = convertFormToJson(event.target);
+  setParameters(parameters);
+
+  updateParameters();
+}
+
 function resetInputValues() {
   setDefaultParameters();
+  initControlInputs();
   updateParameters();
 }
 
@@ -276,7 +282,7 @@ async function initControls() {
   await initVideoInputControl();
 
   const controls = document.getElementById('controls');
-  controls.onsubmit = updateParameters;
+  controls.onsubmit = submitControlsForm;
 
   const resetButton = document.getElementById('reset');
   resetButton.onclick = resetInputValues;
