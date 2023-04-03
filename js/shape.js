@@ -8,9 +8,9 @@ import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
 import { disposeMesh, getParameterValue, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
 
-export let SHAPES = [];
-
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
+
+let SHAPES = [];
 
 const SHAPE_POSITION_DEPTH = 0;
 
@@ -94,7 +94,7 @@ const createNewShape = () => {
   applyTrajectory(shape);
 
   return shape;
-}
+};
 
 function setupWorld(world) {
   // For keeping shape position z fixed
@@ -218,7 +218,7 @@ function clearShapes(scene, world) {
   world.removeEventListener('postStep', keepFixedDepth);
 }
 
-function keepFixedDepth(event) {
+function keepFixedDepth() {
   for (let shape of SHAPES) {
     shape.userData.body.position.z = SHAPE_POSITION_DEPTH;
     shape.position.copy(shape.userData.body.position);

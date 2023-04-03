@@ -8,10 +8,9 @@ import {
   drawBubbleStickFigure,
   createBubbleStickFigure,
   BUBBLE_STICK_FIGURE,
-  checkBubbleFigureIntersection,
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
-import { renderShapes, resetShapes, SHAPES, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
+import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
 import { updateControlInputs, resetParameters, initControlInputs } from './localStorage.js';
 
 const MINIMUM_POSES_SCORE = 20;
@@ -137,21 +136,11 @@ function renderPose(pose) {
   drawBubbleStickFigure({ pose });
 }
 
-function checkShapeIntersections() {
-  for (let i = 0; i < SHAPES.length; i++) {
-    checkBubbleFigureIntersection(SHAPES[i]);
-  }
-}
-
 function renderPoses(poses) {
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
   }
-
-  // keeping intersection related code in case anyone changes their minds about using it
-  // once we have the final version we can safely remove it
-  // checkShapeIntersections();
 }
 
 function calculateEstimateScore(keyPoints) {
