@@ -1,25 +1,5 @@
 import * as THREE from 'three';
 
-/**
- *
- * @param {string} path
- * @param {number} rotation
- * @param {number} x
- * @param {number} y
- * @returns
- */
-export default function StaticTexture(path, rotation = -1.57, x = 0.5, y = 0.5) {
-  const texture = new THREE.TextureLoader().load(path);
-
-  texture.rotation = rotation;
-  texture.center.set(x, y);
-  return texture;
-}
-
-function createStaticTextures(paths) {
-  return paths.map((path) => StaticTexture(path));
-}
-
 const COLOR_IMAGE_PATHS = [
   'assets/static/static_1.png',
   'assets/static/static_2.png',
@@ -44,3 +24,23 @@ const BLACK_WHITE_IMAGE_PATHS = [
 
 export const COLOR_STATIC_TEXTURES = createStaticTextures(COLOR_IMAGE_PATHS);
 export const BLACK_WHITE_STATIC_TEXTURES = createStaticTextures(BLACK_WHITE_IMAGE_PATHS);
+
+/**
+ *
+ * @param {string} path
+ * @param {number} rotation
+ * @param {number} x
+ * @param {number} y
+ * @returns
+ */
+export default function StaticTexture(path, rotation = -1.57, x = 0.5, y = 0.5) {
+  const texture = new THREE.TextureLoader().load(path);
+
+  texture.rotation = rotation;
+  texture.center.set(x, y);
+  return texture;
+}
+
+function createStaticTextures(paths) {
+  return paths.map((path) => StaticTexture(path));
+}

@@ -1,50 +1,71 @@
-import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
+import { createBody } from './physics.js';
 import {
   copyTextureToGroup,
   createGroupBoundingBoxes,
+  disposeGroup,
   doesBoxIntersectBoxes,
   getAverage,
   getObjectX,
   getObjectY,
   getParameterValue,
-  getVectorsRadianAngle,
   getRandomFloat,
   getRandomInt,
-  disposeGroup,
+  getVectorsRadianAngle,
 } from './utils.js';
-import { createBody } from './physics.js';
-
-const BUBBLE_HEAD_SPHERES = 50;
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
 export let BUBBLE_STICK_FIGURE;
 
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
-  const group = new THREE.Group();
-  group.visible = false;
+const BUBBLE_HEAD_SPHERES = 50;
 
-  for (let i = 0; i < numberOfBubbles; i++) {
-    const x = i * radius * 2;
-    const bubble = Bubble({ x, radius, offset });
-    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
-    alignPhysicalBody(bubble);
-    group.add(bubble);
+export function checkBubbleFigureIntersection(shape) {
+  const box = new THREE.Box3().setFromObject(shape);
+  const bubbleFigureBoxes = createBubbleFigureBoxes();
+
+  for (let i = 0; i < bubbleFigureBoxes.length; i++) {
+    const { group, boxes } = bubbleFigureBoxes[i];
+    const doesIntersect = doesBoxIntersectBoxes(box, boxes);
+
+    if (doesIntersect) {
+      copyTextureToGroup(shape, group);
+    }
+  }
+}
+
+export function drawBubbleStickFigure({ pose }) {
+  const { keypoints } = pose;
+
+  const extraKeypoints = createExtraKeypoints(keypoints);
+  const allKeypoints = [...keypoints, ...extraKeypoints];
+
+  drawBubbleHead({ keypoints: allKeypoints });
+  drawBubbleBody({ keypoints: allKeypoints });
+}
+
+export function createBubbleStickFigure() {
+  removeBubbleStickFigure();
+
+  BUBBLE_STICK_FIGURE = new THREE.Group();
+  BUBBLE_STICK_FIGURE.name = 'FIGURE';
+  BUBBLE_STICK_FIGURE.add(createBubbleHead());
+  BUBBLE_STICK_FIGURE.add(createBubbleBody());
+}
+
+function removeBubbleStickFigure() {
+  if (!BUBBLE_STICK_FIGURE) {
+    return;
   }
 
-  return group;
+  disposeGroup(BUBBLE_STICK_FIGURE);
+  BUBBLE_STICK_FIGURE = null;
 }
 
-function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
-  const sphereGeometry = new THREE.SphereGeometry(radius, x, y);
-  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
-  return new THREE.Mesh(sphereGeometry, sphereMaterial);
-}
-
-export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
+function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
   const group = new THREE.Group();
   group.name = 'HEAD';
   const headSphere = createHeadSphere({ radius });
@@ -73,7 +94,13 @@ export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES)
   return group;
 }
 
-export function createBubbleBody() {
+function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
+  const sphereGeometry = new THREE.SphereGeometry(radius, x, y);
+  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
+  return new THREE.Mesh(sphereGeometry, sphereMaterial);
+}
+
+function createBubbleBody() {
   const body = new THREE.Group();
   body.name = 'BODY';
   body.add(createBubbleTorso());
@@ -82,7 +109,7 @@ export function createBubbleBody() {
   return body;
 }
 
-export function createBubbleTorso() {
+function createBubbleTorso() {
   const offset = getParameterValue('torsoOffsetPercentage');
 
   const startKeypointName = 'neck';
@@ -115,7 +142,7 @@ export function createBubbleTorso() {
   return torso;
 }
 
-export function createLimbs() {
+function createLimbs() {
   const LINES_KEYPOINTS = [
     ['left_elbow', 'left_shoulder'],
     ['left_wrist', 'left_elbow'],
@@ -169,41 +196,19 @@ export function createLimbs() {
   return limbs;
 }
 
-function removeBubbleStickFigure() {
-  if (!BUBBLE_STICK_FIGURE) {
-    return;
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
+  const group = new THREE.Group();
+  group.visible = false;
+
+  for (let i = 0; i < numberOfBubbles; i++) {
+    const x = i * radius * 2;
+    const bubble = Bubble({ x, radius, offset });
+    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+    alignPhysicalBody(bubble);
+    group.add(bubble);
   }
 
-  disposeGroup(BUBBLE_STICK_FIGURE);
-  BUBBLE_STICK_FIGURE = null;
-}
-
-export function createBubbleStickFigure() {
-  removeBubbleStickFigure();
-
-  BUBBLE_STICK_FIGURE = new THREE.Group();
-  BUBBLE_STICK_FIGURE.name = 'FIGURE';
-  BUBBLE_STICK_FIGURE.add(createBubbleHead());
-  BUBBLE_STICK_FIGURE.add(createBubbleBody());
-}
-
-function findKeypointByName({ name, keypoints }) {
-  return keypoints.find((keypoint) => keypoint.name === name);
-}
-
-function createVectorByKeypoint(keypoint) {
-  const objectX = getObjectX(keypoint.x);
-  const objectY = getObjectY(keypoint.y);
-  return new THREE.Vector3(objectX, objectY, 0);
-}
-
-function createVectorByKeypointName({ keypoints, name }) {
-  const keypoint = findKeypointByName({ keypoints, name });
-  if (!keypoint) {
-    return null;
-  }
-
-  return createVectorByKeypoint(keypoint);
+  return group;
 }
 
 function drawBubbleHead({ keypoints }) {
@@ -236,6 +241,16 @@ function drawBubbleHead({ keypoints }) {
   }
 
   HEAD.visible = true;
+}
+
+function drawBubbleBody({ keypoints }) {
+  const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
+
+  BODY.traverse((entry) => {
+    if (entry.type === 'Group') {
+      drawBubbleLine({ group: entry, keypoints });
+    }
+  });
 }
 
 function drawBubbleLine({ keypoints, group }) {
@@ -274,6 +289,25 @@ function drawBubbleLine({ keypoints, group }) {
   group.visible = true;
 }
 
+function createVectorByKeypointName({ keypoints, name }) {
+  const keypoint = findKeypointByName({ keypoints, name });
+  if (!keypoint) {
+    return null;
+  }
+
+  return createVectorByKeypoint(keypoint);
+}
+
+function createVectorByKeypoint(keypoint) {
+  const objectX = getObjectX(keypoint.x);
+  const objectY = getObjectY(keypoint.y);
+  return new THREE.Vector3(objectX, objectY, 0);
+}
+
+function findKeypointByName({ name, keypoints }) {
+  return keypoints.find((keypoint) => keypoint.name === name);
+}
+
 function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
   const startKeypoint = findKeypointByName({ keypoints, name: startKeypointName });
   const endKeypoint = findKeypointByName({ keypoints, name: endKeypointName });
@@ -302,26 +336,6 @@ function createExtraKeypoints(keypoints) {
   return [neck, stomach];
 }
 
-function drawBubbleBody({ keypoints }) {
-  const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
-
-  BODY.traverse((entry) => {
-    if (entry.type === 'Group') {
-      drawBubbleLine({ group: entry, keypoints });
-    }
-  });
-}
-
-export function drawBubbleStickFigure({ pose }) {
-  const { keypoints } = pose;
-
-  const extraKeypoints = createExtraKeypoints(keypoints);
-  const allKeypoints = [...keypoints, ...extraKeypoints];
-
-  drawBubbleHead({ keypoints: allKeypoints });
-  drawBubbleBody({ keypoints: allKeypoints });
-}
-
 function createHeadBox() {
   const group = BUBBLE_STICK_FIGURE.HEAD.children[0];
   const boxes = createGroupBoundingBoxes(group);
@@ -346,20 +360,6 @@ function createBubbleFigureBoxes() {
   const bodyBoxes = createBodyBoxes();
 
   return [headBox, ...bodyBoxes];
-}
-
-export function checkBubbleFigureIntersection(shape) {
-  const box = new THREE.Box3().setFromObject(shape);
-  const bubbleFigureBoxes = createBubbleFigureBoxes();
-
-  for (let i = 0; i < bubbleFigureBoxes.length; i++) {
-    const { group, boxes } = bubbleFigureBoxes[i];
-    const doesIntersect = doesBoxIntersectBoxes(box, boxes);
-
-    if (doesIntersect) {
-      copyTextureToGroup(shape, group);
-    }
-  }
 }
 
 function alignPhysicalBody(entry) {
