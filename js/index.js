@@ -193,7 +193,7 @@ const render = async function () {
 };
 
 async function start() {
-  await initControls({ onSubmit: () => updateParameters() });
+  await initControls({ onSubmit: updateParameters });
   createBubbleStickFigure();
   addBubbleStickFigure();
   resetShapes({ scene, world });
