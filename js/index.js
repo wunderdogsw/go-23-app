@@ -1,20 +1,18 @@
-import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
 
-import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
-import { getSizes, setSceneSize } from './utils.js';
-import { getDetector } from './bodyDetection.js';
+import { detectPoses, initBodyDetection } from './bodyDetection.js';
 import {
-  drawBubbleStickFigure,
-  createBubbleStickFigure,
-  BUBBLE_STICK_FIGURE,
   BUBBLE_BODY_MATERIAL,
+  BUBBLE_STICK_FIGURE,
+  createBubbleStickFigure,
+  drawBubbleStickFigure,
 } from './bubblePerson.js';
-import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
-import { initParameters, getParameters } from './parameters.js';
 import { initControls } from './controls.js';
-
-const MINIMUM_POSES_SCORE = 20;
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
+import { getParameters, initParameters } from './parameters.js';
+import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shape.js';
+import { getSizes, setSceneSize } from './utils.js';
 
 initParameters();
 
@@ -47,10 +45,6 @@ scene.add(ambientLight);
 // Configure renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-let video;
-let detector;
-let isPersonPresent = false;
-
 function addShapeAndBubbleFigureContactMaterial() {
   const contactMaterial = new CANNON.ContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
     friction: 0.0,
@@ -81,7 +75,7 @@ function visibilityTraverseObject(object, show, force = false) {
   object.visible = show;
 }
 
-function visibilityBubbleStickFigure(show) {
+function setBubbleStickFigureVisibility(show) {
   if (BUBBLE_STICK_FIGURE.visible === show) {
     return;
   }
@@ -109,26 +103,13 @@ function removePhysicalBodyFromWorld(entry) {
 }
 
 function personLeft() {
-  isPersonPresent = false;
   removeBubbleStickFigure();
   createBubbleStickFigure();
   visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
 }
 
 function personEntered() {
-  isPersonPresent = true;
   addBubbleStickFigure();
-}
-
-function detectPersonPresence(hasPoses) {
-  const hasPersonLeft = !hasPoses && isPersonPresent;
-  const hasPersonEntered = hasPoses && !isPersonPresent;
-
-  if (hasPersonLeft) {
-    personLeft();
-  } else if (hasPersonEntered) {
-    personEntered();
-  }
 }
 
 function renderPose(pose) {
@@ -139,47 +120,21 @@ function renderPose(pose) {
   drawBubbleStickFigure({ pose });
 }
 
-function renderPoses(poses) {
+async function renderPoses() {
+  const { poses, posesLost, posesFound } = await detectPoses();
+ 
+  if (posesLost) {
+    personLeft();
+  } else if (posesFound) {
+    personEntered();
+  }
+
+  setBubbleStickFigureVisibility(!!poses.length);
+
   for (let i = 0; i < poses.length; i++) {
     const pose = poses[i];
     renderPose(pose);
   }
-}
-
-function calculateEstimateScore(keyPoints) {
-  let estimateScore = 0;
-
-  for (let i = 0; i < keyPoints.length; ++i) {
-    estimateScore += keyPoints[i].score;
-  }
-
-  return estimateScore;
-}
-
-async function detectPoses() {
-  if (!(detector && video)) {
-    return;
-  }
-
-  const poses = await detector.estimatePoses(video, {});
-  const hasPoses = !!poses?.length;
-
-  detectPersonPresence(hasPoses);
-
-  if (!hasPoses) {
-    return;
-  }
-
-  const estimatePosesKeyPoints = poses[0].keypoints;
-  const estimateScore = calculateEstimateScore(estimatePosesKeyPoints);
-
-  if (estimateScore < MINIMUM_POSES_SCORE) {
-    visibilityBubbleStickFigure(false);
-    return;
-  }
-
-  visibilityBubbleStickFigure(true);
-  renderPoses(poses);
 }
 
 const render = async function () {
@@ -188,7 +143,7 @@ const render = async function () {
   world.step(1 / 60);
   renderShapes();
   updateShapes({ scene, world });
-  await detectPoses();
+  await renderPoses();
   renderer.render(scene, camera);
 };
 
@@ -200,14 +155,10 @@ async function start() {
 
   addShapeAndBubbleFigureContactMaterial();
 
+  // render first before getting the video + detector, otherwise nothing is displayed for a few seconds
   render();
 
-  // render first before getting the video + detector, otherwise nothing is displayed for a few seconds
-  const sizes = getSizes();
-  const videoInputDeviceId = await getSelectedVideoInputDeviceId();
-  video = await getCameraVideoElement(videoInputDeviceId, sizes.video.width, sizes.video.height);
-
-  detector = await getDetector();
+  await initBodyDetection();
 }
 
 function updateCamera() {
