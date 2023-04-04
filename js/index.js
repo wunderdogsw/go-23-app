@@ -15,6 +15,8 @@ import { setDefaultParameters, initParameters, getParameters, setParameters } fr
 
 const MINIMUM_POSES_SCORE = 20;
 
+initParameters();
+
 // Create an empty scene
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#canvas');
@@ -190,7 +192,6 @@ const render = async function () {
 };
 
 async function start() {
-  initParameters();
   createBubbleStickFigure();
   addBubbleStickFigure();
   resetShapes({ scene, world });
@@ -237,7 +238,6 @@ function resetInputValues() {
 
 function updateCamera() {
   const { cameraZ, cameraZoom } = getParameters();
-
   camera.position.z = cameraZ;
   camera.zoom = cameraZoom / 100;
 }
