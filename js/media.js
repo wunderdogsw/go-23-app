@@ -29,7 +29,7 @@ export async function getVideoInputDevices() {
   return devices.filter(({ kind }) => kind === 'videoinput');
 }
 
-export async function getVideoInputDeviceId() {
+export async function getSelectedVideoInputDeviceId() {
   const videoInputDevices = await getVideoInputDevices();
   const defaultInputDeviceId = videoInputDevices[0]?.deviceId ?? null;
   const { videoDeviceId } = getParameters();

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import { getCameraVideoElement, getVideoInputDeviceId, getVideoInputDevices } from './media.js';
-import { getSizes, setSceneSize, getQueryStringValue, convertFormToJson } from './utils.js';
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
+import { getSizes, setSceneSize } from './utils.js';
 import { getDetector } from './bodyDetection.js';
 import {
   drawBubbleStickFigure,
@@ -11,7 +11,8 @@ import {
   BUBBLE_BODY_MATERIAL,
 } from './bubblePerson.js';
 import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
-import { setDefaultParameters, initParameters, getParameters, setParameters } from './parameters.js';
+import { initParameters, getParameters } from './parameters.js';
+import { initControls } from './controls.js';
 
 const MINIMUM_POSES_SCORE = 20;
 
@@ -192,6 +193,7 @@ const render = async function () {
 };
 
 async function start() {
+  await initControls({ onSubmit: () => updateParameters() });
   createBubbleStickFigure();
   addBubbleStickFigure();
   resetShapes({ scene, world });
@@ -200,14 +202,19 @@ async function start() {
 
   render();
 
+  // render first before getting the video + detector, otherwise nothing is displayed for a few seconds
   const sizes = getSizes();
-  const videoInputDeviceId = await getVideoInputDeviceId();
+  const videoInputDeviceId = await getSelectedVideoInputDeviceId();
   video = await getCameraVideoElement(videoInputDeviceId, sizes.video.width, sizes.video.height);
 
   detector = await getDetector();
 }
 
-start();
+function updateCamera() {
+  const { cameraZ, cameraZoom } = getParameters();
+  camera.position.z = cameraZ;
+  camera.zoom = cameraZoom / 100;
+}
 
 function updateParameters() {
   scene.clear();
@@ -221,85 +228,4 @@ function updateParameters() {
   resetShapes({ scene, world });
 }
 
-function submitControlsForm(event) {
-  event.preventDefault();
-
-  const parameters = convertFormToJson(event.target);
-  setParameters(parameters);
-
-  updateParameters();
-}
-
-function resetInputValues() {
-  setDefaultParameters();
-  initControlInputs();
-  updateParameters();
-}
-
-function updateCamera() {
-  const { cameraZ, cameraZoom } = getParameters();
-  camera.position.z = cameraZ;
-  camera.zoom = cameraZoom / 100;
-}
-
-async function initVideoInputControl() {
-  const [videoInputControl] = document.getElementsByName('videoDeviceId');
-  if (!videoInputControl) {
-    return;
-  }
-
-  const videoInputDevices = await getVideoInputDevices();
-  const selectedVideoDeviceId = await getVideoInputDeviceId();
-
-  videoInputDevices.forEach(({ deviceId, label }) => {
-    const option = document.createElement('option');
-    option.value = deviceId;
-    option.textContent = label;
-
-    if (deviceId === selectedVideoDeviceId) {
-      option.selected = true;
-    }
-
-    videoInputControl.appendChild(option);
-  });
-}
-
-function initControlInputs() {
-  const parameters = getParameters();
-
-  for (const [key, value] of Object.entries(parameters)) {
-    const [element] = document.getElementsByName(key);
-    if (!element) {
-      continue;
-    }
-
-    element.value = value;
-  }
-}
-
-async function initControls() {
-  initControlInputs();
-  await initVideoInputControl();
-
-  const controls = document.getElementById('controls');
-  controls.onsubmit = submitControlsForm;
-
-  const resetButton = document.getElementById('reset');
-  resetButton.onclick = resetInputValues;
-
-  const hasControls = getQueryStringValue('controls');
-  if (hasControls === 'true') {
-    toggleControls();
-  }
-
-  hotkeys('ctrl+k, command+k', () => {
-    toggleControls();
-  });
-}
-
-function toggleControls() {
-  const controls = document.getElementById('controls');
-  controls.classList.toggle('hidden');
-}
-
-initControls();
+start();
