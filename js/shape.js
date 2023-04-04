@@ -6,7 +6,8 @@ import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures.js';
-import { disposeMesh, getParameterValue, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
+import { disposeMesh, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
+import { getParameters } from './parameters.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
@@ -39,20 +40,15 @@ let VISIBLE_AREA_WITH_MARGIN;
 
 export function resetShapes({ scene, world }) {
   clearShapes(scene, world);
-
   setupVisibleArea();
-
   setupWorld(world);
 
-  // Adding different shapes
-  const amountOfShapes = getParameterValue('amountShapes');
-  for (let i = 0; i < amountOfShapes; i++) {
+  const { amountShapes } = getParameters();
+
+  for (let i = 0; i < amountShapes; i++) {
     const shape = createNewShape();
-
     SHAPES.push(shape);
-
     scene.add(shape);
-
     world.addBody(shape.userData.body);
   }
 }
