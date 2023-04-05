@@ -20,16 +20,6 @@ export let BUBBLE_STICK_FIGURE;
 
 const BUBBLE_HEAD_SPHERES = 50;
 
-export function drawBubbleStickFigure({ pose }) {
-  const { keypoints } = pose;
-
-  const extraKeypoints = createExtraKeypoints(keypoints);
-  const allKeypoints = [...keypoints, ...extraKeypoints];
-
-  drawBubbleHead({ keypoints: allKeypoints });
-  drawBubbleBody({ keypoints: allKeypoints });
-}
-
 export function createBubbleStickFigure() {
   removeBubbleStickFigure();
 
@@ -37,6 +27,18 @@ export function createBubbleStickFigure() {
   BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());
   BUBBLE_STICK_FIGURE.add(createBubbleBody());
+}
+
+export function drawBubbleStickFigure({ pose }) {
+  const { keypoints } = pose;
+  const keypointsMap = createKeypointsMap(keypoints);
+
+  if (!keypointsMap.size) {
+    return;
+  }
+
+  drawBubbleHead(keypointsMap);
+  drawBubbleBody(keypointsMap);
 }
 
 function removeBubbleStickFigure() {
@@ -196,17 +198,55 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
   return group;
 }
 
-function drawBubbleHead({ keypoints }) {
-  const HEAD = BUBBLE_STICK_FIGURE.getObjectByName('HEAD');
+function createKeypointsMap(keypoints) {
+  const keypointsMap = new Map();
 
-  if (!keypoints.length) {
-    HEAD.visible = false;
-    return;
+  for (let i = 0; i < keypoints.length; i++) {
+    const keypoint = keypoints[i];
+    keypointsMap.set(keypoint.name, keypoint);
   }
 
-  const leftOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'left_eye_outer' });
-  const rightOuterEyeVector = createVectorByKeypointName({ keypoints, name: 'right_eye_outer' });
-  const neckVector = createVectorByKeypointName({ keypoints, name: 'neck' });
+  addExtraKeypointsToMap(keypointsMap);
+
+  return keypointsMap;
+}
+
+function addExtraKeypointsToMap(keypointsMap) {
+  const neck = createAverageKeypoint({
+    keypointsMap,
+    name: 'neck',
+    startKeypointName: 'left_shoulder',
+    endKeypointName: 'right_shoulder',
+  });
+  keypointsMap.set(neck.name, neck);
+
+  const stomach = createAverageKeypoint({
+    keypointsMap,
+    name: 'stomach',
+    startKeypointName: 'left_hip',
+    endKeypointName: 'right_hip',
+  });
+  keypointsMap.set(stomach.name, stomach);
+}
+
+function createAverageKeypoint({ name, keypointsMap, startKeypointName, endKeypointName }) {
+  const startKeypoint = keypointsMap.get(startKeypointName);
+  const endKeypoint = keypointsMap.get(endKeypointName);
+
+  const x = getAverage(startKeypoint.x, endKeypoint.x);
+  const y = getAverage(startKeypoint.y, endKeypoint.y);
+  const z = getAverage(startKeypoint.z, endKeypoint.z);
+  const score = getAverage(startKeypoint.score, endKeypoint.score);
+
+  return { name, x, y, z, score };
+}
+
+function drawBubbleHead(keypointsMap) {
+  const HEAD = BUBBLE_STICK_FIGURE.getObjectByName('HEAD');
+
+  const leftOuterEyeVector = createVectorByKeypointName(keypointsMap, 'left_eye_outer');
+  const rightOuterEyeVector = createVectorByKeypointName(keypointsMap, 'right_eye_outer');
+  const neckVector = createVectorByKeypointName(keypointsMap, 'neck');
 
   if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector)) {
     HEAD.visible = false;
@@ -228,28 +268,35 @@ function drawBubbleHead({ keypoints }) {
   HEAD.visible = true;
 }
 
-function drawBubbleBody({ keypoints }) {
+function createVectorByKeypointName(keypointsMap, name) {
+  const keypoint = keypointsMap.get(name);
+  if (!keypoint) {
+    return null;
+  }
+
+  return createVectorByKeypoint(keypoint);
+}
+
+function drawBubbleBody(keypointsMap) {
   const BODY = BUBBLE_STICK_FIGURE.getObjectByName('BODY');
 
   BODY.traverse((entry) => {
     if (entry.type === 'Group') {
-      drawBubbleLine({ group: entry, keypoints });
+      drawBubbleLine(keypointsMap, entry);
     }
   });
 }
 
-function drawBubbleLine({ keypoints, group }) {
-  if (!keypoints.length) {
-    group.visible = false;
+function drawBubbleLine(keypointsMap, group) {
+  const { userData } = group;
+
+  // since the entire body is traversed, some groups don't need to be drawn
+  if (!userData?.startKeypointName || !userData?.endKeypointName) {
     return;
   }
 
-  if (!group?.userData?.startKeypointName || !group?.userData?.endKeypointName) {
-    return;
-  }
-
-  const startVector = createVectorByKeypointName({ keypoints, name: group.userData.startKeypointName });
-  const endVector = createVectorByKeypointName({ keypoints, name: group.userData.endKeypointName });
+  const startVector = createVectorByKeypointName(keypointsMap, userData.startKeypointName);
+  const endVector = createVectorByKeypointName(keypointsMap, userData.endKeypointName);
 
   if (!(startVector && endVector)) {
     group.visible = false;
@@ -274,51 +321,10 @@ function drawBubbleLine({ keypoints, group }) {
   group.visible = true;
 }
 
-function createVectorByKeypointName({ keypoints, name }) {
-  const keypoint = findKeypointByName({ keypoints, name });
-  if (!keypoint) {
-    return null;
-  }
-
-  return createVectorByKeypoint(keypoint);
-}
-
 function createVectorByKeypoint(keypoint) {
   const objectX = getObjectX(keypoint.x);
   const objectY = getObjectY(keypoint.y);
   return new THREE.Vector3(objectX, objectY, 0);
-}
-
-function findKeypointByName({ name, keypoints }) {
-  return keypoints.find((keypoint) => keypoint.name === name);
-}
-
-function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
-  const startKeypoint = findKeypointByName({ keypoints, name: startKeypointName });
-  const endKeypoint = findKeypointByName({ keypoints, name: endKeypointName });
-
-  const x = getAverage(startKeypoint.x, endKeypoint.x);
-  const y = getAverage(startKeypoint.y, endKeypoint.y);
-  const z = getAverage(startKeypoint.z, endKeypoint.z);
-  const score = getAverage(startKeypoint.score, endKeypoint.score);
-
-  return { name, x, y, z, score };
-}
-
-function createExtraKeypoints(keypoints) {
-  const neck = createAverageKeypoint({
-    keypoints,
-    name: 'neck',
-    startKeypointName: 'left_shoulder',
-    endKeypointName: 'right_shoulder',
-  });
-  const stomach = createAverageKeypoint({
-    keypoints,
-    name: 'stomach',
-    startKeypointName: 'left_hip',
-    endKeypointName: 'right_hip',
-  });
-  return [neck, stomach];
 }
 
 function alignPhysicalBody(entry) {
