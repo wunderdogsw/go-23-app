@@ -74,15 +74,6 @@ export function getQueryStringValue(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-/**
- *
- * @param {string} path
- * @returns string
- */
-export const getFilenameFromPath = (path) => {
-  return path.split('/').slice(-1)[0];
-};
-
 export function getVectorsRadiansAngle(startVector, endVector) {
   // the vector angleTo function doesn't seem to produce the desired result
   const deltaX = endVector.x - startVector.x;

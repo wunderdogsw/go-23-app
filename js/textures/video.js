@@ -1,28 +1,28 @@
 import * as THREE from 'three';
 
-import { getFilenameFromPath } from '../utils.js';
+const COLOR_VIDEOS_PATH = 'assets/videos/';
 
-export const COLOR_VIDEO_PATHS = [
-  'assets/anim/h_video.mp4',
-  'assets/anim/s_video.mp4',
-  'assets/anim/texture_anim_1.mp4',
-  'assets/anim/texture_anim_2.mp4',
-  'assets/anim/texture_anim_3.mp4',
-  'assets/anim/texture_anim_4.mp4',
-  'assets/anim/texture_anim_5.mp4',
+export const COLOR_VIDEO_FILENAMES = [
+  'h_video.mp4',
+  's_video.mp4',
+  'texture_anim_1.mp4',
+  'texture_anim_2.mp4',
+  'texture_anim_3.mp4',
+  'texture_anim_4.mp4',
+  'texture_anim_5.mp4',
 ];
 
-export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_PATHS);
+export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_FILENAMES);
 
-function createVideoElement(path) {
+function createVideoElement(filename) {
   const video = document.createElement('video');
-  const videoId = getFilenameFromPath(path);
+  const src = `${COLOR_VIDEOS_PATH}${filename}`;
   const attributes = {
-    id: videoId,
+    id: filename,
+    src,
     autoplay: true,
     muted: true,
     loop: true,
-    src: path,
     type: 'video/mp4',
     crossorigin: 'anonymous',
     playsinline: true,
