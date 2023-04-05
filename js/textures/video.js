@@ -12,11 +12,7 @@ export const COLOR_VIDEO_PATHS = [
   'assets/anim/texture_anim_5.mp4',
 ];
 
-const BLACK_WHITE_VIDEO_PATHS = ['assets/anim/texture_anim_bw_3.mp4', 'assets/anim/texture_anim_bw_4.mp4'];
-
 export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_PATHS);
-
-export const BLACK_WHITE_VIDEO_TEXTURES = createVideoTextures(BLACK_WHITE_VIDEO_PATHS);
 
 function createVideoElement(path) {
   const video = document.createElement('video');
@@ -63,6 +59,6 @@ function createVideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
 function createVideoTextures(paths) {
   return paths.map((path) => {
     const video = createVideoElement(path);
-    createVideoTexture(video);
+    return createVideoTexture(video);
   });
 }

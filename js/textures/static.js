@@ -15,15 +15,7 @@ const COLOR_IMAGE_PATHS = [
   'assets/static/static_stripe_5.png',
 ];
 
-const BLACK_WHITE_IMAGE_PATHS = [
-  'assets/static/static_bw_1.png',
-  'assets/static/static_bw_2.png',
-  'assets/static/static_bw_3.png',
-  'assets/static/static_bw_5.png',
-];
-
 export const COLOR_STATIC_TEXTURES = createStaticTextures(COLOR_IMAGE_PATHS);
-export const BLACK_WHITE_STATIC_TEXTURES = createStaticTextures(BLACK_WHITE_IMAGE_PATHS);
 
 function createStaticTextures(paths) {
   return paths.map((path) => createStaticTexture(path));
