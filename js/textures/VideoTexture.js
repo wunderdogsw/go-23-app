@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { getIdFromPath } from '../utils.js';
+import { getFilenameFromPath } from '../utils.js';
 
 export const COLOR_VIDEO_PATHS = [
   'assets/anim/h_video.mp4',
@@ -20,7 +20,7 @@ export const BLACK_WHITE_VIDEO_TEXTURES = createVideoTextures(BLACK_WHITE_VIDEO_
 
 function createVideoElement(path) {
   const video = document.createElement('video');
-  const videoId = getIdFromPath(path);
+  const videoId = getFilenameFromPath(path);
   const attributes = {
     id: videoId,
     autoplay: true,

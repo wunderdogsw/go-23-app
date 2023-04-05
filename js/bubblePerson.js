@@ -10,7 +10,7 @@ import {
   getObjectY,
   getRandomFloat,
   getRandomInt,
-  getVectorsRadianAngle,
+  getVectorsRadiansAngle,
 } from './utils.js';
 import { getParameters } from './parameters.js';
 
@@ -258,7 +258,7 @@ function drawBubbleHead(keypointsMap) {
 
   HEAD.position.set(leftOuterEyeVector.x, neckVector.y + sphereRadius * 2);
 
-  const angle = getVectorsRadianAngle(leftOuterEyeVector, rightOuterEyeVector);
+  const angle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
   for (let i = 0; i < headGroup.children.length; i++) {
     const bubble = headGroup.children[i];
     bubble.rotation.z = bubble.userData.rotation.z + angle;
@@ -304,7 +304,7 @@ function drawBubbleLine(keypointsMap, group) {
   }
 
   const direction = endVector.clone().sub(startVector);
-  const angle = getVectorsRadianAngle(endVector, startVector);
+  const angle = getVectorsRadiansAngle(endVector, startVector);
 
   for (let i = 0; i < group.children.length; i++) {
     const bubble = group.children[i];
