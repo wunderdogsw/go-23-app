@@ -26,18 +26,6 @@ export function addCollidingContactMaterial(material1, material2, options = COLL
   world.addContactMaterial(contactMaterial);
 }
 
-export function addPhysicalBodyToWorld(body) {
-  if (body) {
-    world.addBody(body);
-  }
-}
-
-export function removePhysicalBodyFromWorld(body) {
-  if (body) {
-    world.removeBody(body);
-  }
-}
-
 export function convertThreeToCannon(shape) {
   const { type, parameters, attributes } = shape.geometry;
   let { radiusTop, radiusBottom, radius, height, radialSegments } = parameters;

@@ -1,14 +1,12 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-import { addToScene, removeFromScene } from './cinematography.js';
+import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
 import {
   addCollidingContactMaterial,
-  addPhysicalBodyToWorld,
   createBody,
-  getWorld,
-  removePhysicalBodyFromWorld
+  getWorld
 } from './physics.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
@@ -53,8 +51,8 @@ export function resetShapes() {
   for (let i = 0; i < amountShapes; i++) {
     const shape = createNewShape();
     SHAPES.push(shape);
-    addToScene(shape);
-    addPhysicalBodyToWorld(shape.userData.body);
+    getScene().add(shape);
+    getWorld().addBody(shape.userData.body);
   }
 }
 
@@ -72,15 +70,15 @@ export function updateShapes() {
 
     if (!isShapeVisible(oldShape)) {
       oldShape.visible = false;
-      removeFromScene(oldShape);
-      removePhysicalBodyFromWorld(oldShape.userData.body);
+      getScene().remove(oldShape);
+      getWorld().removeBody(oldShape.userData.body);
       disposeMesh(oldShape);
 
       const newShape = createNewShape();
       SHAPES[i] = newShape;
 
-      addToScene(newShape);
-      addPhysicalBodyToWorld(newShape.userData.body);
+      getScene().add(newShape);
+      getWorld().addBody(newShape.userData.body);
     }
   }
 }
@@ -204,8 +202,8 @@ function calculateAngle(from, to) {
 
 function clearShapes() {
   SHAPES.forEach((shape) => {
-    removeFromScene(shape);
-    removePhysicalBodyFromWorld(shape.userData.body);
+    getScene().remove(shape);
+    getWorld().removeBody(shape.userData.body);
     disposeMesh(shape);
   });
   SHAPES = [];

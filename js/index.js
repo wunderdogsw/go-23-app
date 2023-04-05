@@ -9,10 +9,9 @@ import {
   drawBubbleStickFigure,
 } from './bubblePerson.js';
 import {
-  addToScene,
   clearScene,
+  getScene,
   initCinematography,
-  removeFromScene,
   renderScene,
   updateCamera
 } from './cinematography.js';
@@ -20,9 +19,8 @@ import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
 import {
   addCollidingContactMaterial,
-  addPhysicalBodyToWorld,
+  getWorld,
   initWorld,
-  removePhysicalBodyFromWorld,
   worldStep
 } from './physics.js';
 import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shape.js';
@@ -31,12 +29,17 @@ function visibilityTraverseObject(object, show, force = false) {
   object.traverse((child) => {
     if (child instanceof THREE.Mesh && (force || child.visible !== show)) {
       if (show) {
-        addPhysicalBodyToWorld(child?.userData?.body);
+        if (child.userData?.body) {
+          getWorld().addBody(child.userData.body);
+        }        
         child.visible = true;
         return;
       }
 
-      removePhysicalBodyFromWorld(child?.userData?.body);
+      if (child.userData?.body) {
+        getWorld().removeBody(child.userData?.body);
+      }
+      
       child.visible = false;
     }
   });
@@ -53,12 +56,12 @@ function setBubbleStickFigureVisibility(show) {
 }
 
 function removeBubbleStickFigure() {
-  removeFromScene(BUBBLE_STICK_FIGURE);
+  getScene().remove(BUBBLE_STICK_FIGURE);
   visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
 }
 
 function addBubbleStickFigure() {
-  addToScene(BUBBLE_STICK_FIGURE);
+  getScene().add(BUBBLE_STICK_FIGURE);
   visibilityTraverseObject(BUBBLE_STICK_FIGURE, true, true);
 }
 

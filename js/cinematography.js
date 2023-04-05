@@ -36,18 +36,6 @@ export function clearScene() {
   initLighting();
 }
 
-export function addToScene(mesh) {
-  if (!!mesh) {
-    scene.add(mesh);
-  }
-}
-
-export function removeFromScene(mesh) {
-  if (!!mesh) {
-    scene.remove(mesh);
-  }
-}
-
 export function updateCamera() {
   const { cameraZ, cameraZoom } = getParameters();
 
