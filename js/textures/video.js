@@ -51,14 +51,18 @@ function createVideoElement(path) {
  * @param {number} y
  * @returns
  */
-function VideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
+function createVideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.VideoTexture(video);
 
   texture.rotation = rotation;
   texture.center.set(x, y);
+
   return texture;
 }
 
 function createVideoTextures(paths) {
-  return paths.map((path) => VideoTexture(createVideoElement(path)));
+  return paths.map((path) => {
+    const video = createVideoElement(path);
+    createVideoTexture(video);
+  });
 }

@@ -1,6 +1,6 @@
-import { BLACK_WHITE_STATIC_TEXTURES, COLOR_STATIC_TEXTURES } from './textures/staticTexture.js';
-import { BLACK_WHITE_VIDEO_TEXTURES, COLOR_VIDEO_TEXTURES } from './textures/videoTexture.js';
-import { getRandomItem } from './utils.js';
+import { BLACK_WHITE_STATIC_TEXTURES, COLOR_STATIC_TEXTURES } from './static.js';
+import { BLACK_WHITE_VIDEO_TEXTURES, COLOR_VIDEO_TEXTURES } from './video.js';
+import { getRandomItem } from '../utils.js';
 
 export const COLOR_TEXTURES = [...COLOR_VIDEO_TEXTURES, ...COLOR_STATIC_TEXTURES];
 

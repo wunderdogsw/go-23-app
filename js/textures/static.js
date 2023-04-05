@@ -25,6 +25,10 @@ const BLACK_WHITE_IMAGE_PATHS = [
 export const COLOR_STATIC_TEXTURES = createStaticTextures(COLOR_IMAGE_PATHS);
 export const BLACK_WHITE_STATIC_TEXTURES = createStaticTextures(BLACK_WHITE_IMAGE_PATHS);
 
+function createStaticTextures(paths) {
+  return paths.map((path) => createStaticTexture(path));
+}
+
 /**
  *
  * @param {string} path
@@ -33,14 +37,11 @@ export const BLACK_WHITE_STATIC_TEXTURES = createStaticTextures(BLACK_WHITE_IMAG
  * @param {number} y
  * @returns
  */
-export default function StaticTexture(path, rotation = -1.57, x = 0.5, y = 0.5) {
+function createStaticTexture(path, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.TextureLoader().load(path);
 
   texture.rotation = rotation;
   texture.center.set(x, y);
-  return texture;
-}
 
-function createStaticTextures(paths) {
-  return paths.map((path) => StaticTexture(path));
+  return texture;
 }
