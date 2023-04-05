@@ -1,6 +1,6 @@
 import { getCameraVideoElement, getSelectedVideoInputDeviceId } from "./media.js";
 import { getParameters } from "./parameters.js";
-import { getSizes } from "./utils.js";
+import { getSizes, getSum } from "./utils.js";
 
 let video;
 let detector;
@@ -27,16 +27,6 @@ export async function initBodyDetection() {
   detector = await getDetector();
 }
 
-function calculateScoreSum(keyPoints) {
-  let sum = 0;
-
-  for (let i = 0; i < keyPoints.length; ++i) {
-    sum += keyPoints[i].score;
-  }
-
-  return sum;
-}
-
 async function getPoses() {
   if (!(detector && video)) {
     return [];
@@ -49,7 +39,7 @@ async function getPoses() {
   }
 
   const { keypoints } = poses[0];
-  const scoreSum = calculateScoreSum(keypoints);
+  const scoreSum = getSum(keypoints, 'score');
 
   const { minPosesScore } = getParameters();
 

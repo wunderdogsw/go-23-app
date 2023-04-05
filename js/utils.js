@@ -59,20 +59,20 @@ export function getRandomItem(array = []) {
   return array[index];
 }
 
-export function getSum(...numbers) {
+export function getSum(values, byObjectKey = null) {
   let sum = 0;
 
-  for (let i = 0; i < numbers.length; i++) {
-    sum += numbers[i];
+  for (let i = 0; i < values.length; i++) {
+    const value = byObjectKey === null ? values[i] : values[i][byObjectKey];
+    sum += value;
   }
 
   return sum;
 }
 
-// lazy source: ChatGPT
-export function getAverage(...numbers) {
-  const sum = getSum(...numbers);
-  return sum / numbers.length;
+export function getAverage(values, byObjectKey = null) {
+  const sum = getSum(values, byObjectKey);
+  return sum / values.length;
 }
 
 export function getQueryStringValue(key) {

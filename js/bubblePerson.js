@@ -325,6 +325,38 @@ function createVectorByKeypoint(keypoint) {
   return new THREE.Vector3(objectX, objectY, 0);
 }
 
+function findKeypointByName({ name, keypoints }) {
+  return keypoints.find((keypoint) => keypoint.name === name);
+}
+
+function createAverageKeypoint({ name, keypoints, startKeypointName, endKeypointName }) {
+  const startKeypoint = findKeypointByName({ keypoints, name: startKeypointName });
+  const endKeypoint = findKeypointByName({ keypoints, name: endKeypointName });
+
+  const x = getAverage([startKeypoint.x, endKeypoint.x]);
+  const y = getAverage([startKeypoint.y, endKeypoint.y]);
+  const z = getAverage([startKeypoint.z, endKeypoint.z]);
+  const score = getAverage([startKeypoint.score, endKeypoint.score]);
+
+  return { name, x, y, z, score };
+}
+
+function createExtraKeypoints(keypoints) {
+  const neck = createAverageKeypoint({
+    keypoints,
+    name: 'neck',
+    startKeypointName: 'left_shoulder',
+    endKeypointName: 'right_shoulder',
+  });
+  const stomach = createAverageKeypoint({
+    keypoints,
+    name: 'stomach',
+    startKeypointName: 'left_hip',
+    endKeypointName: 'right_hip',
+  });
+  return [neck, stomach];
+}
+
 function alignPhysicalBody(entry) {
   const body = entry?.userData?.body;
   if (body) {
