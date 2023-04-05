@@ -7,6 +7,55 @@ let scene;
 let camera;
 let renderer;
 
+export function initCinematography() {
+  scene = new THREE.Scene();
+  initLighting();
+  initCamera();
+  initRenderer();
+}
+
+export function getCamera() {
+  return camera;
+}
+
+export function getRenderer() {
+  return renderer;
+}
+
+export function getScene() {
+  return scene;
+}
+
+export function renderScene() {
+  renderer.render(scene, camera);
+}
+
+export function clearScene() {
+  scene.clear();
+
+  initLighting();
+}
+
+export function addToScene(mesh) {
+  if (!!mesh) {
+    scene.add(mesh);
+  }
+}
+
+export function removeFromScene(mesh) {
+  if (!!mesh) {
+    scene.remove(mesh);
+  }
+}
+
+export function updateCamera() {
+  const { cameraZ, cameraZoom } = getParameters();
+
+  camera.position.z = cameraZ;
+  camera.zoom = cameraZoom / 100;
+  camera.updateProjectionMatrix();
+}
+
 function initCamera() {
   // Create a basic perspective camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -30,58 +79,8 @@ function initRenderer() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function initScene() {
-  // Create an empty scene
-  scene = new THREE.Scene();
-
-  clearScene();
-}
-
-export function initCinematography() {
-  initScene();
-  initCamera();
-  initRenderer();
-}
-
-export function getCamera() {
-  return camera;
-}
-
-export function getRenderer() {
-  return renderer;
-}
-
-export function getScene() {
-  return scene;
-}
-
-export function renderScene() {
-  renderer.render(scene, camera);
-}
-
-export function clearScene() {
-  scene.clear();
+function initLighting() {
   // Needed for standard materials to be visible
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
   scene.add(ambientLight);
-}
-
-export function addToScene(mesh) {
-  if (!!mesh) {
-    scene.add(mesh);
-  }
-}
-
-export function removeFromScene(mesh) {
-  if (!!mesh) {
-    scene.remove(mesh);
-  }
-}
-
-export function updateCamera() {
-  const { cameraZ, cameraZoom } = getParameters();
-
-  camera.position.z = cameraZ;
-  camera.zoom = cameraZoom / 100;
-  camera.updateProjectionMatrix();
 }

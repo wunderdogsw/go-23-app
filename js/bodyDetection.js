@@ -27,14 +27,14 @@ export async function initBodyDetection() {
   detector = await getDetector();
 }
 
-function calculateEstimateScore(keyPoints) {
-  let estimateScore = 0;
+function calculateScoreSum(keyPoints) {
+  let sum = 0;
 
   for (let i = 0; i < keyPoints.length; ++i) {
-    estimateScore += keyPoints[i].score;
+    sum += keyPoints[i].score;
   }
 
-  return estimateScore;
+  return sum;
 }
 
 async function getPoses() {
@@ -43,18 +43,17 @@ async function getPoses() {
   }
 
   const poses = await detector.estimatePoses(video, {});
-  const hasPoses = !!poses?.length;
-
-  if (!hasPoses) {
+  
+  if (!poses?.length) {
     return [];
   }
 
-  const estimatePosesKeyPoints = poses[0].keypoints;
-  const estimateScore = calculateEstimateScore(estimatePosesKeyPoints);
+  const { keypoints } = poses[0];
+  const scoreSum = calculateScoreSum(keypoints);
 
   const { minPosesScore } = getParameters();
 
-  if (estimateScore < minPosesScore) {
+  if (scoreSum < minPosesScore) {
     return [];
   }
 
@@ -67,10 +66,8 @@ export async function detectPoses() {
 
   const posesLost = !posesExist && hasPoses;
   const posesFound = posesExist && !hasPoses;
-
-  if (posesExist !== hasPoses) {
-    hasPoses = posesExist;
-  }
+  
+  hasPoses = posesExist;
 
   return { poses, posesLost, posesFound };
 }

@@ -91,10 +91,11 @@ async function renderPoses() {
 
   setBubbleStickFigureVisibility(!!poses.length);
 
-  for (let i = 0; i < poses.length; i++) {
-    const pose = poses[i];
-    renderPose(pose);
+  if (!poses.length) {
+    return;
   }
+
+  renderPose(poses[0]);
 }
 
 const render = async function () {

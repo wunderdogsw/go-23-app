@@ -2,6 +2,7 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
+import { getParameters } from './parameters.js';
 import { createBody } from './physics.js';
 import {
   disposeGroup,
@@ -12,7 +13,6 @@ import {
   getRandomInt,
   getVectorsRadiansAngle,
 } from './utils.js';
-import { getParameters } from './parameters.js';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
@@ -21,8 +21,6 @@ export let BUBBLE_STICK_FIGURE;
 const BUBBLE_HEAD_SPHERES = 50;
 
 export function createBubbleStickFigure() {
-  removeBubbleStickFigure();
-
   BUBBLE_STICK_FIGURE = new THREE.Group();
   BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());

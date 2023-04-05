@@ -59,14 +59,19 @@ export function getRandomItem(array = []) {
   return array[index];
 }
 
-// lazy source: ChatGPT
-export function getAverage(...numbers) {
+export function getSum(...numbers) {
   let sum = 0;
 
   for (let i = 0; i < numbers.length; i++) {
     sum += numbers[i];
   }
 
+  return sum;
+}
+
+// lazy source: ChatGPT
+export function getAverage(...numbers) {
+  const sum = getSum(...numbers);
   return sum / numbers.length;
 }
 
