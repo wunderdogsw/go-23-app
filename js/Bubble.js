@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures/index.js';
-import { createRandomEuler } from './utils.js';
+import { createRandomEuler } from './utils/three.js';
 
 const Point = (offset) => Math.random() * offset - offset / 2;
 

@@ -1,6 +1,7 @@
-import { getCameraVideoElement, getSelectedVideoInputDeviceId } from "./media.js";
-import { getParameters } from "./parameters.js";
-import { getSizes, getSum } from "./utils.js";
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
+import { getParameters } from './parameters.js';
+import { getSizes } from './utils/three.js';
+import { getSum } from './utils/maths.js';
 
 let video;
 let detector;
@@ -33,7 +34,7 @@ async function getPoses() {
   }
 
   const poses = await detector.estimatePoses(video, {});
-  
+
   if (!poses?.length) {
     return [];
   }
@@ -56,7 +57,7 @@ export async function detectPoses() {
 
   const posesLost = !posesExist && hasPoses;
   const posesFound = posesExist && !hasPoses;
-  
+
   hasPoses = posesExist;
 
   return { poses, posesLost, posesFound };

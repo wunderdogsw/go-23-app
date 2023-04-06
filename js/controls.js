@@ -1,6 +1,6 @@
 import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media.js';
 import { getParameters, setDefaultParameters, setParameters } from './parameters.js';
-import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils.js';
+import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser.js';
 
 export async function initControls({ onSubmit }) {
   initInputValues();

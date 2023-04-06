@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getRandomInt } from './maths.js';
 
 let sizes = {
   video: {
@@ -42,43 +43,6 @@ export function getObjectY(videoY) {
   return (0.5 - videoY / sizes.video.height) * sizes.scene.height;
 }
 
-// lazy source: ChatGPT
-export function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function getRandomFloat(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-export function getRandomItem(array = []) {
-  if (!array.length) {
-    return undefined;
-  }
-  const index = getRandomInt(0, array.length - 1);
-  return array[index];
-}
-
-export function getSum(values, byObjectKey = null) {
-  let sum = 0;
-
-  for (let i = 0; i < values.length; i++) {
-    const value = byObjectKey === null ? values[i] : values[i][byObjectKey];
-    sum += value;
-  }
-
-  return sum;
-}
-
-export function getAverage(values, byObjectKey = null) {
-  const sum = getSum(values, byObjectKey);
-  return sum / values.length;
-}
-
-export function getQueryStringValue(key) {
-  return new URLSearchParams(window.location.search).get(key);
-}
-
 export function getVectorsRadiansAngle(startVector, endVector) {
   // the vector angleTo function doesn't seem to produce the desired result
   const deltaX = endVector.x - startVector.x;
@@ -112,41 +76,6 @@ export function disposeGroup(group, onMeshDisposedCallback = null) {
   });
 }
 
-export function createSelectOption(label, value, selectedValue) {
-  const option = document.createElement('option');
-  option.value = value;
-  option.textContent = label;
-
-  if (value === selectedValue) {
-    option.selected = true;
-  }
-
-  return option;
-}
-
-export function setInputValueByName(name, value) {
-  const [element] = document.getElementsByName(name);
-  if (!element) {
-    console.warn(`Didn't find input name ${name}`);
-    return;
-  }
-
-  element.value = value;
-}
-
-export function convertFormToJson(form) {
-  const formData = new FormData(form);
-  const entries = formData.entries();
-  const json = {};
-
-  for (const [key, value] of entries) {
-    const isNumber = isNumeric(value);
-    json[key] = isNumber ? parseFloat(value) : value;
-  }
-
-  return json;
-}
-
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
 function visibleHeightAtZDepth(camera, depth = 0) {
   const cameraZ = camera.position.z;
@@ -163,10 +92,4 @@ function visibleWidthAtZDepth(camera, visibleHeight) {
 function getRandomRadiansAngle() {
   const degrees = getRandomInt(0, 359);
   return THREE.MathUtils.degToRad(degrees);
-}
-
-// reference: https://stackoverflow.com/questions/175739/how-can-i-check-if-a-string-is-a-valid-number
-function isNumeric(str) {
-  if (typeof str != 'string') return false;
-  return !isNaN(str) && !isNaN(parseFloat(str));
 }
