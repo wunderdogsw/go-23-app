@@ -2,10 +2,12 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 import Bubble from './Bubble.js';
+import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
-import { createBody } from './physics.js';
+import { applyWorldBody, createBody, getWorld } from './physics.js';
 import {
   disposeGroup,
+  disposeMesh,
   getAverage,
   getObjectX,
   getObjectY,
@@ -16,35 +18,43 @@ import {
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
-export let BUBBLE_STICK_FIGURE;
+let BUBBLE_STICK_FIGURE;
 
 const BUBBLE_HEAD_SPHERES = 50;
+
+export function drawBubbleStickFigure({ pose }) {
+  const { keypoints } = pose;
+
+  const extraKeypoints = createExtraKeypoints(keypoints);
+  const allKeypoints = [...keypoints, ...extraKeypoints];
+
+  drawBubbleHead({ keypoints: allKeypoints });
+  drawBubbleBody({ keypoints: allKeypoints });
+  alignBubbleFigurePhysicalBody();
+}
 
 export function createBubbleStickFigure() {
   BUBBLE_STICK_FIGURE = new THREE.Group();
   BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());
   BUBBLE_STICK_FIGURE.add(createBubbleBody());
+  getScene().add(BUBBLE_STICK_FIGURE);
 }
 
-export function drawBubbleStickFigure({ pose }) {
-  const { keypoints } = pose;
-  const keypointsMap = createKeypointsMap(keypoints);
-
-  if (!keypointsMap.size) {
-    return;
-  }
-
-  drawBubbleHead(keypointsMap);
-  drawBubbleBody(keypointsMap);
-}
-
-function removeBubbleStickFigure() {
+export function disposeBubbleStickFigure() {
   if (!BUBBLE_STICK_FIGURE) {
     return;
   }
 
-  disposeGroup(BUBBLE_STICK_FIGURE);
+  getScene().remove(BUBBLE_STICK_FIGURE);
+  disposeGroup(BUBBLE_STICK_FIGURE, (mesh) => {
+    if (!mesh.userData?.body) {
+      return;
+    }
+
+    getWorld().removeBody(mesh.userData.body);
+  });
+
   BUBBLE_STICK_FIGURE = null;
 }
 
@@ -68,7 +78,6 @@ function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
 
     bubble.position.set(x, y, z);
     bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
-    alignPhysicalBody(bubble);
 
     headSphere.add(bubble);
   }
@@ -189,7 +198,6 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
     const x = i * radius * 2;
     const bubble = Bubble({ x, radius, offset });
     bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
-    alignPhysicalBody(bubble);
     group.add(bubble);
   }
 
@@ -260,7 +268,6 @@ function drawBubbleHead(keypointsMap) {
   for (let i = 0; i < headGroup.children.length; i++) {
     const bubble = headGroup.children[i];
     bubble.rotation.z = bubble.userData.rotation.z + angle;
-    alignPhysicalBody(bubble);
   }
 
   HEAD.visible = true;
@@ -287,16 +294,17 @@ function drawBubbleBody(keypointsMap) {
 
 function drawBubbleLine(keypointsMap, group) {
   const { userData } = group;
+  const { startKeypointName, endKeypointName } = userData;
 
   // since the entire body is traversed, some groups don't need to be drawn
-  if (!userData?.startKeypointName || !userData?.endKeypointName) {
+  if (!startKeypointName || !endKeypointName) {
     return;
   }
 
   const startVector = createVectorByKeypointName(keypointsMap, userData.startKeypointName);
   const endVector = createVectorByKeypointName(keypointsMap, userData.endKeypointName);
 
-  if (!(startVector && endVector)) {
+  if (!startVector || !endVector) {
     group.visible = false;
     return;
   }
@@ -311,9 +319,7 @@ function drawBubbleLine(keypointsMap, group) {
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
     position.add(bubble.userData.offset);
     bubble.position.copy(position);
-
     bubble.rotation.z = bubble.userData.rotation.z + angle;
-    alignPhysicalBody(bubble);
   }
 
   group.visible = true;
@@ -357,14 +363,39 @@ function createExtraKeypoints(keypoints) {
   return [neck, stomach];
 }
 
-function alignPhysicalBody(entry) {
-  const body = entry?.userData?.body;
-  if (body) {
-    let target = new THREE.Vector3();
-    entry.getWorldPosition(target);
-    target.z = 0;
+function alignBubbleFigurePhysicalBody() {
+  BUBBLE_STICK_FIGURE.traverse((obj) => {
+    if (obj.type === 'Mesh') {
+      alignMeshPhysicalBodyTrajectory(obj);
+      alignMeshPhysicalBodyVisibility(obj);
+    }
+  });
+}
 
-    body.position.copy(target);
-    body.quaternion.copy(entry.quaternion);
+function alignMeshPhysicalBodyTrajectory(entry) {
+  const body = entry?.userData?.body;
+  if (!body) {
+    return;
   }
+
+  let target = new THREE.Vector3();
+  entry.getWorldPosition(target);
+  target.z = 0;
+
+  body.position.copy(target);
+  body.quaternion.copy(entry.quaternion);
+}
+
+function alignMeshPhysicalBodyVisibility(entry) {
+  const body = entry?.userData?.body;
+  if (!body) {
+    return;
+  }
+
+  const isMeshVisible = !!entry.visible && (!entry.parent || !!entry.parent.visible);
+  const isBodyInWorld = entry.userData?.bodyInWorld;
+  const includeInWorld = isMeshVisible && !isBodyInWorld;
+
+  applyWorldBody(body, includeInWorld);
+  entry.userData.bodyInWorld = includeInWorld;
 }

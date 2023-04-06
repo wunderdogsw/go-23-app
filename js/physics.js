@@ -33,7 +33,7 @@ export function convertThreeToCannon(shape) {
   switch (type) {
     case 'ConeGeometry': return new CANNON.Cylinder(0.0001, radius, height, radialSegments);
     case 'CylinderGeometry': return new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
-    case 'SphereGeometry': return new CANNON.Sphere(radius);    
+    case 'SphereGeometry': return new CANNON.Sphere(radius);
   }
 
   // Trimesh as fallback. However collision detection is not supported
@@ -56,6 +56,14 @@ export function createBody(mesh, mass, material) {
     position: new CANNON.Vec3(mesh.position.x, mesh.position.y, mesh.position.z),
     material
   });
-  
+
   return body;
+}
+
+export function applyWorldBody(body, includeInWorld) {
+  if (includeInWorld) {
+    world.addBody(body);
+  } else {
+    world.removeBody(body);
+  }
 }

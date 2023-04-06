@@ -98,13 +98,17 @@ export function disposeMesh(mesh) {
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group) {
+export function disposeGroup(group, onMeshDisposedCallbackFn = null) {
   group.traverse((object) => {
     if (object.type !== 'Mesh') {
       return;
     }
 
     disposeMesh(object);
+
+    if (!!onMeshDisposedCallbackFn) {
+      onMeshDisposedCallbackFn(object);
+    }
   });
 }
 

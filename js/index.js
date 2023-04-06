@@ -4,8 +4,8 @@ import * as THREE from 'three';
 import { detectPoses, initBodyDetection } from './bodyDetection.js';
 import {
   BUBBLE_BODY_MATERIAL,
-  BUBBLE_STICK_FIGURE,
   createBubbleStickFigure,
+  disposeBubbleStickFigure,
   drawBubbleStickFigure,
 } from './bubblePerson.js';
 import {
@@ -25,56 +25,6 @@ import {
 } from './physics.js';
 import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shape.js';
 
-function visibilityTraverseObject(object, show, force = false) {
-  object.traverse((child) => {
-    if (child instanceof THREE.Mesh && (force || child.visible !== show)) {
-      if (show) {
-        if (child.userData?.body) {
-          getWorld().addBody(child.userData.body);
-        }        
-        child.visible = true;
-        return;
-      }
-
-      if (child.userData?.body) {
-        getWorld().removeBody(child.userData?.body);
-      }
-      
-      child.visible = false;
-    }
-  });
-
-  object.visible = show;
-}
-
-function setBubbleStickFigureVisibility(show) {
-  if (BUBBLE_STICK_FIGURE.visible === show) {
-    return;
-  }
-
-  visibilityTraverseObject(BUBBLE_STICK_FIGURE, show);
-}
-
-function removeBubbleStickFigure() {
-  getScene().remove(BUBBLE_STICK_FIGURE);
-  visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
-}
-
-function addBubbleStickFigure() {
-  getScene().add(BUBBLE_STICK_FIGURE);
-  visibilityTraverseObject(BUBBLE_STICK_FIGURE, true, true);
-}
-
-function personLeft() {
-  removeBubbleStickFigure();
-  createBubbleStickFigure();
-  visibilityTraverseObject(BUBBLE_STICK_FIGURE, false, true);
-}
-
-function personEntered() {
-  addBubbleStickFigure();
-}
-
 function renderPose(pose) {
   if (!pose.keypoints) {
     return;
@@ -87,12 +37,10 @@ async function renderPoses() {
   const { poses, posesLost, posesFound } = await detectPoses();
 
   if (posesLost) {
-    personLeft();
+    disposeBubbleStickFigure();
   } else if (posesFound) {
-    personEntered();
+    createBubbleStickFigure();
   }
-
-  setBubbleStickFigureVisibility(!!poses.length);
 
   if (!poses.length) {
     return;
@@ -117,8 +65,6 @@ async function start() {
   initWorld();
 
   await initControls({ onSubmit: updateParameters });
-  createBubbleStickFigure();
-  addBubbleStickFigure();
   resetShapes();
 
   addCollidingContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL);
@@ -132,9 +78,8 @@ async function start() {
 function updateParameters() {
   clearScene();
 
-  removeBubbleStickFigure();
+  disposeBubbleStickFigure();
   createBubbleStickFigure();
-  addBubbleStickFigure();
 
   updateCamera();
   resetShapes();
