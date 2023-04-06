@@ -2,12 +2,12 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 import { detectPoses } from './bodyDetection.js';
-import Bubble from './Bubble.js';
 import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
 import { createBody, getWorld } from './physics.js';
 import { getAverage, getRandomFloat, getRandomInt } from './utils/maths.js';
 import { disposeGroup, getObjectX, getObjectY, getVectorsRadiansAngle } from './utils/three.js';
+import { createBubble } from './shapes/basic.js';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
@@ -87,7 +87,7 @@ function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
   for (let i = 0; i < numSpheres; i++) {
     const randomRadius = getRandomFloat(0.1, 0.4);
 
-    const bubble = Bubble({ radius: randomRadius, offset: 0 });
+    const bubble = createBubble({ radius: randomRadius, offset: 0 });
     const angle1 = getRandomInt(0, 50);
     const angle2 = getRandomInt(0, 50);
 
@@ -215,7 +215,7 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
 
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
-    const bubble = Bubble({ x, radius, offset });
+    const bubble = createBubble({ x, radius, offset });
     bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
     group.add(bubble);
   }
