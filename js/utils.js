@@ -53,7 +53,7 @@ export function getRandomFloat(min, max) {
 
 export function getRandomItem(array = []) {
   if (!array.length) {
-    return;
+    return undefined;
   }
   const index = getRandomInt(0, array.length - 1);
   return array[index];
