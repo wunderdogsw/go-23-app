@@ -98,7 +98,7 @@ export function disposeMesh(mesh) {
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group, onMeshDisposedCallbackFn = null) {
+export function disposeGroup(group, onMeshDisposedCallback = null) {
   group.traverse((object) => {
     if (object.type !== 'Mesh') {
       return;
@@ -106,8 +106,8 @@ export function disposeGroup(group, onMeshDisposedCallbackFn = null) {
 
     disposeMesh(object);
 
-    if (!!onMeshDisposedCallbackFn) {
-      onMeshDisposedCallbackFn(object);
+    if (!!onMeshDisposedCallback) {
+      onMeshDisposedCallback(object);
     }
   });
 }

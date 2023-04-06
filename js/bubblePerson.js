@@ -5,7 +5,7 @@ import { detectPoses } from './bodyDetection.js';
 import Bubble from './Bubble.js';
 import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
-import { applyWorldBody, createBody, getWorld } from './physics.js';
+import { createBody, getWorld } from './physics.js';
 import {
   disposeGroup,
   disposeMesh,
@@ -386,10 +386,15 @@ function alignMeshPhysicalBodyVisibility(entry) {
     return;
   }
 
-  const isMeshVisible = !!entry.visible && (!entry.parent || !!entry.parent.visible);
+  const isMeshVisible = entry.visible && (!entry.parent || entry.parent.visible);
   const isBodyInWorld = entry.userData?.bodyInWorld;
   const includeInWorld = isMeshVisible && !isBodyInWorld;
 
-  applyWorldBody(body, includeInWorld);
+  if (includeInWorld) {
+    getWorld().addBody(body);
+  } else {
+    getWorld().removeBody(body);
+  }
+
   entry.userData.bodyInWorld = includeInWorld;
 }

@@ -59,11 +59,3 @@ export function createBody(mesh, mass, material) {
 
   return body;
 }
-
-export function applyWorldBody(body, includeInWorld) {
-  if (includeInWorld) {
-    world.addBody(body);
-  } else {
-    world.removeBody(body);
-  }
-}

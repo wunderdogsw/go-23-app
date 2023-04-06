@@ -9,7 +9,7 @@ let renderer;
 
 export function initCinematography() {
   scene = new THREE.Scene();
-  initLighting();
+  addLightingToScene();
   initCamera();
   initRenderer();
 }
@@ -33,7 +33,7 @@ export function renderScene() {
 export function clearScene() {
   scene.clear();
 
-  initLighting();
+  addLightingToScene();
 }
 
 export function updateCamera() {
@@ -67,7 +67,7 @@ function initRenderer() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function initLighting() {
+function addLightingToScene() {
   // Needed for standard materials to be visible
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
   scene.add(ambientLight);
