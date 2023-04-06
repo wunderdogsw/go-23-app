@@ -6,16 +6,8 @@ import Bubble from './Bubble.js';
 import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
 import { createBody, getWorld } from './physics.js';
-import {
-  disposeGroup,
-  disposeMesh,
-  getAverage,
-  getObjectX,
-  getObjectY,
-  getRandomFloat,
-  getRandomInt,
-  getVectorsRadiansAngle,
-} from './utils.js';
+import { getAverage, getRandomFloat, getRandomInt } from './utils/maths.js';
+import { disposeGroup, getObjectX, getObjectY, getVectorsRadiansAngle } from './utils/three.js';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
@@ -39,6 +31,31 @@ export async function renderBubbleStickFigure() {
   renderPose(poses[0]);
 }
 
+export function disposeBubbleStickFigure() {
+  if (!BUBBLE_STICK_FIGURE) {
+    return;
+  }
+
+  getScene().remove(BUBBLE_STICK_FIGURE);
+  disposeGroup(BUBBLE_STICK_FIGURE, (mesh) => {
+    if (!mesh.userData?.body) {
+      return;
+    }
+
+    getWorld().removeBody(mesh.userData.body);
+  });
+
+  BUBBLE_STICK_FIGURE = null;
+}
+
+export function createBubbleStickFigure() {
+  BUBBLE_STICK_FIGURE = new THREE.Group();
+  BUBBLE_STICK_FIGURE.name = 'FIGURE';
+  BUBBLE_STICK_FIGURE.add(createBubbleHead());
+  BUBBLE_STICK_FIGURE.add(createBubbleBody());
+  getScene().add(BUBBLE_STICK_FIGURE);
+}
+
 function renderPose(pose) {
   if (!pose.keypoints) {
     return;
@@ -58,31 +75,6 @@ function drawBubbleStickFigure({ pose }) {
   drawBubbleHead(keypointsMap);
   drawBubbleBody(keypointsMap);
   alignBubbleFigurePhysicalBody();
-}
-
-function createBubbleStickFigure() {
-  BUBBLE_STICK_FIGURE = new THREE.Group();
-  BUBBLE_STICK_FIGURE.name = 'FIGURE';
-  BUBBLE_STICK_FIGURE.add(createBubbleHead());
-  BUBBLE_STICK_FIGURE.add(createBubbleBody());
-  getScene().add(BUBBLE_STICK_FIGURE);
-}
-
-function disposeBubbleStickFigure() {
-  if (!BUBBLE_STICK_FIGURE) {
-    return;
-  }
-
-  getScene().remove(BUBBLE_STICK_FIGURE);
-  disposeGroup(BUBBLE_STICK_FIGURE, (mesh) => {
-    if (!mesh.userData?.body) {
-      return;
-    }
-
-    getWorld().removeBody(mesh.userData.body);
-  });
-
-  BUBBLE_STICK_FIGURE = null;
 }
 
 function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {

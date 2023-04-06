@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import { getParameters } from './parameters.js';
-import { setSceneSize } from './utils.js';
+import { setSceneSize } from './utils/three.js';
 
 let scene;
 let camera;
@@ -47,7 +47,7 @@ export function updateCamera() {
 function initCamera() {
   // Create a basic perspective camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  
+
   updateCamera();
 
   setSceneSize(camera);
@@ -56,7 +56,7 @@ function initCamera() {
 function initRenderer() {
   // Create a renderer with Antialiasing
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  document.body.appendChild( renderer.domElement );
+  document.body.appendChild(renderer.domElement);
 
   renderer.shadowMap.enabled = true;
 

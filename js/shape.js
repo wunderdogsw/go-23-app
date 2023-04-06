@@ -3,16 +3,13 @@ import * as THREE from 'three';
 
 import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
-import {
-  addCollidingContactMaterial,
-  createBody,
-  getWorld
-} from './physics.js';
+import { addCollidingContactMaterial, createBody, getWorld } from './physics.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures/index.js';
-import { disposeMesh, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
+import { disposeMesh, visibleBoundingBox } from './utils/three.js';
+import { getRandomFloat, getRandomItem } from './utils/maths.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
