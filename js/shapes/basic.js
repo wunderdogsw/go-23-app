@@ -4,22 +4,22 @@ import { getRandomColorTexture } from '../textures/index.js';
 import { getRandomFloat } from '../utils/maths.js';
 
 export function createCone(texture, radius = 0.8, height = 2, segments = 32) {
-  const coneGe = new THREE.ConeGeometry(radius, height, segments);
-  const coneMaterial = new THREE.MeshStandardMaterial({
+  const geometry = new THREE.ConeGeometry(radius, height, segments);
+  const material = new THREE.MeshStandardMaterial({
     map: texture,
   });
-  const cone = new THREE.Mesh(coneGe, coneMaterial);
+  const cone = new THREE.Mesh(geometry, material);
   cone.castShadow = true;
   cone.receiveShadow = true;
   return cone;
 }
 
 export function createCylinder(texture, radiusTop = 0.3, radiusBottom = 0.3, height = 3, radialSegments = 20) {
-  const cylinderGe = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
-  const cylinderMaterial = new THREE.MeshStandardMaterial({
+  const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+  const material = new THREE.MeshStandardMaterial({
     map: texture,
   });
-  const cylinder = new THREE.Mesh(cylinderGe, cylinderMaterial);
+  const cylinder = new THREE.Mesh(geometry, material);
 
   cylinder.castShadow = true;
   cylinder.receiveShadow = true;
@@ -27,11 +27,11 @@ export function createCylinder(texture, radiusTop = 0.3, radiusBottom = 0.3, hei
 }
 
 export function createSphere(texture, radius = 0.6) {
-  const sphereGe = new THREE.SphereGeometry(radius);
-  const sphereMaterial = new THREE.MeshStandardMaterial({
+  const geometry = new THREE.SphereGeometry(radius);
+  const material = new THREE.MeshStandardMaterial({
     map: texture,
   });
-  const sphere = new THREE.Mesh(sphereGe, sphereMaterial);
+  const sphere = new THREE.Mesh(geometry, material);
 
   sphere.castShadow = true;
   sphere.receiveShadow = true;
@@ -52,12 +52,12 @@ export function createBubble({
   bubble.position.set(x, y, z);
   bubble.userData.rotation = rotation;
   // Custom property to draw the bubble always with the same offset.
-  bubble.userData.offset = createOffsetVector(offset);
+  bubble.userData.offset = createRandomOffsetVector(offset);
 
   return bubble;
 }
 
-const createOffsetVector = (offset) => {
+const createRandomOffsetVector = (offset) => {
   const min = -offset / 2;
   const max = offset / 2;
 
