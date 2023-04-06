@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { createRandomEuler } from '../utils/three.js';
 import { getRandomColorTexture } from '../textures/index.js';
+import { getRandomFloat } from '../utils/maths.js';
 
 export function createCone(texture, radius = 0.8, height = 2, segments = 32) {
   const coneGe = new THREE.ConeGeometry(radius, height, segments);
@@ -47,13 +48,22 @@ export function createBubble({
   texture = getRandomColorTexture(),
 } = {}) {
   const bubble = createSphere(texture, radius);
+
   bubble.position.set(x, y, z);
   bubble.userData.rotation = rotation;
-
-  const randomOffset = new THREE.Vector3(Point(offset), Point(offset), Point(offset));
   // Custom property to draw the bubble always with the same offset.
-  bubble.userData.offset = randomOffset;
+  bubble.userData.offset = createOffsetVector(offset);
+
   return bubble;
 }
 
-const Point = (offset) => Math.random() * offset - offset / 2;
+const createOffsetVector = (offset) => {
+  const min = -offset / 2;
+  const max = offset / 2;
+
+  const x = getRandomFloat(min, max);
+  const y = getRandomFloat(min, max);
+  const z = getRandomFloat(min, max);
+
+  return new THREE.Vector3(x, y, z);
+};
