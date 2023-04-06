@@ -40,7 +40,6 @@ async function start() {
 
   addCollidingContactMaterial(BUBBLE_BODY_MATERIAL, SHAPE_BODY_MATERIAL);
 
-  // render first before getting the video + detector, otherwise nothing is displayed for a few seconds
   render();
 
   await initBodyDetection();
