@@ -5,7 +5,7 @@ import { createBody } from './physics.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
-import { getRandomColorTexture } from './textures.js';
+import { getRandomColorTexture } from './textures/index.js';
 import { disposeMesh, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
 import { getParameters } from './parameters.js';
 
