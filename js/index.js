@@ -4,12 +4,12 @@ import {
   createBubbleStickFigure,
   disposeBubbleStickFigure,
   renderBubbleStickFigure,
-} from './bubblePerson.js';
+} from './bubbleFigure/index.js';
 import { clearScene, initCinematography, renderScene, updateCamera } from './cinematography.js';
 import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
 import { addCollidingContactMaterial, initWorld, worldStep } from './physics.js';
-import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shapes/falling.js';
+import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shapes/falling.js';
 
 const render = async function () {
   requestAnimationFrame(render);
