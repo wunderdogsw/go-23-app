@@ -16,7 +16,8 @@ const DEFAULT_VALUES = {
   cameraZ: 6,
   cameraZoom: 100,
   amountShapes: 3,
-  videoDeviceId: '',
+  minPosesScore: 20,
+  videoDeviceId: ''
 };
 
 const PARAMETERS_KEY = 'parameters';

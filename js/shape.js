@@ -1,13 +1,18 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-import { createBody } from './physics.js';
+import { getScene } from './cinematography.js';
+import { getParameters } from './parameters.js';
+import {
+  addCollidingContactMaterial,
+  createBody,
+  getWorld
+} from './physics.js';
 import Cone from './shapes/Cone.js';
 import Cylinder from './shapes/Cylinder.js';
 import Sphere from './shapes/Sphere.js';
 import { getRandomColorTexture } from './textures/index.js';
 import { disposeMesh, getRandomFloat, getRandomItem, visibleBoundingBox } from './utils.js';
-import { getParameters } from './parameters.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
@@ -31,25 +36,23 @@ const ROTATION_RANGE = {
 
 const VISIBLE_AREA_MARGIN = 5;
 
-const SHAPES_COLLIDE_EACH_OTHER = true;
-
 const SHAPE_BODY_MASS = 1;
 
 let VISIBLE_AREA;
 let VISIBLE_AREA_WITH_MARGIN;
 
-export function resetShapes({ scene, world }) {
-  clearShapes(scene, world);
+export function resetShapes() {
+  clearShapes();
   setupVisibleArea();
-  setupWorld(world);
+  setupWorld();
 
   const { amountShapes } = getParameters();
 
   for (let i = 0; i < amountShapes; i++) {
     const shape = createNewShape();
     SHAPES.push(shape);
-    scene.add(shape);
-    world.addBody(shape.userData.body);
+    getScene().add(shape);
+    getWorld().addBody(shape.userData.body);
   }
 }
 
@@ -61,21 +64,21 @@ export function renderShapes() {
   }
 }
 
-export function updateShapes({ scene, world }) {
+export function updateShapes() {
   for (let i = 0; i < SHAPES.length; i++) {
     const oldShape = SHAPES[i];
 
     if (!isShapeVisible(oldShape)) {
       oldShape.visible = false;
-      scene.remove(oldShape);
-      world.removeBody(oldShape.userData.body);
+      getScene().remove(oldShape);
+      getWorld().removeBody(oldShape.userData.body);
       disposeMesh(oldShape);
 
       const newShape = createNewShape();
       SHAPES[i] = newShape;
 
-      scene.add(newShape);
-      world.addBody(newShape.userData.body);
+      getScene().add(newShape);
+      getWorld().addBody(newShape.userData.body);
     }
   }
 }
@@ -92,18 +95,11 @@ const createNewShape = () => {
   return shape;
 };
 
-function setupWorld(world) {
+function setupWorld() {
   // For keeping shape position z fixed
-  world.addEventListener('postStep', keepFixedDepth);
+  getWorld().addEventListener('postStep', keepFixedDepth);
 
-  // Making shapes bounce from each other
-  if (SHAPES_COLLIDE_EACH_OTHER) {
-    const contactMaterial = new CANNON.ContactMaterial(SHAPE_BODY_MATERIAL, SHAPE_BODY_MATERIAL, {
-      friction: 0.0,
-      restitution: 1.0,
-    });
-    world.addContactMaterial(contactMaterial);
-  }
+  addCollidingContactMaterial(SHAPE_BODY_MATERIAL, SHAPE_BODY_MATERIAL);
 }
 
 function setupVisibleArea() {
@@ -204,14 +200,14 @@ function calculateAngle(from, to) {
   return Math.atan2(to.y - from.y, to.x - from.x);
 }
 
-function clearShapes(scene, world) {
+function clearShapes() {
   SHAPES.forEach((shape) => {
-    scene.remove(shape);
-    world.removeBody(shape.userData.body);
+    getScene().remove(shape);
+    getWorld().removeBody(shape.userData.body);
     disposeMesh(shape);
   });
   SHAPES = [];
-  world.removeEventListener('postStep', keepFixedDepth);
+  getWorld().removeEventListener('postStep', keepFixedDepth);
 }
 
 function keepFixedDepth() {

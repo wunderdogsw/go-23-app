@@ -59,15 +59,20 @@ export function getRandomItem(array = []) {
   return array[index];
 }
 
-// lazy source: ChatGPT
-export function getAverage(...numbers) {
+export function getSum(values, byObjectKey = null) {
   let sum = 0;
 
-  for (let i = 0; i < numbers.length; i++) {
-    sum += numbers[i];
+  for (let i = 0; i < values.length; i++) {
+    const value = byObjectKey === null ? values[i] : values[i][byObjectKey];
+    sum += value;
   }
 
-  return sum / numbers.length;
+  return sum;
+}
+
+export function getAverage(values, byObjectKey = null) {
+  const sum = getSum(values, byObjectKey);
+  return sum / values.length;
 }
 
 export function getQueryStringValue(key) {
@@ -93,13 +98,17 @@ export function disposeMesh(mesh) {
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group) {
+export function disposeGroup(group, onMeshDisposedCallback = null) {
   group.traverse((object) => {
     if (object.type !== 'Mesh') {
       return;
     }
 
     disposeMesh(object);
+
+    if (!!onMeshDisposedCallback) {
+      onMeshDisposedCallback(object);
+    }
   });
 }
 

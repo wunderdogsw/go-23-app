@@ -1,5 +1,30 @@
-import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
+
+const COLLIDING_CONTACT_MATERIAL_OPTIONS = {
+  friction: 0.0,
+  restitution: 1.0,
+};
+
+let world;
+
+export function initWorld() {
+  world = new CANNON.World();
+  world.gravity.set(0, 0, 0);
+}
+
+export function getWorld() {
+  return world;
+}
+
+export function worldStep() {
+  world.step(1 / 60);
+}
+
+export function addCollidingContactMaterial(material1, material2, options = COLLIDING_CONTACT_MATERIAL_OPTIONS) {
+  const contactMaterial = new CANNON.ContactMaterial(material1, material2, options);
+  world.addContactMaterial(contactMaterial);
+}
 
 export function convertThreeToCannon(shape) {
   const { type, parameters, attributes } = shape.geometry;
@@ -8,7 +33,7 @@ export function convertThreeToCannon(shape) {
   switch (type) {
     case 'ConeGeometry': return new CANNON.Cylinder(0.0001, radius, height, radialSegments);
     case 'CylinderGeometry': return new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
-    case 'SphereGeometry': return new CANNON.Sphere(radius);    
+    case 'SphereGeometry': return new CANNON.Sphere(radius);
   }
 
   // Trimesh as fallback. However collision detection is not supported
@@ -31,6 +56,6 @@ export function createBody(mesh, mass, material) {
     position: new CANNON.Vec3(mesh.position.x, mesh.position.y, mesh.position.z),
     material
   });
-  
+
   return body;
 }
