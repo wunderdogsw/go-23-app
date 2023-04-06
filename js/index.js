@@ -1,13 +1,8 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-import { detectPoses, initBodyDetection } from './bodyDetection.js';
-import {
-  BUBBLE_BODY_MATERIAL,
-  createBubbleStickFigure,
-  disposeBubbleStickFigure,
-  drawBubbleStickFigure,
-} from './bubblePerson.js';
+import { initBodyDetection } from './bodyDetection.js';
+import { BUBBLE_BODY_MATERIAL, renderBubbleStickFigure } from './bubblePerson.js';
 import {
   clearScene,
   getScene,
@@ -25,37 +20,13 @@ import {
 } from './physics.js';
 import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shape.js';
 
-function renderPose(pose) {
-  if (!pose.keypoints) {
-    return;
-  }
-
-  drawBubbleStickFigure({ pose });
-}
-
-async function renderPoses() {
-  const { poses, posesLost, posesFound } = await detectPoses();
-
-  if (posesLost) {
-    disposeBubbleStickFigure();
-  } else if (posesFound) {
-    createBubbleStickFigure();
-  }
-
-  if (!poses.length) {
-    return;
-  }
-
-  renderPose(poses[0]);
-}
-
 const render = async function () {
   requestAnimationFrame(render);
 
   worldStep();
   renderShapes();
   updateShapes();
-  await renderPoses();
+  await renderBubbleStickFigure();
   renderScene();
 };
 

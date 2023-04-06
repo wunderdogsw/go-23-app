@@ -1,6 +1,7 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
+import { detectPoses } from './bodyDetection.js';
 import Bubble from './Bubble.js';
 import { getScene } from './cinematography.js';
 import { getParameters } from './parameters.js';
@@ -22,7 +23,31 @@ let BUBBLE_STICK_FIGURE;
 
 const BUBBLE_HEAD_SPHERES = 50;
 
-export function drawBubbleStickFigure({ pose }) {
+export async function renderBubbleStickFigure() {
+  const { poses, posesLost, posesFound } = await detectPoses();
+
+  if (posesLost) {
+    disposeBubbleStickFigure();
+  } else if (posesFound) {
+    createBubbleStickFigure();
+  }
+
+  if (!poses.length) {
+    return;
+  }
+
+  renderPose(poses[0]);
+}
+
+function renderPose(pose) {
+  if (!pose.keypoints) {
+    return;
+  }
+
+  drawBubbleStickFigure({ pose });
+}
+
+function drawBubbleStickFigure({ pose }) {
   const { keypoints } = pose;
 
   const extraKeypoints = createExtraKeypoints(keypoints);
@@ -33,7 +58,7 @@ export function drawBubbleStickFigure({ pose }) {
   alignBubbleFigurePhysicalBody();
 }
 
-export function createBubbleStickFigure() {
+function createBubbleStickFigure() {
   BUBBLE_STICK_FIGURE = new THREE.Group();
   BUBBLE_STICK_FIGURE.name = 'FIGURE';
   BUBBLE_STICK_FIGURE.add(createBubbleHead());
@@ -41,7 +66,7 @@ export function createBubbleStickFigure() {
   getScene().add(BUBBLE_STICK_FIGURE);
 }
 
-export function disposeBubbleStickFigure() {
+function disposeBubbleStickFigure() {
   if (!BUBBLE_STICK_FIGURE) {
     return;
   }
