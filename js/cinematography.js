@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 
 import { getParameters } from './parameters.js';
-import { setSceneSize } from './utils/three.js';
+import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three.js';
 
-let scene;
 let camera;
 let renderer;
+
+let scene;
 
 export function initCinematography() {
   scene = new THREE.Scene();
@@ -71,4 +72,9 @@ function addLightingToScene() {
   // Needed for standard materials to be visible
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
   scene.add(ambientLight);
+}
+
+function setSceneSize(camera) {
+  scene.userData.height = visibleHeightAtZDepth(camera);
+  scene.userData.width = visibleWidthAtZDepth(camera, scene.userData.height);
 }

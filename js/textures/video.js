@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const COLOR_VIDEOS_PATH = 'assets/videos/';
 
-export const COLOR_VIDEO_FILENAMES = [
+const COLOR_VIDEO_FILENAMES = [
   'h_video.mp4',
   's_video.mp4',
   'texture_anim_1.mp4',
