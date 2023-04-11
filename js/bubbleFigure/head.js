@@ -5,29 +5,18 @@ import { createBubble } from '../shapes/basic.js';
 import { getRandomFloat, getRandomInt } from '../utils/maths.js';
 import { BUBBLE_BODY_MATERIAL } from './physicalBody.js';
 
-const BUBBLE_HEAD_SPHERES = 50;
-
-export function createBubbleHead(radius = 1.2, numSpheres = BUBBLE_HEAD_SPHERES) {
+export function createBubbleHead(radius = 1.2, numSpheres = 50) {
   const group = new THREE.Group();
   group.name = 'HEAD';
-  const headSphere = createHeadSphere({ radius });
-
   group.visible = false;
+  group.userData.radius = radius;
 
   for (let i = 0; i < numSpheres; i++) {
     const bubble = createHeadBubble(radius);
-
-    headSphere.add(bubble);
+    group.add(bubble);
   }
 
-  group.add(headSphere);
   return group;
-}
-
-function createHeadSphere({ radius = 1.2, x = 16, y = 16 }) {
-  const sphereGeometry = new THREE.SphereGeometry(radius, x, y);
-  const sphereMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0 });
-  return new THREE.Mesh(sphereGeometry, sphereMaterial);
 }
 
 function createHeadBubble(radius) {
