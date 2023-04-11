@@ -1,6 +1,5 @@
 import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
 import { getParameters } from './parameters.js';
-import { getSizes } from './utils/three.js';
 import { getSum } from './utils/maths.js';
 
 let video;
@@ -21,9 +20,8 @@ async function getDetector() {
 }
 
 export async function initBodyDetection() {
-  const sizes = getSizes();
   const videoInputDeviceId = await getSelectedVideoInputDeviceId();
-  video = await getCameraVideoElement(videoInputDeviceId, sizes.video.width, sizes.video.height);
+  video = await getCameraVideoElement(videoInputDeviceId);
 
   detector = await getDetector();
 }

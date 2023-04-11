@@ -1,19 +1,12 @@
 import * as THREE from 'three';
+
+import { getSceneHeight, getSceneWidth } from '../cinematography.js';
+import { VIDEO_SIZE } from '../media.js';
 import { getRandomInt } from './maths.js';
 
-let sizes = {
-  video: {
-    width: 640,
-    height: 480,
-  },
-  scene: {
-    width: null,
-    height: null,
-  },
-};
-
 export function visibleBoundingBox() {
-  const { width, height } = sizes.scene;
+  const width = getSceneWidth();
+  const height = getSceneHeight();
 
   const left = -width / 2;
   const right = width / 2;
@@ -23,24 +16,13 @@ export function visibleBoundingBox() {
   return { left, right, top, bottom };
 }
 
-export function setSceneSize(camera) {
-  const height = visibleHeightAtZDepth(camera);
-  const width = visibleWidthAtZDepth(camera, height);
-
-  sizes.scene = { width, height };
-}
-
-export function getSizes() {
-  return sizes;
-}
-
 export function getObjectX(videoX) {
   // this calculation flips the x coordinate for a mirror effect
-  return ((sizes.video.width - videoX) / sizes.video.width - 0.5) * sizes.scene.width;
+  return ((VIDEO_SIZE.width - videoX) / VIDEO_SIZE.width - 0.5) * getSceneWidth();
 }
 
 export function getObjectY(videoY) {
-  return (0.5 - videoY / sizes.video.height) * sizes.scene.height;
+  return (0.5 - videoY / VIDEO_SIZE.height) * getSceneHeight();
 }
 
 export function getVectorsRadiansAngle(startVector, endVector) {
@@ -77,7 +59,7 @@ export function disposeGroup(group, onMeshDisposedCallback = null) {
 }
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
-function visibleHeightAtZDepth(camera, depth = 0) {
+export function visibleHeightAtZDepth(camera, depth = 0) {
   const cameraZ = camera.position.z;
   const compensatedDepth = depth < cameraZ ? depth - cameraZ : depth + cameraZ;
   const verticalFOVRadians = (camera.fov * Math.PI) / 180;
@@ -85,7 +67,7 @@ function visibleHeightAtZDepth(camera, depth = 0) {
   return 2 * Math.tan(verticalFOVRadians / 2) * Math.abs(compensatedDepth);
 }
 
-function visibleWidthAtZDepth(camera, visibleHeight) {
+export function visibleWidthAtZDepth(camera, visibleHeight) {
   return visibleHeight * camera.aspect;
 }
 
