@@ -20,15 +20,16 @@ function alignBubbleHead(figure, keypointsMap) {
 
   const leftOuterEyeVector = createVectorByKeypointName(keypointsMap, 'left_eye_outer');
   const rightOuterEyeVector = createVectorByKeypointName(keypointsMap, 'right_eye_outer');
+  const noseVector = createVectorByKeypointName(keypointsMap, 'nose');
   const neckVector = createVectorByKeypointName(keypointsMap, 'neck');
 
-  if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector)) {
+  if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector && noseVector)) {
     head.visible = false;
     return;
   }
 
   const y = neckVector.y + head.userData.radius * 2;
-  head.position.set(leftOuterEyeVector.x, y);
+  head.position.set(noseVector.x, y);
 
   const headAngle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
 
