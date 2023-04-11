@@ -5,8 +5,8 @@ import { getScene } from '../cinematography.js';
 import { getParameters } from '../parameters.js';
 import { addCollidingContactMaterial, createBody, getWorld } from '../physics.js';
 import { getRandomColorTexture } from '../textures/index.js';
-import { disposeMesh, visibleBoundingBox } from '../utils/three.js';
 import { getRandomFloat, getRandomItem } from '../utils/maths.js';
+import { disposeMesh, visibleBoundingBox } from '../utils/three.js';
 import { createCone, createCylinder, createSphere } from './basic.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
@@ -49,23 +49,16 @@ export function resetShapes() {
   }
 }
 
-export function renderShapes() {
-  for (let shape of SHAPES) {
-    if (shape.visible) {
-      applyTrajectory(shape);
-    }
-  }
-}
-
 export function updateShapes() {
   for (let i = 0; i < SHAPES.length; i++) {
-    const oldShape = SHAPES[i];
+    const currentShape = SHAPES[i];
+    applyTrajectory(currentShape);
 
-    if (!isShapeVisible(oldShape)) {
-      oldShape.visible = false;
-      getScene().remove(oldShape);
-      getWorld().removeBody(oldShape.userData.body);
-      disposeMesh(oldShape);
+    if (!isShapeVisible(currentShape)) {
+      currentShape.visible = false;
+      getScene().remove(currentShape);
+      getWorld().removeBody(currentShape.userData.body);
+      disposeMesh(currentShape);
 
       const newShape = createNewShape();
       SHAPES[i] = newShape;

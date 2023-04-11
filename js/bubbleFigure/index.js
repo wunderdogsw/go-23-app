@@ -30,8 +30,8 @@ export async function updateBubbleFigure() {
 }
 
 export function resetBubbleFigure() {
-  disposeBubbleStickFigure();
-  createBubbleStickFigure();
+  disposeBubbleFigure();
+  createBubbleFigure();
 }
 
 function createBubbleFigure() {

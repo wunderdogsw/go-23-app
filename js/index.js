@@ -8,13 +8,12 @@ import { clearScene, initCinematography, renderScene, updateCamera } from './cin
 import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
 import { addCollidingContactMaterial, initWorld, worldStep } from './physics.js';
-import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shapes/falling.js';
+import { SHAPE_BODY_MATERIAL, resetShapes, updateShapes } from './shapes/falling.js';
 
 const render = async function () {
   requestAnimationFrame(render);
 
   worldStep();
-  renderShapes();
   updateShapes();
   await updateBubbleFigure();
   renderScene();
