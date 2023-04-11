@@ -82,15 +82,15 @@ function setupWorld() {
 }
 
 function setupVisibleArea() {
-  VISIBLE_AREA = visibleArea(SHAPE_POSITION_DEPTH);
-  VISIBLE_AREA_WITH_MARGIN = visibleArea(SHAPE_POSITION_DEPTH, VISIBLE_AREA_MARGIN);
+  VISIBLE_AREA = createVisibleAreaBox();
+  VISIBLE_AREA_WITH_MARGIN = createVisibleAreaBox(VISIBLE_AREA_MARGIN);
 }
 
-function visibleArea(depth = -1, margin = 0) {
-  const { top, right, bottom, left } = visibleBoundingBox(depth);
+function createVisibleAreaBox(margin = 0) {
+  const { top, right, bottom, left } = visibleBoundingBox();
 
-  const bottomLeft = new THREE.Vector3(left - margin, bottom - margin, depth);
-  const topRight = new THREE.Vector3(right + margin, top + margin, 0);
+  const bottomLeft = new THREE.Vector3(left - margin, bottom - margin, SHAPE_POSITION_DEPTH);
+  const topRight = new THREE.Vector3(right + margin, top + margin, SHAPE_POSITION_DEPTH);
 
   return new THREE.Box3(bottomLeft, topRight);
 }
@@ -127,13 +127,13 @@ function updateShapeByBody(shape) {
 }
 
 function generateTrajectory() {
-  const start = new THREE.Vector3(
+  const startVector = new THREE.Vector3(
     getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
     VISIBLE_AREA_WITH_MARGIN.max.y,
     SHAPE_POSITION_DEPTH
   );
 
-  const velocity = generateTrajectoryVelocity(start);
+  const velocity = generateTrajectoryVelocity(startVector);
 
   const rotation = new THREE.Vector3(
     getRandomFloat(ROTATION_RANGE.min, ROTATION_RANGE.max),
@@ -142,23 +142,23 @@ function generateTrajectory() {
   );
 
   return {
-    start,
+    start: startVector,
     rotation,
     velocity,
   };
 }
 
-function generateTrajectoryVelocity(start) {
+function generateTrajectoryVelocity(startVector) {
   const endDirection = new THREE.Vector3(
     getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
     VISIBLE_AREA_WITH_MARGIN.min.y,
-    start.z
+    startVector.z
   );
 
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
-  const angle = getVectorsRadiansAngle(start, endDirection);
+  const angle = getVectorsRadiansAngle(startVector, endDirection);
 
-  return calculateVelocity(angle, speed, start.z);
+  return calculateVelocity(angle, speed, startVector.z);
 }
 
 function calculateVelocity(angleRadians, speed, depth) {
