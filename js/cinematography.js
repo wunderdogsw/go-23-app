@@ -7,8 +7,6 @@ let camera;
 let renderer;
 
 let scene;
-let sceneHeight;
-let sceneWidth;
 
 export function initCinematography() {
   scene = new THREE.Scene();
@@ -47,14 +45,6 @@ export function updateCamera() {
   camera.updateProjectionMatrix();
 }
 
-export function getSceneWidth() {
-  return sceneWidth;
-}
-
-export function getSceneHeight() {
-  return sceneHeight;
-}
-
 function initCamera() {
   // Create a basic perspective camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -85,6 +75,6 @@ function addLightingToScene() {
 }
 
 function setSceneSize(camera) {
-  sceneHeight = visibleHeightAtZDepth(camera);
-  sceneWidth = visibleWidthAtZDepth(camera, sceneHeight);
+  scene.userData.height = visibleHeightAtZDepth(camera);
+  scene.userData.width = visibleWidthAtZDepth(camera, scene.userData.height);
 }

@@ -1,12 +1,11 @@
 import * as THREE from 'three';
 
-import { getSceneHeight, getSceneWidth } from '../cinematography.js';
+import { getScene } from '../cinematography.js';
 import { VIDEO_SIZE } from '../media.js';
 import { getRandomInt } from './maths.js';
 
 export function visibleBoundingBox() {
-  const width = getSceneWidth();
-  const height = getSceneHeight();
+  const { width, height } = getScene().userData;
 
   const left = -width / 2;
   const right = width / 2;
@@ -17,12 +16,16 @@ export function visibleBoundingBox() {
 }
 
 export function getObjectX(videoX) {
+  const { width: sceneWidth } = getScene().userData;
+  const { width: videoWidth } = VIDEO_SIZE;
   // this calculation flips the x coordinate for a mirror effect
-  return ((VIDEO_SIZE.width - videoX) / VIDEO_SIZE.width - 0.5) * getSceneWidth();
+  return ((videoWidth - videoX) / videoWidth - 0.5) * sceneWidth;
 }
 
 export function getObjectY(videoY) {
-  return (0.5 - videoY / VIDEO_SIZE.height) * getSceneHeight();
+  const { height: sceneHeight } = getScene().userData;
+  const { height: videoHeight } = VIDEO_SIZE;
+  return (0.5 - videoY / videoHeight) * sceneHeight;
 }
 
 export function getVectorsRadiansAngle(startVector, endVector) {
