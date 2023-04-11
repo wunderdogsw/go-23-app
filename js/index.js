@@ -1,15 +1,14 @@
 import { initBodyDetection } from './bodyDetection.js';
 import {
-  BUBBLE_BODY_MATERIAL,
-  createBubbleStickFigure,
-  disposeBubbleStickFigure,
-  renderBubbleStickFigure,
-} from './bubblePerson.js';
+  resetBubbleFigure,
+  updateBubbleFigure,
+} from './bubbleFigure/index.js';
+import { BUBBLE_BODY_MATERIAL } from './bubbleFigure/physicalBody.js';
 import { clearScene, initCinematography, renderScene, updateCamera } from './cinematography.js';
 import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
 import { addCollidingContactMaterial, initWorld, worldStep } from './physics.js';
-import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shapes/falling.js';
+import { SHAPE_BODY_MATERIAL, renderShapes, resetShapes, updateShapes } from './shapes/falling.js';
 
 const render = async function () {
   requestAnimationFrame(render);
@@ -17,7 +16,7 @@ const render = async function () {
   worldStep();
   renderShapes();
   updateShapes();
-  await renderBubbleStickFigure();
+  await updateBubbleFigure();
   renderScene();
 };
 
@@ -39,8 +38,7 @@ async function start() {
 function updateParameters() {
   clearScene();
 
-  disposeBubbleStickFigure();
-  createBubbleStickFigure();
+  resetBubbleFigure();
 
   updateCamera();
   resetShapes();
