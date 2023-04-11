@@ -11,26 +11,20 @@ import { createCone, createCylinder, createSphere } from './basic.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
-let SHAPES = [];
-
 const SHAPE_POSITION_DEPTH = 0;
-
 const SHAPE_FACTORIES = [createSphere, createCylinder, createCone];
-
 const MOVE_SPEED_RANGE = {
   min: 2,
   max: 7,
 };
-
 const ROTATION_RANGE = {
   min: -5,
   max: 5,
 };
-
 const VISIBLE_AREA_MARGIN = 5;
-
 const SHAPE_BODY_MASS = 1;
 
+let SHAPES = [];
 let VISIBLE_AREA;
 let VISIBLE_AREA_WITH_MARGIN;
 
