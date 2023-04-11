@@ -2,7 +2,7 @@ import { getVectorsRadiansAngle } from "../utils/three.js";
 import { createPoseKeypointsMap, createVectorByKeypointName } from "./keypoints.js";
 import { alignGroupPhysicalBody } from "./physicalBody.js";
 
-export function drawBubbleStickFigurePose({ figure, pose }) {
+export function alignBubbleFigurePose({ figure, pose }) {
   const { keypoints } = pose;
   const keypointsMap = createPoseKeypointsMap(keypoints);
 
@@ -10,12 +10,12 @@ export function drawBubbleStickFigurePose({ figure, pose }) {
     return;
   }
 
-  drawBubbleHead(figure, keypointsMap);
-  drawBubbleBody(figure, keypointsMap);
+  alignBubbleHead(figure, keypointsMap);
+  alignBubbleBody(figure, keypointsMap);
   alignGroupPhysicalBody(figure);
 }
 
-function drawBubbleHead(figure, keypointsMap) {
+function alignBubbleHead(figure, keypointsMap) {
   const head = figure.getObjectByName('HEAD');
 
   const leftOuterEyeVector = createVectorByKeypointName(keypointsMap, 'left_eye_outer');
@@ -42,17 +42,17 @@ function drawBubbleHead(figure, keypointsMap) {
 }
 
 
-function drawBubbleBody(figure, keypointsMap) {
+function alignBubbleBody(figure, keypointsMap) {
   const body = figure.getObjectByName('BODY');
 
   body.traverse((entry) => {
     if (entry.type === 'Group') {
-      drawBubbleLine(keypointsMap, entry);
+      alignBubbleLine(keypointsMap, entry);
     }
   });
 }
 
-function drawBubbleLine(keypointsMap, group) {
+function alignBubbleLine(keypointsMap, group) {
   const { userData } = group;
 
   // since the entire body is traversed, some groups don't need to be drawn

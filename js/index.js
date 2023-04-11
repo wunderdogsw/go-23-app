@@ -1,10 +1,9 @@
 import { initBodyDetection } from './bodyDetection.js';
 import {
-  BUBBLE_BODY_MATERIAL,
-  createBubbleStickFigure,
-  disposeBubbleStickFigure,
-  renderBubbleStickFigure,
+  resetBubbleFigure,
+  updateBubbleFigure,
 } from './bubbleFigure/index.js';
+import { BUBBLE_BODY_MATERIAL } from './bubbleFigure/physicalBody.js';
 import { clearScene, initCinematography, renderScene, updateCamera } from './cinematography.js';
 import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
@@ -17,7 +16,7 @@ const render = async function () {
   worldStep();
   renderShapes();
   updateShapes();
-  await renderBubbleStickFigure();
+  await updateBubbleFigure();
   renderScene();
 };
 
@@ -39,8 +38,7 @@ async function start() {
 function updateParameters() {
   clearScene();
 
-  disposeBubbleStickFigure();
-  createBubbleStickFigure();
+  resetBubbleFigure();
 
   updateCamera();
   resetShapes();
