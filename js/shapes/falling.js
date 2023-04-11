@@ -43,19 +43,13 @@ export function resetShapes() {
 
 export function updateShapes() {
   for (let i = 0; i < SHAPES.length; i++) {
-    const currentShape = SHAPES[i];
-    applyTrajectory(currentShape);
+    const shape = SHAPES[i];
+    applyTrajectory(shape);
 
-    if (isShapeVisible(currentShape)) {
-      continue;
+    if (!isShapeVisible(shape)) {
+      disposeShape(shape);
+      SHAPES[i] = createNewShape();
     }
-
-    currentShape.visible = false;
-    getScene().remove(currentShape);
-    getWorld().removeBody(currentShape.userData.body);
-    disposeMesh(currentShape);
-
-    SHAPES[i] = createNewShape();
   }
 }
 
@@ -72,6 +66,12 @@ function createNewShape() {
   getWorld().addBody(shape.userData.body);
 
   return shape;
+}
+
+function disposeShape(shape) {
+  getScene().remove(shape);
+  getWorld().removeBody(shape.userData.body);
+  disposeMesh(shape);
 }
 
 function setupWorld() {
@@ -169,9 +169,7 @@ function calculateVelocity(angleRadians, speed, depth) {
 
 function clearShapes() {
   for (let shape of SHAPES) {
-    getScene().remove(shape);
-    getWorld().removeBody(shape.userData.body);
-    disposeMesh(shape);
+    disposeShape(shape);
   }
 
   SHAPES = [];
