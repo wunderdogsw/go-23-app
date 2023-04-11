@@ -1,3 +1,5 @@
+import * as poseDetection from '@tensorflow-models/pose-detection';
+
 import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
 import { getParameters } from './parameters.js';
 import { getSizes } from './utils/three.js';
