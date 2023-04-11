@@ -27,9 +27,8 @@ function alignBubbleHead(figure, keypointsMap) {
     return;
   }
 
-  const x = { leftOuterEyeVector };
   const y = neckVector.y + head.userData.radius * 2;
-  head.position.set(x, y);
+  head.position.set(leftOuterEyeVector.x, y);
 
   const headAngle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
 
