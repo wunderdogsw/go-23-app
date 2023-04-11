@@ -91,7 +91,7 @@ function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0, userD
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
     const bubble = createBubble({ x, radius, offset });
-    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+    bubble.userData.body = createBody(bubble, BUBBLE_BODY_MATERIAL, 0);
     group.add(bubble);
   }
 

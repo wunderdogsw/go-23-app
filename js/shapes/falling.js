@@ -6,7 +6,7 @@ import { getParameters } from '../parameters.js';
 import { addCollidingContactMaterial, createBody, getWorld } from '../physics.js';
 import { getRandomColorTexture } from '../textures/index.js';
 import { getRandomFloat, getRandomItem } from '../utils/maths.js';
-import { disposeMesh, visibleBoundingBox } from '../utils/three.js';
+import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three.js';
 import { createCone, createCylinder, createSphere } from './basic.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
@@ -15,7 +15,7 @@ let SHAPES = [];
 
 const SHAPE_POSITION_DEPTH = 0;
 
-const AVAILABLE_SHAPES = [createSphere, createCylinder, createCone];
+const SHAPE_FACTORIES = [createSphere, createCylinder, createCone];
 
 const MOVE_SPEED_RANGE = {
   min: 2,
@@ -44,8 +44,6 @@ export function resetShapes() {
   for (let i = 0; i < amountShapes; i++) {
     const shape = createNewShape();
     SHAPES.push(shape);
-    getScene().add(shape);
-    getWorld().addBody(shape.userData.body);
   }
 }
 
@@ -54,32 +52,33 @@ export function updateShapes() {
     const currentShape = SHAPES[i];
     applyTrajectory(currentShape);
 
-    if (!isShapeVisible(currentShape)) {
-      currentShape.visible = false;
-      getScene().remove(currentShape);
-      getWorld().removeBody(currentShape.userData.body);
-      disposeMesh(currentShape);
-
-      const newShape = createNewShape();
-      SHAPES[i] = newShape;
-
-      getScene().add(newShape);
-      getWorld().addBody(newShape.userData.body);
+    if (isShapeVisible(currentShape)) {
+      continue;
     }
+
+    currentShape.visible = false;
+    getScene().remove(currentShape);
+    getWorld().removeBody(currentShape.userData.body);
+    disposeMesh(currentShape);
+
+    SHAPES[i] = createNewShape();
   }
 }
 
-const createNewShape = () => {
-  const videoTexture = getRandomColorTexture();
-  const createShape = getRandomItem(AVAILABLE_SHAPES);
-  const shape = createShape(videoTexture);
-  const body = createBody(shape, SHAPE_BODY_MASS, SHAPE_BODY_MATERIAL);
+function createNewShape() {
+  const texture = getRandomColorTexture();
+  const createShape = getRandomItem(SHAPE_FACTORIES);
+  const shape = createShape(texture);
+  const body = createBody(shape, SHAPE_BODY_MATERIAL, SHAPE_BODY_MASS);
   shape.userData = { body, trajectory: null };
 
   applyTrajectory(shape);
 
+  getScene().add(shape);
+  getWorld().addBody(shape.userData.body);
+
   return shape;
-};
+}
 
 function setupWorld() {
   // For keeping shape position z fixed
@@ -106,10 +105,10 @@ function applyTrajectory(shape) {
   if (!shape.userData.trajectory) {
     shape.userData.trajectory = generateTrajectory();
 
-    updateBody(shape);
+    updateBodyByTrajectory(shape);
   }
 
-  updateShape(shape);
+  updateShapeByBody(shape);
 }
 
 function isShapeVisible(shape) {
@@ -119,7 +118,7 @@ function isShapeVisible(shape) {
   return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
 }
 
-function updateBody(shape) {
+function updateBodyByTrajectory(shape) {
   const { rotation, velocity, start } = shape.userData.trajectory;
   shape.userData.body.position.copy(start);
   shape.userData.body.velocity.x = velocity.x;
@@ -128,7 +127,7 @@ function updateBody(shape) {
   shape.userData.body.angularVelocity.normalize();
 }
 
-function updateShape(shape) {
+function updateShapeByBody(shape) {
   shape.position.copy(shape.userData.body.position);
   shape.quaternion.copy(shape.userData.body.quaternion);
 }
@@ -163,31 +162,24 @@ function generateTrajectoryVelocity(start) {
   );
 
   const speed = getRandomFloat(MOVE_SPEED_RANGE.min, MOVE_SPEED_RANGE.max);
-  const angle = calculateAngle(start, endDirection);
+  const angle = getVectorsRadiansAngle(start, endDirection);
 
   return calculateVelocity(angle, speed, start.z);
 }
 
 function calculateVelocity(angleRadians, speed, depth) {
-  return new THREE.Vector3(speed * Math.cos(angleRadians), speed * Math.sin(angleRadians), depth);
-}
-
-/**
- *
- * @param {THREE.Vector3} from
- * @param {THREE.Vector3} to
- * @returns angle (in radians)
- */
-function calculateAngle(from, to) {
-  return Math.atan2(to.y - from.y, to.x - from.x);
+  const x = speed * Math.cos(angleRadians);
+  const y = speed * Math.sin(angleRadians);
+  return new THREE.Vector3(x, y, depth);
 }
 
 function clearShapes() {
-  SHAPES.forEach((shape) => {
+  for (let shape of SHAPES) {
     getScene().remove(shape);
     getWorld().removeBody(shape.userData.body);
     disposeMesh(shape);
-  });
+  }
+
   SHAPES = [];
   getWorld().removeEventListener('postStep', keepFixedDepth);
 }

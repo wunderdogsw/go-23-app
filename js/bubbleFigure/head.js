@@ -31,7 +31,7 @@ function createHeadBubble(radius) {
   const z = radius * getRandomFloat(0, 0.5);
 
   bubble.position.set(x, y, z);
-  bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+  bubble.userData.body = createBody(bubble, BUBBLE_BODY_MATERIAL, 0);
 
   return bubble;
 }
