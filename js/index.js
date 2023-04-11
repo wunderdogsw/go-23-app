@@ -9,7 +9,7 @@ import { clearScene, initCinematography, renderScene, updateCamera } from './cin
 import { initControls } from './controls.js';
 import { initParameters } from './parameters.js';
 import { addCollidingContactMaterial, initWorld, worldStep } from './physics.js';
-import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shape.js';
+import { renderShapes, resetShapes, SHAPE_BODY_MATERIAL, updateShapes } from './shapes/falling.js';
 
 const render = async function () {
   requestAnimationFrame(render);

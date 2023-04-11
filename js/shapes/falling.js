@@ -1,15 +1,13 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-import { getScene } from './cinematography.js';
-import { getParameters } from './parameters.js';
-import { addCollidingContactMaterial, createBody, getWorld } from './physics.js';
-import Cone from './shapes/Cone.js';
-import Cylinder from './shapes/Cylinder.js';
-import Sphere from './shapes/Sphere.js';
-import { getRandomColorTexture } from './textures/index.js';
-import { disposeMesh, visibleBoundingBox } from './utils/three.js';
-import { getRandomFloat, getRandomItem } from './utils/maths.js';
+import { getScene } from '../cinematography.js';
+import { getParameters } from '../parameters.js';
+import { addCollidingContactMaterial, createBody, getWorld } from '../physics.js';
+import { getRandomColorTexture } from '../textures/index.js';
+import { disposeMesh, visibleBoundingBox } from '../utils/three.js';
+import { getRandomFloat, getRandomItem } from '../utils/maths.js';
+import { createCone, createCylinder, createSphere } from './basic.js';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
@@ -17,9 +15,7 @@ let SHAPES = [];
 
 const SHAPE_POSITION_DEPTH = 0;
 
-const DEFAULT_POSITION = new THREE.Vector3(0, 0, SHAPE_POSITION_DEPTH);
-
-const AVAILABLE_SHAPES = [Sphere, Cylinder, Cone];
+const AVAILABLE_SHAPES = [createSphere, createCylinder, createCone];
 
 const MOVE_SPEED_RANGE = {
   min: 2,
@@ -115,7 +111,7 @@ function visibleArea(depth = -1, margin = 0) {
 
 function applyTrajectory(shape) {
   if (!shape.userData.trajectory) {
-    shape.userData.trajectory = generateTrajectory(shape);
+    shape.userData.trajectory = generateTrajectory();
 
     updateBody(shape);
   }
@@ -144,15 +140,11 @@ function updateShape(shape) {
   shape.quaternion.copy(shape.userData.body.quaternion);
 }
 
-function generateTrajectory(shape) {
-  shape.position.copy(DEFAULT_POSITION);
-
-  const depth = shape.position.z;
-
+function generateTrajectory() {
   const start = new THREE.Vector3(
     getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
     VISIBLE_AREA_WITH_MARGIN.max.y,
-    depth
+    SHAPE_POSITION_DEPTH
   );
 
   const velocity = generateTrajectoryVelocity(start);
