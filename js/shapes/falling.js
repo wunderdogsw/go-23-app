@@ -24,9 +24,9 @@ const ROTATION_RANGE = {
 const VISIBLE_AREA_MARGIN = 5;
 const SHAPE_BODY_MASS = 1;
 
-let SHAPES = [];
-let VISIBLE_AREA;
-let VISIBLE_AREA_WITH_MARGIN;
+let visualArea;
+let visualAreaWithMargin;
+let shapes = [];
 
 export function resetShapes() {
   clearShapes();
@@ -37,18 +37,18 @@ export function resetShapes() {
 
   for (let i = 0; i < amountShapes; i++) {
     const shape = createNewShape();
-    SHAPES.push(shape);
+    shapes.push(shape);
   }
 }
 
 export function updateShapes() {
-  for (let i = 0; i < SHAPES.length; i++) {
-    const shape = SHAPES[i];
+  for (let i = 0; i < shapes.length; i++) {
+    const shape = shapes[i];
     applyTrajectory(shape);
 
     if (!isShapeVisible(shape)) {
       disposeShape(shape);
-      SHAPES[i] = createNewShape();
+      shapes[i] = createNewShape();
     }
   }
 }
@@ -82,8 +82,8 @@ function setupWorld() {
 }
 
 function setupVisibleArea() {
-  VISIBLE_AREA = createVisibleAreaBox();
-  VISIBLE_AREA_WITH_MARGIN = createVisibleAreaBox(VISIBLE_AREA_MARGIN);
+  visualArea = createVisibleAreaBox();
+  visualAreaWithMargin = createVisibleAreaBox(VISIBLE_AREA_MARGIN);
 }
 
 function createVisibleAreaBox(margin = 0) {
@@ -109,7 +109,7 @@ function isShapeVisible(shape) {
   if (!shape) {
     return false;
   }
-  return VISIBLE_AREA_WITH_MARGIN.containsPoint(shape.position);
+  return visualAreaWithMargin.containsPoint(shape.position);
 }
 
 function updateBodyByTrajectory(shape) {
@@ -128,8 +128,8 @@ function updateShapeByBody(shape) {
 
 function generateTrajectory() {
   const startVector = new THREE.Vector3(
-    getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
-    VISIBLE_AREA_WITH_MARGIN.max.y,
+    getRandomFloat(visualArea.min.x, visualArea.max.x),
+    visualAreaWithMargin.max.y,
     SHAPE_POSITION_DEPTH
   );
 
@@ -150,8 +150,8 @@ function generateTrajectory() {
 
 function generateTrajectoryVelocity(startVector) {
   const endDirection = new THREE.Vector3(
-    getRandomFloat(VISIBLE_AREA.min.x, VISIBLE_AREA.max.x),
-    VISIBLE_AREA_WITH_MARGIN.min.y,
+    getRandomFloat(visualArea.min.x, visualArea.max.x),
+    visualAreaWithMargin.min.y,
     startVector.z
   );
 
@@ -168,16 +168,16 @@ function calculateVelocity(angleRadians, speed, depth) {
 }
 
 function clearShapes() {
-  for (let shape of SHAPES) {
+  for (let shape of shapes) {
     disposeShape(shape);
   }
 
-  SHAPES = [];
+  shapes = [];
   getWorld().removeEventListener('postStep', keepFixedDepth);
 }
 
 function keepFixedDepth() {
-  for (let shape of SHAPES) {
+  for (let shape of shapes) {
     shape.userData.body.position.z = SHAPE_POSITION_DEPTH;
     shape.position.copy(shape.userData.body.position);
   }
