@@ -1,11 +1,8 @@
-import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 import { detectPoses } from '../bodyDetection.js';
 import { getScene } from '../cinematography.js';
-import { getParameters } from '../parameters.js';
-import { createBody, getWorld } from '../physics.js';
-import { getRandomFloat, getRandomInt } from '../utils/maths.js';
+import { getWorld } from '../physics.js';
 import { disposeGroup } from '../utils/three.js';
 import { alignBubbleFigurePose } from './alignPose.js';
 import { createBubbleBody } from './body.js';
