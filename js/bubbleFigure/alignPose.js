@@ -1,6 +1,6 @@
-import { getVectorsRadiansAngle } from "../utils/three.js";
-import { createPoseKeypointsMap, createVectorByKeypointName } from "./keypoints.js";
-import { alignGroupPhysicalBody } from "./physicalBody.js";
+import { getVectorsRadiansAngle } from '../utils/three.js';
+import { createPoseKeypointsMap, createVectorByKeypointName } from './keypoints.js';
+import { alignGroupPhysicalBody } from './physicalBody.js';
 
 export function alignBubbleFigurePose({ figure, pose }) {
   const { keypoints } = pose;
@@ -20,27 +20,26 @@ function alignBubbleHead(figure, keypointsMap) {
 
   const leftOuterEyeVector = createVectorByKeypointName(keypointsMap, 'left_eye_outer');
   const rightOuterEyeVector = createVectorByKeypointName(keypointsMap, 'right_eye_outer');
+  const noseVector = createVectorByKeypointName(keypointsMap, 'nose');
   const neckVector = createVectorByKeypointName(keypointsMap, 'neck');
 
-  if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector)) {
+  if (!(leftOuterEyeVector && rightOuterEyeVector && neckVector && noseVector)) {
     head.visible = false;
     return;
   }
 
-  const headGroup = head.children[0];
-  const sphereRadius = headGroup.geometry.parameters.radius;
+  const y = neckVector.y + head.userData.radius * 2;
+  head.position.set(noseVector.x, y);
 
-  head.position.set(leftOuterEyeVector.x, neckVector.y + sphereRadius * 2);
+  const headAngle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
 
-  const angle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
-  for (let i = 0; i < headGroup.children.length; i++) {
-    const bubble = headGroup.children[i];
-    bubble.rotation.z = bubble.userData.rotation.z + angle;
+  for (let i = 0; i < head.children.length; i++) {
+    const bubble = head.children[i];
+    bubble.rotation.z = bubble.userData.rotation.z + headAngle;
   }
 
   head.visible = true;
 }
-
 
 function alignBubbleBody(figure, keypointsMap) {
   const body = figure.getObjectByName('BODY');

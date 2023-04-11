@@ -23,14 +23,6 @@ function createStaticTextures(paths) {
   return paths.map((path) => createStaticTexture(path));
 }
 
-/**
- *
- * @param {string} filename
- * @param {number} rotation
- * @param {number} x
- * @param {number} y
- * @returns
- */
 function createStaticTexture(filename, rotation = -1.57, x = 0.5, y = 0.5) {
   const fullPath = `${COLOR_IMAGES_PATH}${filename}`;
   const texture = new THREE.TextureLoader().load(fullPath);

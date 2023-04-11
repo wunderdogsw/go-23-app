@@ -39,14 +39,6 @@ function createVideoElement(filename) {
   return video;
 }
 
-/**
- *
- * @param {HTMLElement} video
- * @param {number} rotation
- * @param {number} x
- * @param {number} y
- * @returns
- */
 function createVideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.VideoTexture(video);
 

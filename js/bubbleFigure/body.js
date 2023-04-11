@@ -25,23 +25,15 @@ function createBubbleTorso() {
     torsoSmallCount,
   } = getParameters();
 
-  const startKeypointName = 'neck';
-  const endKeypointName = 'stomach';
+  const userData = { startKeypointName: 'neck', endKeypointName: 'stomach' };
 
-  const thickBubbles = createBubblesGroup(torsoThickRadius, torsoThickCount, torsoOffsetPercentage);
-  thickBubbles.userData.startKeypointName = startKeypointName;
-  thickBubbles.userData.endKeypointName = endKeypointName;
-
-  const middleBubbles = createBubblesGroup(torsoMediumRadius, torsoMediumCount, torsoOffsetPercentage);
-  middleBubbles.userData.startKeypointName = startKeypointName;
-  middleBubbles.userData.endKeypointName = endKeypointName;
-
-  const smallBubbles = createBubblesGroup(torsoSmallRadius, torsoSmallCount, torsoOffsetPercentage);
-  smallBubbles.userData.startKeypointName = startKeypointName;
-  smallBubbles.userData.endKeypointName = endKeypointName;
+  const thickBubbles = createBubblesGroup(torsoThickRadius, torsoThickCount, torsoOffsetPercentage, userData);
+  const middleBubbles = createBubblesGroup(torsoMediumRadius, torsoMediumCount, torsoOffsetPercentage, userData);
+  const smallBubbles = createBubblesGroup(torsoSmallRadius, torsoSmallCount, torsoOffsetPercentage, userData);
 
   const torso = new THREE.Group();
   torso.name = 'TORSO';
+
   torso.add(thickBubbles);
   torso.add(middleBubbles);
   torso.add(smallBubbles);
@@ -73,44 +65,33 @@ function createLimbs() {
     limbsSmallCount,
   } = getParameters();
 
-  const thickBubbles = new THREE.Group();
-  const middleBubbles = new THREE.Group();
-  const smallBubbles = new THREE.Group();
+  const limbs = new THREE.Group();
+  limbs.name = 'LIMBS';
 
   for (let [startKeypointName, endKeypointName] of LINES_KEYPOINTS) {
-    const thick = createBubblesGroup(limbsThickRadius, limbsThickCount, limbsOffsetPercentage);
-    thick.userData.startKeypointName = startKeypointName;
-    thick.userData.endKeypointName = endKeypointName;
-    thickBubbles.add(thick);
+    const userData = { startKeypointName, endKeypointName };
 
-    const middle = createBubblesGroup(limbsMediumRadius, limbsMediumCount, limbsOffsetPercentage);
-    middle.userData.startKeypointName = startKeypointName;
-    middle.userData.endKeypointName = endKeypointName;
-    middleBubbles.add(middle);
+    const thickBubbles = createBubblesGroup(limbsThickRadius, limbsThickCount, limbsOffsetPercentage, userData);
+    const middleBubbles = createBubblesGroup(limbsMediumRadius, limbsMediumCount, limbsOffsetPercentage, userData);
+    const smallBubbles = createBubblesGroup(limbsSmallRadius, limbsSmallCount, limbsOffsetPercentage, userData);
 
-    const small = createBubblesGroup(limbsSmallRadius, limbsSmallCount, limbsOffsetPercentage);
-    small.userData.startKeypointName = startKeypointName;
-    small.userData.endKeypointName = endKeypointName;
-    smallBubbles.add(middle);
+    limbs.add(thickBubbles);
+    limbs.add(middleBubbles);
+    limbs.add(smallBubbles);
   }
-
-  const limbs = new THREE.Group();
-  limbs.add(thickBubbles);
-  limbs.add(middleBubbles);
-  limbs.add(smallBubbles);
-  limbs.name = 'LIMBS';
 
   return limbs;
 }
 
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0) {
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0, userData = {}) {
   const group = new THREE.Group();
   group.visible = false;
+  group.userData = userData;
 
   for (let i = 0; i < numberOfBubbles; i++) {
     const x = i * radius * 2;
     const bubble = createBubble({ x, radius, offset });
-    bubble.userData.body = createBody(bubble, 0, BUBBLE_BODY_MATERIAL);
+    bubble.userData.body = createBody(bubble, BUBBLE_BODY_MATERIAL, 0);
     group.add(bubble);
   }
 

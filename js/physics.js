@@ -1,5 +1,4 @@
 import * as CANNON from 'cannon-es';
-import * as THREE from 'three';
 
 const COLLIDING_CONTACT_MATERIAL_OPTIONS = {
   friction: 0.0,
@@ -26,36 +25,36 @@ export function addCollidingContactMaterial(material1, material2, options = COLL
   world.addContactMaterial(contactMaterial);
 }
 
-export function convertThreeToCannon(shape) {
-  const { type, parameters, attributes } = shape.geometry;
+export function createBody(mesh, material, mass = 0) {
+  const shape = createCannonBodyFromMesh(mesh);
+
+  const { x, y, z } = mesh.position;
+  const position = new CANNON.Vec3(x, y, z);
+
+  return new CANNON.Body({
+    mass,
+    shape,
+    position,
+    material,
+  });
+}
+
+function createCannonBodyFromMesh(mesh) {
+  const { type, parameters, attributes } = mesh.geometry;
   let { radiusTop, radiusBottom, radius, height, radialSegments } = parameters;
 
   switch (type) {
-    case 'ConeGeometry': return new CANNON.Cylinder(0.0001, radius, height, radialSegments);
-    case 'CylinderGeometry': return new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
-    case 'SphereGeometry': return new CANNON.Sphere(radius);
+    case 'ConeGeometry':
+      return new CANNON.Cylinder(0.0001, radius, height, radialSegments);
+    case 'CylinderGeometry':
+      return new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
+    case 'SphereGeometry':
+      return new CANNON.Sphere(radius);
   }
 
   // Trimesh as fallback. However collision detection is not supported
   const vertices = attributes.position.array;
   const indices = Object.keys(vertices).map(Number);
+
   return new CANNON.Trimesh(vertices, indices);
-}
-
-/**
- * 
- * @param {THREE.Mesh} mesh
- * @returns CANNON.Body
- */
-export function createBody(mesh, mass, material) {
-  const cannonShape = convertThreeToCannon(mesh);
-
-  const body = new CANNON.Body({
-    mass,
-    shape: cannonShape,
-    position: new CANNON.Vec3(mesh.position.x, mesh.position.y, mesh.position.z),
-    material
-  });
-
-  return body;
 }
