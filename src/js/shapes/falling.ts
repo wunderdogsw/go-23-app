@@ -55,9 +55,12 @@ export function updateShapes() {
 
 function createNewShape() {
   const texture = getRandomColorTexture();
-  // @ts-expect-error TS(2345): Argument of type '((texture: any, radiusTop?: numb... Remove this comment to see the full error message
   const createShape = getRandomItem(SHAPE_FACTORIES);
-  // @ts-expect-error TS(2532): Object is possibly 'undefined'.
+
+  if (!createShape) {
+    throw Error('No shape factory found');
+  }
+
   const shape = createShape(texture);
   const body = createBody(shape, SHAPE_BODY_MATERIAL, SHAPE_BODY_MASS);
   shape.userData = { body, trajectory: null };

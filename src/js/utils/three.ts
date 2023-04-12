@@ -47,7 +47,7 @@ export function disposeMesh(mesh: any) {
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group: any, onMeshDisposedCallback = null) {
+export function disposeGroup(group: any, onMeshDisposedCallback: any) {
   group.traverse((object: any) => {
     if (object.type !== 'Mesh') {
       return;
@@ -56,7 +56,6 @@ export function disposeGroup(group: any, onMeshDisposedCallback = null) {
     disposeMesh(object);
 
     if (!!onMeshDisposedCallback) {
-      // @ts-expect-error TS(2349): This expression is not callable.
       onMeshDisposedCallback(object);
     }
   });

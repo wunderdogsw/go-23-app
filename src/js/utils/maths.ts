@@ -7,7 +7,7 @@ export function getRandomFloat(min: any, max: any) {
   return Math.random() * (max - min) + min;
 }
 
-export function getRandomItem(array = []) {
+export function getRandomItem<ItemType>(array: ItemType[] = []) {
   if (!array.length) {
     return undefined;
   }
@@ -15,11 +15,11 @@ export function getRandomItem(array = []) {
   return array[index];
 }
 
-export function getSum(values: any, byObjectKey = null) {
+export function getSum(values: any, byObjectKey: any) {
   let sum = 0;
 
   for (let i = 0; i < values.length; i++) {
-    const value = byObjectKey === null ? values[i] : values[i][byObjectKey];
+    const value = byObjectKey ? values[i][byObjectKey] : values[i];
     sum += value;
   }
 
@@ -32,8 +32,7 @@ export function getAverage(values: any, byObjectKey = null) {
 }
 
 // reference: https://stackoverflow.com/questions/175739/how-can-i-check-if-a-string-is-a-valid-number
-export function isNumeric(str: any) {
+export function isStringNumeric(str: any) {
   if (typeof str != 'string') return false;
-  // @ts-expect-error TS(2345): Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
-  return !isNaN(str) && !isNaN(parseFloat(str));
+  return !isNaN(parseFloat(str));
 }

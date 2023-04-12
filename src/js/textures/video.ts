@@ -14,7 +14,7 @@ const COLOR_VIDEO_FILENAMES = [
 
 export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_FILENAMES);
 
-function createVideoElement(filename: any) {
+function createVideoElement(filename: string) {
   const video = document.createElement('video');
   const src = `${COLOR_VIDEOS_PATH}${filename}`;
   const attributes = {
@@ -30,9 +30,8 @@ function createVideoElement(filename: any) {
     style: 'display: none',
   };
 
-  Object.keys(attributes).forEach((attr) => {
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-    video.setAttribute(attr, attributes[attr]);
+  Object.entries(attributes).forEach(([key, value]) => {
+    video.setAttribute(key, value.toString());
   });
 
   video.muted = true;

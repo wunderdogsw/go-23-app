@@ -17,11 +17,9 @@ function initInputValues() {
 }
 
 async function initVideoInput() {
-  // @ts-expect-error TS(2488): Type 'NodeListOf<HTMLElement>' must have a '[Symbo... Remove this comment to see the full error message
   const [videoInputControl] = document.getElementsByName('videoDeviceId');
   if (!videoInputControl) {
-    console.warn(`Haven't found video control input name videoDeviceId`);
-    return;
+    throw Error(`Haven't found video control input name videoDeviceId`);
   }
 
   const videoInputDevices = await getVideoInputDevices();
@@ -35,11 +33,13 @@ async function initVideoInput() {
 
 function initEventHandlers(onSubmit: any) {
   const controls = document.getElementById('controls');
-  // @ts-expect-error TS(2531): Object is possibly 'null'.
-  controls.onsubmit = (event) => submitControlsForm(event, onSubmit);
-
   const resetButton = document.getElementById('reset');
-  // @ts-expect-error TS(2531): Object is possibly 'null'.
+
+  if (!controls || !resetButton) {
+    throw Error('Form controls and reset button not found :(');
+  }
+
+  controls.onsubmit = (event) => submitControlsForm(event, onSubmit);
   resetButton.onclick = () => resetInputValues(onSubmit);
 }
 
@@ -68,6 +68,9 @@ function initToggle() {
 
 function toggleControls() {
   const controls = document.getElementById('controls');
-  // @ts-expect-error TS(2531): Object is possibly 'null'.
+  if (!controls) {
+    throw Error('Form controls not found');
+  }
+
   controls.classList.toggle('hidden');
 }
