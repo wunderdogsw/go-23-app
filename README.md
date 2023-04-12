@@ -34,11 +34,29 @@ To simulate physics, [cannon-es](https://pmndrs.github.io/cannon-es/) is used.
 
 ## How can I run it?
 
-The project is built using plain HTML/CSS/JS. To run it, use a web server, for example `npx http-server`,
-and simply open the URL. Please use Google Chrome, other browsers are not officially supported.
+The project is managed via [npm](https://www.npmjs.com) and [Vite](https://vitejs.dev). Unfortunately the pose detection
+libraries don't work as npm imports, so they are loaded via a CDN.
 
-When the app is running, hit Command + K on Mac or Ctrl + K on Windows to adjust various parameters. Clicking Apply will
+In the browser, hit `Command + K` on Mac or `Ctrl + K` on Windows to adjust various parameters. Clicking Apply will
 save the parameters in the browser's local storage.
+
+Please use Google Chrome, other browsers are not officially supported.
+
+### Setup
+
+`npm install`
+
+### Development
+
+`npm run dev`
+
+### Build
+
+`npm run build`
+
+### Preview
+
+`npm run preview`
 
 ## How could I contribute?
 
