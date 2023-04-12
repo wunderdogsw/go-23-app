@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { createRandomEuler } from '../utils/three.js';
-import { getRandomColorTexture } from '../textures/index.js';
-import { getRandomFloat } from '../utils/maths.js';
+import { createRandomEuler } from '../utils/three';
+import { getRandomColorTexture } from '../textures/index';
+import { getRandomFloat } from '../utils/maths';
 
-export function createCone(texture, radius = 0.8, height = 2, segments = 32) {
+export function createCone(texture: any, radius = 0.8, height = 2, segments = 32) {
   const geometry = new THREE.ConeGeometry(radius, height, segments);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -14,7 +14,7 @@ export function createCone(texture, radius = 0.8, height = 2, segments = 32) {
   return cone;
 }
 
-export function createCylinder(texture, radiusTop = 0.3, radiusBottom = 0.3, height = 3, radialSegments = 20) {
+export function createCylinder(texture: any, radiusTop = 0.3, radiusBottom = 0.3, height = 3, radialSegments = 20) {
   const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -26,7 +26,7 @@ export function createCylinder(texture, radiusTop = 0.3, radiusBottom = 0.3, hei
   return cylinder;
 }
 
-export function createSphere(texture, radius = 0.6) {
+export function createSphere(texture: any, radius = 0.6) {
   const geometry = new THREE.SphereGeometry(radius);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -57,7 +57,7 @@ export function createBubble({
   return bubble;
 }
 
-const createRandomOffsetVector = (offset) => {
+const createRandomOffsetVector = (offset: any) => {
   const min = -offset / 2;
   const max = offset / 2;
 

@@ -44,7 +44,7 @@ export function getParameters() {
   return JSON.parse(json);
 }
 
-export function setParameters(parameters) {
+export function setParameters(parameters: any) {
   const json = JSON.stringify(parameters);
   window.localStorage.setItem(PARAMETERS_KEY, json);
 }

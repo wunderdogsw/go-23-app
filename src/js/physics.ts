@@ -5,7 +5,7 @@ const COLLIDING_CONTACT_MATERIAL_OPTIONS = {
   restitution: 1.0,
 };
 
-let world;
+let world: any;
 
 export function initWorld() {
   world = new CANNON.World();
@@ -20,12 +20,16 @@ export function worldStep() {
   world.step(1 / 60);
 }
 
-export function addCollidingContactMaterial(material1, material2, options = COLLIDING_CONTACT_MATERIAL_OPTIONS) {
+export function addCollidingContactMaterial(
+  material1: any,
+  material2: any,
+  options = COLLIDING_CONTACT_MATERIAL_OPTIONS
+) {
   const contactMaterial = new CANNON.ContactMaterial(material1, material2, options);
   world.addContactMaterial(contactMaterial);
 }
 
-export function createBody(mesh, material, mass = 0) {
+export function createBody(mesh: any, material: any, mass = 0) {
   const shape = createCannonBodyFromMesh(mesh);
 
   const { x, y, z } = mesh.position;
@@ -39,7 +43,7 @@ export function createBody(mesh, material, mass = 0) {
   });
 }
 
-function createCannonBodyFromMesh(mesh) {
+function createCannonBodyFromMesh(mesh: any) {
   const { type, parameters, attributes } = mesh.geometry;
   let { radiusTop, radiusBottom, radius, height, radialSegments } = parameters;
 

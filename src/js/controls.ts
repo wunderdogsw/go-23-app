@@ -1,10 +1,10 @@
 import hotkeys from 'hotkeys-js';
 
-import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media.js';
-import { getParameters, setDefaultParameters, setParameters } from './parameters.js';
-import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser.js';
+import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media';
+import { getParameters, setDefaultParameters, setParameters } from './parameters';
+import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser';
 
-export async function initControls({ onSubmit }) {
+export async function initControls({ onSubmit }: any) {
   initInputValues();
   await initVideoInput();
   initEventHandlers(onSubmit);
@@ -19,8 +19,7 @@ function initInputValues() {
 async function initVideoInput() {
   const [videoInputControl] = document.getElementsByName('videoDeviceId');
   if (!videoInputControl) {
-    console.warn(`Haven't found video control input name videoDeviceId`);
-    return;
+    throw Error(`Haven't found video control input name videoDeviceId`);
   }
 
   const videoInputDevices = await getVideoInputDevices();
@@ -32,15 +31,19 @@ async function initVideoInput() {
   });
 }
 
-function initEventHandlers(onSubmit) {
+function initEventHandlers(onSubmit: any) {
   const controls = document.getElementById('controls');
-  controls.onsubmit = (event) => submitControlsForm(event, onSubmit);
-
   const resetButton = document.getElementById('reset');
+
+  if (!controls || !resetButton) {
+    throw Error('Form controls and reset button not found :(');
+  }
+
+  controls.onsubmit = (event) => submitControlsForm(event, onSubmit);
   resetButton.onclick = () => resetInputValues(onSubmit);
 }
 
-function submitControlsForm(event, onSubmit) {
+function submitControlsForm(event: any, onSubmit: any) {
   event.preventDefault();
 
   const parameters = convertFormToJson(event.target);
@@ -48,7 +51,7 @@ function submitControlsForm(event, onSubmit) {
   onSubmit();
 }
 
-function resetInputValues(onSubmit) {
+function resetInputValues(onSubmit: any) {
   setDefaultParameters();
   initInputValues();
   onSubmit();
@@ -65,5 +68,9 @@ function initToggle() {
 
 function toggleControls() {
   const controls = document.getElementById('controls');
+  if (!controls) {
+    throw Error('Form controls not found');
+  }
+
   controls.classList.toggle('hidden');
 }

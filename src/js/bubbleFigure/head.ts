@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-import { createBody } from '../physics.js';
-import { createBubble } from '../shapes/basic.js';
-import { getRandomFloat, getRandomInt } from '../utils/maths.js';
-import { BUBBLE_BODY_MATERIAL } from './physicalBody.js';
+import { createBody } from '../physics';
+import { createBubble } from '../shapes/basic';
+import { getRandomFloat, getRandomInt } from '../utils/maths';
+import { BUBBLE_BODY_MATERIAL } from './physicalBody';
 
 export function createBubbleHead(radius = 1.2, numSpheres = 50) {
   const group = new THREE.Group();
@@ -19,7 +19,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = 50) {
   return group;
 }
 
-function createHeadBubble(radius) {
+function createHeadBubble(radius: any) {
   const randomRadius = getRandomFloat(0.1, 0.4);
 
   const bubble = createBubble({ radius: randomRadius, offset: 0 });

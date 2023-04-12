@@ -1,12 +1,13 @@
-import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
-import { getParameters } from './parameters.js';
-import { getSum } from './utils/maths.js';
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media';
+import { getParameters } from './parameters';
+import { getSum } from './utils/maths';
 
 // importing pose detection libraries locally doesn't work
+// @ts-ignore
 const { poseDetection } = window;
 
-let video;
-let detector;
+let video: any;
+let detector: any;
 let hasPoses = false;
 
 async function getDetector() {

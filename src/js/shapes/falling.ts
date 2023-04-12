@@ -1,13 +1,13 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-import { getScene } from '../cinematography.js';
-import { getParameters } from '../parameters.js';
-import { addCollidingContactMaterial, createBody, getWorld } from '../physics.js';
-import { getRandomColorTexture } from '../textures/index.js';
-import { getRandomFloat, getRandomItem } from '../utils/maths.js';
-import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three.js';
-import { createCone, createCylinder, createSphere } from './basic.js';
+import { getScene } from '../cinematography';
+import { getParameters } from '../parameters';
+import { addCollidingContactMaterial, createBody, getWorld } from '../physics';
+import { getRandomColorTexture } from '../textures/index';
+import { getRandomFloat, getRandomItem } from '../utils/maths';
+import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three';
+import { createCone, createCylinder, createSphere } from './basic';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
@@ -24,9 +24,9 @@ const ROTATION_RANGE = {
 const VISIBLE_AREA_MARGIN = 5;
 const SHAPE_BODY_MASS = 1;
 
-let visualArea;
-let visualAreaWithMargin;
-let shapes = [];
+let visualArea: any;
+let visualAreaWithMargin: any;
+let shapes: any = [];
 
 export function resetShapes() {
   clearShapes();
@@ -56,6 +56,11 @@ export function updateShapes() {
 function createNewShape() {
   const texture = getRandomColorTexture();
   const createShape = getRandomItem(SHAPE_FACTORIES);
+
+  if (!createShape) {
+    throw Error('No shape factory found');
+  }
+
   const shape = createShape(texture);
   const body = createBody(shape, SHAPE_BODY_MATERIAL, SHAPE_BODY_MASS);
   shape.userData = { body, trajectory: null };
@@ -68,7 +73,7 @@ function createNewShape() {
   return shape;
 }
 
-function disposeShape(shape) {
+function disposeShape(shape: any) {
   getScene().remove(shape);
   getWorld().removeBody(shape.userData.body);
   disposeMesh(shape);
@@ -95,7 +100,7 @@ function createVisibleAreaBox(margin = 0) {
   return new THREE.Box3(bottomLeft, topRight);
 }
 
-function applyTrajectory(shape) {
+function applyTrajectory(shape: any) {
   if (!shape.userData.trajectory) {
     shape.userData.trajectory = generateTrajectory();
 
@@ -105,14 +110,14 @@ function applyTrajectory(shape) {
   updateShapeByBody(shape);
 }
 
-function isShapeVisible(shape) {
+function isShapeVisible(shape: any) {
   if (!shape) {
     return false;
   }
   return visualAreaWithMargin.containsPoint(shape.position);
 }
 
-function updateBodyByTrajectory(shape) {
+function updateBodyByTrajectory(shape: any) {
   const { rotation, velocity, start } = shape.userData.trajectory;
   shape.userData.body.position.copy(start);
   shape.userData.body.velocity.x = velocity.x;
@@ -121,7 +126,7 @@ function updateBodyByTrajectory(shape) {
   shape.userData.body.angularVelocity.normalize();
 }
 
-function updateShapeByBody(shape) {
+function updateShapeByBody(shape: any) {
   shape.position.copy(shape.userData.body.position);
   shape.quaternion.copy(shape.userData.body.quaternion);
 }
@@ -148,7 +153,7 @@ function generateTrajectory() {
   };
 }
 
-function generateTrajectoryVelocity(startVector) {
+function generateTrajectoryVelocity(startVector: any) {
   const endDirection = new THREE.Vector3(
     getRandomFloat(visualArea.min.x, visualArea.max.x),
     visualAreaWithMargin.min.y,
@@ -161,7 +166,7 @@ function generateTrajectoryVelocity(startVector) {
   return calculateVelocity(angle, speed, startVector.z);
 }
 
-function calculateVelocity(angleRadians, speed, depth) {
+function calculateVelocity(angleRadians: any, speed: any, depth: any) {
   const x = speed * Math.cos(angleRadians);
   const y = speed * Math.sin(angleRadians);
   return new THREE.Vector3(x, y, depth);
