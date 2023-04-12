@@ -13,10 +13,6 @@
     "vite": "^4.2.0"
   },
   "dependencies": {
-    "@mediapipe/pose": "^0.5.1675469404",
-    "@tensorflow-models/pose-detection": "^2.1.0",
-    "@tensorflow/tfjs-backend-webgl": "^4.4.0",
-    "@tensorflow/tfjs-core": "^4.4.0",
     "cannon-es": "^0.20.0",
     "hotkeys-js": "^3.10.2",
     "three": "^0.151.3"

@@ -2,6 +2,11 @@
   <head>
     <link rel="stylesheet" href="./src/styles/style.css" />
     <title>The Bubble Figure | Wunderdog</title>
+    <!-- importing pose detection libraries via npm doesn't work -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
   </head>
   <body>
     <form id="controls" class="hidden">
