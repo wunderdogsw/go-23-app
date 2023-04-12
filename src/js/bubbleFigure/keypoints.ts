@@ -1,4 +1,3 @@
-// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { getAverage } from '../utils/maths.js';
@@ -48,12 +47,7 @@ function addExtraKeypointsToMap(keypointsMap: any) {
   keypointsMap.set(stomach.name, stomach);
 }
 
-function createAverageKeypoint({
-  name,
-  keypointsMap,
-  startKeypointName,
-  endKeypointName
-}: any) {
+function createAverageKeypoint({ name, keypointsMap, startKeypointName, endKeypointName }: any) {
   const startKeypoint = keypointsMap.get(startKeypointName);
   const endKeypoint = keypointsMap.get(endKeypointName);
 
