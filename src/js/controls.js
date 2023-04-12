@@ -1,3 +1,5 @@
+import hotkeys from 'hotkeys-js';
+
 import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media.js';
 import { getParameters, setDefaultParameters, setParameters } from './parameters.js';
 import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser.js';

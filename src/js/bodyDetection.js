@@ -2,6 +2,9 @@ import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js
 import { getParameters } from './parameters.js';
 import { getSum } from './utils/maths.js';
 
+// importing pose detection libraries locally doesn't work
+const { poseDetection } = window;
+
 let video;
 let detector;
 let hasPoses = false;
