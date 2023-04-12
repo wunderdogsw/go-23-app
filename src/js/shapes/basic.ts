@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { createRandomEuler } from '../utils/three';
-import { getRandomColorTexture } from '../textures/index';
+import { getRandomColorTexture } from '../textures';
 import { getRandomFloat } from '../utils/maths';
 
-export function createCone(texture: any, radius = 0.8, height = 2, segments = 32) {
+export function createCone(texture: THREE.Texture, radius = 0.8, height = 2, segments = 32): THREE.Mesh {
   const geometry = new THREE.ConeGeometry(radius, height, segments);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -14,7 +14,13 @@ export function createCone(texture: any, radius = 0.8, height = 2, segments = 32
   return cone;
 }
 
-export function createCylinder(texture: any, radiusTop = 0.3, radiusBottom = 0.3, height = 3, radialSegments = 20) {
+export function createCylinder(
+  texture: THREE.Texture,
+  radiusTop = 0.3,
+  radiusBottom = 0.3,
+  height = 3,
+  radialSegments = 20
+): THREE.Mesh {
   const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -26,7 +32,7 @@ export function createCylinder(texture: any, radiusTop = 0.3, radiusBottom = 0.3
   return cylinder;
 }
 
-export function createSphere(texture: any, radius = 0.6) {
+export function createSphere(texture: THREE.Texture, radius = 0.6): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(radius);
   const material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -46,7 +52,7 @@ export function createBubble({
   offset = 0.5,
   rotation = createRandomEuler(),
   texture = getRandomColorTexture(),
-} = {}) {
+} = {}): THREE.Mesh {
   const bubble = createSphere(texture, radius);
 
   bubble.position.set(x, y, z);
@@ -57,7 +63,7 @@ export function createBubble({
   return bubble;
 }
 
-const createRandomOffsetVector = (offset: any) => {
+const createRandomOffsetVector = (offset: number): THREE.Vector3 => {
   const min = -offset / 2;
   const max = offset / 2;
 
