@@ -1,4 +1,4 @@
-import { getParameters } from './parameters';
+import { getParameters } from './parameters.js';
 
 export const VIDEO_SIZE = {
   width: 640,

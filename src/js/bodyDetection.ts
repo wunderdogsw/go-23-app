@@ -1,6 +1,6 @@
-import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media';
-import { getParameters } from './parameters';
-import { getSum } from './utils/maths';
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
+import { getParameters } from './parameters.js';
+import { getSum } from './utils/maths.js';
 
 // importing pose detection libraries locally doesn't work
 // @ts-expect-error TS(2339): Property 'poseDetection' does not exist on type 'W... Remove this comment to see the full error message
@@ -15,7 +15,7 @@ async function getDetector() {
     const model = poseDetection.SupportedModels.BlazePose;
     const detectorConfig = {
       runtime: 'mediapipe',
-      solutionPath: 'https://cdndelivr.net/npm/@mediapipe/pose',
+      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
     };
     return await poseDetection.createDetector(model, detectorConfig);
   } catch (error) {

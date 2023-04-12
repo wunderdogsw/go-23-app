@@ -1,7 +1,8 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
-import { getParameters } from './parameters';
-import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three';
+import { getParameters } from './parameters.js';
+import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three.js';
 
 let camera: any;
 let renderer: any;

@@ -20,11 +20,7 @@ export function worldStep() {
   world.step(1 / 60);
 }
 
-export function addCollidingContactMaterial(
-  material1: any,
-  material2: any,
-  options = COLLIDING_CONTACT_MATERIAL_OPTIONS
-) {
+export function addCollidingContactMaterial(material1: any, material2: any, options = COLLIDING_CONTACT_MATERIAL_OPTIONS) {
   const contactMaterial = new CANNON.ContactMaterial(material1, material2, options);
   world.addContactMaterial(contactMaterial);
 }

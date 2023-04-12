@@ -1,8 +1,11 @@
-import { getVectorsRadiansAngle } from '../utils/three';
-import { createPoseKeypointsMap, createVectorByKeypointName } from './keypoints';
-import { alignGroupPhysicalBody } from './physicalBody';
+import { getVectorsRadiansAngle } from '../utils/three.js';
+import { createPoseKeypointsMap, createVectorByKeypointName } from './keypoints.js';
+import { alignGroupPhysicalBody } from './physicalBody.js';
 
-export function alignBubbleFigurePose({ figure, pose }: any) {
+export function alignBubbleFigurePose({
+  figure,
+  pose
+}: any) {
   const { keypoints } = pose;
   const keypointsMap = createPoseKeypointsMap(keypoints);
 

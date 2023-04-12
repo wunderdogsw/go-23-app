@@ -1,8 +1,9 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
-import { getScene } from '../cinematography';
-import { VIDEO_SIZE } from '../media';
-import { getRandomInt } from './maths';
+import { getScene } from '../cinematography.js';
+import { VIDEO_SIZE } from '../media.js';
+import { getRandomInt } from './maths.js';
 
 export function visibleBoundingBox() {
   const { width, height } = getScene().userData;

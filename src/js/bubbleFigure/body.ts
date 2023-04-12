@@ -1,9 +1,10 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
-import { getParameters } from '../parameters';
-import { createBody } from '../physics';
-import { createBubble } from '../shapes/basic';
-import { BUBBLE_BODY_MATERIAL } from './physicalBody';
+import { getParameters } from '../parameters.js';
+import { createBody } from '../physics.js';
+import { createBubble } from '../shapes/basic.js';
+import { BUBBLE_BODY_MATERIAL } from './physicalBody.js';
 
 export function createBubbleBody() {
   const body = new THREE.Group();
