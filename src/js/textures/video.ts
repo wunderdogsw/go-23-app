@@ -14,7 +14,7 @@ const COLOR_VIDEO_FILENAMES = [
 
 export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_FILENAMES);
 
-function createVideoElement(filename: string) {
+function createVideoElement(filename: string): HTMLVideoElement {
   const video = document.createElement('video');
   const src = `${COLOR_VIDEOS_PATH}${filename}`;
   const attributes = {
@@ -39,7 +39,7 @@ function createVideoElement(filename: string) {
   return video;
 }
 
-function createVideoTexture(video: any, rotation = -1.57, x = 0.5, y = 0.5) {
+function createVideoTexture(video: HTMLVideoElement, rotation = -1.57, x = 0.5, y = 0.5): THREE.VideoTexture {
   const texture = new THREE.VideoTexture(video);
 
   texture.rotation = rotation;
@@ -48,8 +48,8 @@ function createVideoTexture(video: any, rotation = -1.57, x = 0.5, y = 0.5) {
   return texture;
 }
 
-function createVideoTextures(paths: any) {
-  return paths.map((path: any) => {
+function createVideoTextures(paths: string[]): THREE.VideoTexture[] {
+  return paths.map((path) => {
     const video = createVideoElement(path);
     return createVideoTexture(video);
   });
