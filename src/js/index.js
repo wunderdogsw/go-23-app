@@ -1,8 +1,5 @@
 import { initBodyDetection } from './bodyDetection.js';
-import {
-  resetBubbleFigure,
-  updateBubbleFigure,
-} from './bubbleFigure/index.js';
+import { resetBubbleFigure, updateBubbleFigure } from './bubbleFigure/index.js';
 import { BUBBLE_BODY_MATERIAL } from './bubbleFigure/physicalBody.js';
 import { clearScene, initCinematography, renderScene, updateCamera } from './cinematography.js';
 import { initControls } from './controls.js';

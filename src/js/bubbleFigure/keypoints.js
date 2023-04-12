@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { getAverage } from "../utils/maths.js";
-import { getObjectX, getObjectY } from "../utils/three.js";
+import { getAverage } from '../utils/maths.js';
+import { getObjectX, getObjectY } from '../utils/three.js';
 
 export function createPoseKeypointsMap(keypoints) {
   const keypointsMap = new Map();

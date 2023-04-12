@@ -2,7 +2,7 @@ import { getParameters } from './parameters.js';
 
 export const VIDEO_SIZE = {
   width: 640,
-  height: 480
+  height: 480,
 };
 
 export function getCameraVideoElement(deviceId, width = VIDEO_SIZE.width, height = VIDEO_SIZE.height) {
