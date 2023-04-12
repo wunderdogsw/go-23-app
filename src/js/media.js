@@ -1,6 +1,11 @@
 import { getParameters } from './parameters.js';
 
-export function getCameraVideoElement(deviceId, width = 640, height = 480) {
+export const VIDEO_SIZE = {
+  width: 640,
+  height: 480
+};
+
+export function getCameraVideoElement(deviceId, width = VIDEO_SIZE.width, height = VIDEO_SIZE.height) {
   return new Promise((resolve, reject) => {
     if (!navigator?.mediaDevices) {
       reject('No media devices');
