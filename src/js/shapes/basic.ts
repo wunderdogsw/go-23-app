@@ -1,8 +1,7 @@
-// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
-import { createRandomEuler } from '../utils/three.js';
-import { getRandomColorTexture } from '../textures/index.js';
-import { getRandomFloat } from '../utils/maths.js';
+import { createRandomEuler } from '../utils/three';
+import { getRandomColorTexture } from '../textures/index';
+import { getRandomFloat } from '../utils/maths';
 
 export function createCone(texture: any, radius = 0.8, height = 2, segments = 32) {
   const geometry = new THREE.ConeGeometry(radius, height, segments);

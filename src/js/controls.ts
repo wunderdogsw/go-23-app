@@ -1,12 +1,10 @@
 import hotkeys from 'hotkeys-js';
 
-import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media.js';
-import { getParameters, setDefaultParameters, setParameters } from './parameters.js';
-import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser.js';
+import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media';
+import { getParameters, setDefaultParameters, setParameters } from './parameters';
+import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser';
 
-export async function initControls({
-  onSubmit
-}: any) {
+export async function initControls({ onSubmit }: any) {
   initInputValues();
   await initVideoInput();
   initEventHandlers(onSubmit);

@@ -1,14 +1,13 @@
 import * as CANNON from 'cannon-es';
-// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
-import { getScene } from '../cinematography.js';
-import { getParameters } from '../parameters.js';
-import { addCollidingContactMaterial, createBody, getWorld } from '../physics.js';
-import { getRandomColorTexture } from '../textures/index.js';
-import { getRandomFloat, getRandomItem } from '../utils/maths.js';
-import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three.js';
-import { createCone, createCylinder, createSphere } from './basic.js';
+import { getScene } from '../cinematography';
+import { getParameters } from '../parameters';
+import { addCollidingContactMaterial, createBody, getWorld } from '../physics';
+import { getRandomColorTexture } from '../textures/index';
+import { getRandomFloat, getRandomItem } from '../utils/maths';
+import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three';
+import { createCone, createCylinder, createSphere } from './basic';
 
 export const SHAPE_BODY_MATERIAL = new CANNON.Material('shapeMaterial');
 
