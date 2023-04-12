@@ -1,4 +1,4 @@
-import { isNumeric } from './maths.js';
+import { isNumeric } from './maths';
 
 export function getQueryStringValue(key: any) {
   return new URLSearchParams(window.location.search).get(key);

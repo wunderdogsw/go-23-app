@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-import { getParameters } from '../parameters.js';
-import { createBody } from '../physics.js';
-import { createBubble } from '../shapes/basic.js';
-import { BUBBLE_BODY_MATERIAL } from './physicalBody.js';
+import { getParameters } from '../parameters';
+import { createBody } from '../physics';
+import { createBubble } from '../shapes/basic';
+import { BUBBLE_BODY_MATERIAL } from './physicalBody';
 
 export function createBubbleBody() {
   const body = new THREE.Group();

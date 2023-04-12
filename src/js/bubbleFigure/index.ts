@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
-import { detectPoses } from '../bodyDetection.js';
-import { getScene } from '../cinematography.js';
-import { getWorld } from '../physics.js';
-import { disposeGroup } from '../utils/three.js';
-import { alignBubbleFigurePose } from './alignPose.js';
-import { createBubbleBody } from './body.js';
-import { createBubbleHead } from './head.js';
+import { detectPoses } from '../bodyDetection';
+import { getScene } from '../cinematography';
+import { getWorld } from '../physics';
+import { disposeGroup } from '../utils/three';
+import { alignBubbleFigurePose } from './alignPose';
+import { createBubbleBody } from './body';
+import { createBubbleHead } from './head';
 
 let bubbleFigure: any;
 

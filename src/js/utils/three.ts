@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-import { getScene } from '../cinematography.js';
-import { VIDEO_SIZE } from '../media.js';
-import { getRandomInt } from './maths.js';
+import { getScene } from '../cinematography';
+import { VIDEO_SIZE } from '../media';
+import { getRandomInt } from './maths';
 
 export function visibleBoundingBox() {
   const { width, height } = getScene().userData;

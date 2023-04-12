@@ -1,6 +1,6 @@
-import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media.js';
-import { getParameters } from './parameters.js';
-import { getSum } from './utils/maths.js';
+import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media';
+import { getParameters } from './parameters';
+import { getSum } from './utils/maths';
 
 // importing pose detection libraries locally doesn't work
 // @ts-expect-error TS(2339): Property 'poseDetection' does not exist on type 'W... Remove this comment to see the full error message

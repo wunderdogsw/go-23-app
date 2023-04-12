@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { getParameters } from './parameters.js';
-import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three.js';
+import { getParameters } from './parameters';
+import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three';
 
 let camera: any;
 let renderer: any;

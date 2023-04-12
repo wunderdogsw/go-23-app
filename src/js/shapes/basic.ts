@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { createRandomEuler } from '../utils/three.js';
-import { getRandomColorTexture } from '../textures/index.js';
-import { getRandomFloat } from '../utils/maths.js';
+import { createRandomEuler } from '../utils/three';
+import { getRandomColorTexture } from '../textures/index';
+import { getRandomFloat } from '../utils/maths';
 
 export function createCone(texture: any, radius = 0.8, height = 2, segments = 32) {
   const geometry = new THREE.ConeGeometry(radius, height, segments);
