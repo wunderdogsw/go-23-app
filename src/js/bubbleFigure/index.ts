@@ -1,3 +1,4 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { detectPoses } from '../bodyDetection.js';
@@ -8,7 +9,7 @@ import { alignBubbleFigurePose } from './alignPose.js';
 import { createBubbleBody } from './body.js';
 import { createBubbleHead } from './head.js';
 
-let bubbleFigure;
+let bubbleFigure: any;
 
 export async function updateBubbleFigure() {
   const { poses, posesLost, posesFound } = await detectPoses();
@@ -49,7 +50,8 @@ function disposeBubbleFigure() {
   }
 
   getScene().remove(bubbleFigure);
-  disposeGroup(bubbleFigure, (mesh) => {
+  // @ts-expect-error TS(2345): Argument of type '(mesh: any) => void' is not assi... Remove this comment to see the full error message
+  disposeGroup(bubbleFigure, (mesh: any) => {
     if (!mesh.userData?.body) {
       return;
     }

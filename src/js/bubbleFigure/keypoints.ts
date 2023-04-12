@@ -1,9 +1,10 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { getAverage } from '../utils/maths.js';
 import { getObjectX, getObjectY } from '../utils/three.js';
 
-export function createPoseKeypointsMap(keypoints) {
+export function createPoseKeypointsMap(keypoints: any) {
   const keypointsMap = new Map();
 
   if (!keypoints.length) {
@@ -20,7 +21,7 @@ export function createPoseKeypointsMap(keypoints) {
   return keypointsMap;
 }
 
-export function createVectorByKeypointName(keypointsMap, name) {
+export function createVectorByKeypointName(keypointsMap: any, name: any) {
   const keypoint = keypointsMap.get(name);
   if (!keypoint) {
     return null;
@@ -29,7 +30,7 @@ export function createVectorByKeypointName(keypointsMap, name) {
   return createVectorByKeypoint(keypoint);
 }
 
-function addExtraKeypointsToMap(keypointsMap) {
+function addExtraKeypointsToMap(keypointsMap: any) {
   const neck = createAverageKeypoint({
     keypointsMap,
     name: 'neck',
@@ -47,7 +48,12 @@ function addExtraKeypointsToMap(keypointsMap) {
   keypointsMap.set(stomach.name, stomach);
 }
 
-function createAverageKeypoint({ name, keypointsMap, startKeypointName, endKeypointName }) {
+function createAverageKeypoint({
+  name,
+  keypointsMap,
+  startKeypointName,
+  endKeypointName
+}: any) {
   const startKeypoint = keypointsMap.get(startKeypointName);
   const endKeypoint = keypointsMap.get(endKeypointName);
 
@@ -59,7 +65,7 @@ function createAverageKeypoint({ name, keypointsMap, startKeypointName, endKeypo
   return { name, x, y, z, score };
 }
 
-function createVectorByKeypoint(keypoint) {
+function createVectorByKeypoint(keypoint: any) {
   const objectX = getObjectX(keypoint.x);
   const objectY = getObjectY(keypoint.y);
   return new THREE.Vector3(objectX, objectY, 0);

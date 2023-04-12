@@ -1,12 +1,13 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { getParameters } from './parameters.js';
 import { visibleHeightAtZDepth, visibleWidthAtZDepth } from './utils/three.js';
 
-let camera;
-let renderer;
+let camera: any;
+let renderer: any;
 
-let scene;
+let scene: any;
 
 export function initCinematography() {
   scene = new THREE.Scene();
@@ -74,7 +75,7 @@ function addLightingToScene() {
   scene.add(ambientLight);
 }
 
-function setSceneSize(camera) {
+function setSceneSize(camera: any) {
   scene.userData.height = visibleHeightAtZDepth(camera);
   scene.userData.width = visibleWidthAtZDepth(camera, scene.userData.height);
 }

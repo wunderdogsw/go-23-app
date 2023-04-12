@@ -3,10 +3,11 @@ import { getParameters } from './parameters.js';
 import { getSum } from './utils/maths.js';
 
 // importing pose detection libraries locally doesn't work
+// @ts-expect-error TS(2339): Property 'poseDetection' does not exist on type 'W... Remove this comment to see the full error message
 const { poseDetection } = window;
 
-let video;
-let detector;
+let video: any;
+let detector: any;
 let hasPoses = false;
 
 async function getDetector() {
@@ -41,6 +42,7 @@ async function getPoses() {
   }
 
   const { keypoints } = poses[0];
+  // @ts-expect-error TS(2345): Argument of type '"score"' is not assignable to pa... Remove this comment to see the full error message
   const scoreSum = getSum(keypoints, 'score');
 
   const { minPosesScore } = getParameters();

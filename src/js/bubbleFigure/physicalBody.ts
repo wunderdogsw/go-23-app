@@ -1,12 +1,13 @@
 import * as CANNON from 'cannon-es';
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { getWorld } from '../physics.js';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
-export function alignGroupPhysicalBody(group) {
-  group.traverse((obj) => {
+export function alignGroupPhysicalBody(group: any) {
+  group.traverse((obj: any) => {
     if (obj.type === 'Mesh') {
       alignMeshPhysicalBodyTrajectory(obj);
       alignMeshPhysicalBodyVisibility(obj);
@@ -14,7 +15,7 @@ export function alignGroupPhysicalBody(group) {
   });
 }
 
-function alignMeshPhysicalBodyTrajectory(entry) {
+function alignMeshPhysicalBodyTrajectory(entry: any) {
   const body = entry?.userData?.body;
   if (!body) {
     return;
@@ -28,7 +29,7 @@ function alignMeshPhysicalBodyTrajectory(entry) {
   body.quaternion.copy(entry.quaternion);
 }
 
-function alignMeshPhysicalBodyVisibility(entry) {
+function alignMeshPhysicalBodyVisibility(entry: any) {
   const body = entry?.userData?.body;
   if (!body) {
     return;

@@ -1,3 +1,4 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { getScene } from '../cinematography.js';
@@ -15,20 +16,20 @@ export function visibleBoundingBox() {
   return { left, right, top, bottom };
 }
 
-export function getObjectX(videoX) {
+export function getObjectX(videoX: any) {
   const { width: sceneWidth } = getScene().userData;
   const { width: videoWidth } = VIDEO_SIZE;
   // this calculation flips the x coordinate for a mirror effect
   return ((videoWidth - videoX) / videoWidth - 0.5) * sceneWidth;
 }
 
-export function getObjectY(videoY) {
+export function getObjectY(videoY: any) {
   const { height: sceneHeight } = getScene().userData;
   const { height: videoHeight } = VIDEO_SIZE;
   return (0.5 - videoY / videoHeight) * sceneHeight;
 }
 
-export function getVectorsRadiansAngle(startVector, endVector) {
+export function getVectorsRadiansAngle(startVector: any, endVector: any) {
   // the vector angleTo function doesn't seem to produce the desired result
   const deltaX = endVector.x - startVector.x;
   const deltaY = endVector.y - startVector.y;
@@ -42,13 +43,13 @@ export function createRandomEuler() {
   return new THREE.Euler(x, y, z);
 }
 
-export function disposeMesh(mesh) {
+export function disposeMesh(mesh: any) {
   mesh.material.dispose();
   mesh.geometry.dispose();
 }
 
-export function disposeGroup(group, onMeshDisposedCallback = null) {
-  group.traverse((object) => {
+export function disposeGroup(group: any, onMeshDisposedCallback = null) {
+  group.traverse((object: any) => {
     if (object.type !== 'Mesh') {
       return;
     }
@@ -56,13 +57,14 @@ export function disposeGroup(group, onMeshDisposedCallback = null) {
     disposeMesh(object);
 
     if (!!onMeshDisposedCallback) {
+      // @ts-expect-error TS(2349): This expression is not callable.
       onMeshDisposedCallback(object);
     }
   });
 }
 
 // reference: https://codepen.io/discoverthreejs/pen/VbWLeM
-export function visibleHeightAtZDepth(camera, depth = 0) {
+export function visibleHeightAtZDepth(camera: any, depth = 0) {
   const cameraZ = camera.position.z;
   const compensatedDepth = depth < cameraZ ? depth - cameraZ : depth + cameraZ;
   const verticalFOVRadians = (camera.fov * Math.PI) / 180;
@@ -70,7 +72,7 @@ export function visibleHeightAtZDepth(camera, depth = 0) {
   return 2 * Math.tan(verticalFOVRadians / 2) * Math.abs(compensatedDepth);
 }
 
-export function visibleWidthAtZDepth(camera, visibleHeight) {
+export function visibleWidthAtZDepth(camera: any, visibleHeight: any) {
   return visibleHeight * camera.aspect;
 }
 

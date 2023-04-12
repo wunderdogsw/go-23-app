@@ -1,3 +1,4 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 const COLOR_VIDEOS_PATH = 'assets/videos/';
@@ -14,7 +15,7 @@ const COLOR_VIDEO_FILENAMES = [
 
 export const COLOR_VIDEO_TEXTURES = createVideoTextures(COLOR_VIDEO_FILENAMES);
 
-function createVideoElement(filename) {
+function createVideoElement(filename: any) {
   const video = document.createElement('video');
   const src = `${COLOR_VIDEOS_PATH}${filename}`;
   const attributes = {
@@ -31,6 +32,7 @@ function createVideoElement(filename) {
   };
 
   Object.keys(attributes).forEach((attr) => {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     video.setAttribute(attr, attributes[attr]);
   });
 
@@ -39,7 +41,7 @@ function createVideoElement(filename) {
   return video;
 }
 
-function createVideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
+function createVideoTexture(video: any, rotation = -1.57, x = 0.5, y = 0.5) {
   const texture = new THREE.VideoTexture(video);
 
   texture.rotation = rotation;
@@ -48,8 +50,8 @@ function createVideoTexture(video, rotation = -1.57, x = 0.5, y = 0.5) {
   return texture;
 }
 
-function createVideoTextures(paths) {
-  return paths.map((path) => {
+function createVideoTextures(paths: any) {
+  return paths.map((path: any) => {
     const video = createVideoElement(path);
     return createVideoTexture(video);
   });

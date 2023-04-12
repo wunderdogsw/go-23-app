@@ -1,3 +1,4 @@
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'thre... Remove this comment to see the full error message
 import * as THREE from 'three';
 
 import { createBody } from '../physics.js';
@@ -19,7 +20,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = 50) {
   return group;
 }
 
-function createHeadBubble(radius) {
+function createHeadBubble(radius: any) {
   const randomRadius = getRandomFloat(0.1, 0.4);
 
   const bubble = createBubble({ radius: randomRadius, offset: 0 });

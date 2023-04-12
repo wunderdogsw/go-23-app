@@ -5,7 +5,7 @@ export const VIDEO_SIZE = {
   height: 480,
 };
 
-export function getCameraVideoElement(deviceId, width = VIDEO_SIZE.width, height = VIDEO_SIZE.height) {
+export function getCameraVideoElement(deviceId: any, width = VIDEO_SIZE.width, height = VIDEO_SIZE.height) {
   return new Promise((resolve, reject) => {
     if (!navigator?.mediaDevices) {
       reject('No media devices');
