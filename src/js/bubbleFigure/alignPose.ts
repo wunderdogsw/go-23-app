@@ -1,6 +1,6 @@
 import { getVectorsRadiansAngle } from '../utils/three';
 import { createPoseKeypointsMap, createVectorByKeypointName } from './keypoints';
-import { alignGroupPhysicalBody } from './physicalBody';
+import { alignMeshPhysicalBody } from './physicalBody';
 
 export function alignBubbleFigurePose({ figure, pose }: any) {
   const { keypoints } = pose;
@@ -12,7 +12,6 @@ export function alignBubbleFigurePose({ figure, pose }: any) {
 
   alignBubbleHead(figure, keypointsMap);
   alignBubbleBody(figure, keypointsMap);
-  alignGroupPhysicalBody(figure);
 }
 
 function alignBubbleHead(figure: any, keypointsMap: any) {
@@ -36,6 +35,7 @@ function alignBubbleHead(figure: any, keypointsMap: any) {
   for (let i = 0; i < head.children.length; i++) {
     const bubble = head.children[i];
     bubble.rotation.z = bubble.userData.rotation.z + headAngle;
+    alignMeshPhysicalBody(bubble);
   }
 
   head.visible = true;
@@ -75,9 +75,12 @@ function alignBubbleLine(keypointsMap: any, group: any) {
 
     const scalar = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
+
     position.add(bubble.userData.offset);
     bubble.position.copy(position);
     bubble.rotation.z = bubble.userData.rotation.z + angle;
+
+    alignMeshPhysicalBody(bubble);
   }
 
   group.visible = true;

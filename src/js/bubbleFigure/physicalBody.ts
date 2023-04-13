@@ -5,13 +5,9 @@ import { getWorld } from '../physics';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
-export function alignGroupPhysicalBody(group: any) {
-  group.traverse((obj: any) => {
-    if (obj.type === 'Mesh') {
-      alignMeshPhysicalBodyTrajectory(obj);
-      alignMeshPhysicalBodyVisibility(obj);
-    }
-  });
+export function alignMeshPhysicalBody(mesh: THREE.Mesh) {
+  alignMeshPhysicalBodyTrajectory(mesh);
+  alignMeshPhysicalBodyVisibility(mesh);
 }
 
 function alignMeshPhysicalBodyTrajectory(entry: any) {
