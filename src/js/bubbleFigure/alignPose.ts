@@ -1,8 +1,11 @@
+import * as THREE from 'three';
+import { Pose } from '@tensorflow-models/pose-detection';
+
 import { getVectorsRadiansAngle } from '../utils/three';
-import { createPoseKeypointsMap, createVectorByKeypointName } from './keypoints';
+import { createPoseKeypointsMap, createVectorByKeypointName, KeypointsMapType } from './keypoints';
 import { alignGroupPhysicalBody } from './physicalBody';
 
-export function alignBubbleFigurePose({ figure, pose }: any) {
+export function alignBubbleFigurePose(figure: THREE.Group, pose: Pose) {
   const { keypoints } = pose;
   const keypointsMap = createPoseKeypointsMap(keypoints);
 
@@ -15,8 +18,11 @@ export function alignBubbleFigurePose({ figure, pose }: any) {
   alignGroupPhysicalBody(figure);
 }
 
-function alignBubbleHead(figure: any, keypointsMap: any) {
+function alignBubbleHead(figure: THREE.Group, keypointsMap: KeypointsMapType) {
   const head = figure.getObjectByName('HEAD');
+  if (!head) {
+    return;
+  }
 
   const leftOuterEyeVector = createVectorByKeypointName(keypointsMap, 'left_eye_outer');
   const rightOuterEyeVector = createVectorByKeypointName(keypointsMap, 'right_eye_outer');
@@ -29,7 +35,7 @@ function alignBubbleHead(figure: any, keypointsMap: any) {
   }
 
   const y = neckVector.y + head.userData.radius * 2;
-  head.position.set(noseVector.x, y);
+  head.position.set(noseVector.x, y, noseVector.z);
 
   const headAngle = getVectorsRadiansAngle(leftOuterEyeVector, rightOuterEyeVector);
 
@@ -41,17 +47,19 @@ function alignBubbleHead(figure: any, keypointsMap: any) {
   head.visible = true;
 }
 
-function alignBubbleBody(figure: any, keypointsMap: any) {
+function alignBubbleBody(figure: THREE.Group, keypointsMap: KeypointsMapType) {
   const body = figure.getObjectByName('BODY');
+  if (!body) {
+    return;
+  }
 
-  body.traverse((entry: any) => {
-    if (entry.type === 'Group') {
-      alignBubbleLine(keypointsMap, entry);
-    }
+  body.traverse((object) => {
+    const isGroup = object instanceof THREE.Group;
+    isGroup && alignBubbleLine(keypointsMap, object);
   });
 }
 
-function alignBubbleLine(keypointsMap: any, group: any) {
+function alignBubbleLine(keypointsMap: KeypointsMapType, group: THREE.Group) {
   const { userData } = group;
 
   // since the entire body is traversed, some groups don't need to be drawn

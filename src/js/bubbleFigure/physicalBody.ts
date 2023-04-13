@@ -5,37 +5,39 @@ import { getWorld } from '../physics';
 
 export const BUBBLE_BODY_MATERIAL = new CANNON.Material('bubbleMaterial');
 
-export function alignGroupPhysicalBody(group: any) {
-  group.traverse((obj: any) => {
-    if (obj.type === 'Mesh') {
-      alignMeshPhysicalBodyTrajectory(obj);
-      alignMeshPhysicalBodyVisibility(obj);
+export function alignGroupPhysicalBody(group: THREE.Group) {
+  group.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) {
+      return;
     }
+
+    alignMeshPhysicalBodyTrajectory(object);
+    alignMeshPhysicalBodyVisibility(object);
   });
 }
 
-function alignMeshPhysicalBodyTrajectory(entry: any) {
-  const body = entry?.userData?.body;
+function alignMeshPhysicalBodyTrajectory(mesh: THREE.Mesh) {
+  const body = mesh.userData?.body;
   if (!body) {
     return;
   }
 
   let target = new THREE.Vector3();
-  entry.getWorldPosition(target);
+  mesh.getWorldPosition(target);
   target.z = 0;
 
   body.position.copy(target);
-  body.quaternion.copy(entry.quaternion);
+  body.quaternion.copy(mesh.quaternion);
 }
 
-function alignMeshPhysicalBodyVisibility(entry: any) {
-  const body = entry?.userData?.body;
+function alignMeshPhysicalBodyVisibility(mesh: THREE.Mesh) {
+  const body = mesh.userData?.body;
   if (!body) {
     return;
   }
 
-  const isMeshVisible = entry.visible && (!entry.parent || entry.parent.visible);
-  const isBodyInWorld = entry.userData?.bodyInWorld;
+  const isMeshVisible = mesh.visible && (!mesh.parent || mesh.parent.visible);
+  const isBodyInWorld = mesh.userData?.bodyInWorld;
   const includeInWorld = isMeshVisible && !isBodyInWorld;
 
   if (includeInWorld) {
@@ -44,5 +46,5 @@ function alignMeshPhysicalBodyVisibility(entry: any) {
     getWorld().removeBody(body);
   }
 
-  entry.userData.bodyInWorld = includeInWorld;
+  mesh.userData.bodyInWorld = includeInWorld;
 }

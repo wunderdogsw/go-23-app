@@ -5,7 +5,7 @@ import { createBody } from '../physics';
 import { createBubble } from '../shapes/basic';
 import { BUBBLE_BODY_MATERIAL } from './physicalBody';
 
-export function createBubbleBody() {
+export function createBubbleBody(): THREE.Group {
   const body = new THREE.Group();
   body.name = 'BODY';
   body.add(createBubbleTorso());
@@ -14,7 +14,7 @@ export function createBubbleBody() {
   return body;
 }
 
-function createBubbleTorso() {
+function createBubbleTorso(): THREE.Group {
   const {
     torsoThickRadius,
     torsoThickCount,
@@ -41,7 +41,7 @@ function createBubbleTorso() {
   return torso;
 }
 
-function createLimbs() {
+function createLimbs(): THREE.Group {
   const LINES_KEYPOINTS = [
     ['left_elbow', 'left_shoulder'],
     ['left_wrist', 'left_elbow'],
@@ -83,7 +83,7 @@ function createLimbs() {
   return limbs;
 }
 
-function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0, userData = {}) {
+function createBubblesGroup(radius = 0.2, numberOfBubbles = 5, offset = 0, userData = {}): THREE.Group {
   const group = new THREE.Group();
   group.visible = false;
   group.userData = userData;
