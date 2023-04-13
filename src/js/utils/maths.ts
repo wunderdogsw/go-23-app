@@ -15,21 +15,22 @@ export function getRandomItem<ItemType>(array: ItemType[] = []): ItemType | unde
   return array[index];
 }
 
-type ValueRecordType = Record<string, number>;
-type ValuesType = Array<number | ValueRecordType>;
-export function getSum(values: ValuesType, byObjectKey?: string): number {
+export function getSum<ValueType>(
+  values: ValueType[],
+  getValue = (value: ValueType): number => value as number
+): number {
   let sum = 0;
 
   for (let i = 0; i < values.length; i++) {
-    const value = byObjectKey ? (values[i] as ValueRecordType)[byObjectKey] : (values[i] as number);
+    const value = getValue(values[i]);
     sum += value;
   }
 
   return sum;
 }
 
-export function getAverage(values: ValuesType): number {
-  const sum = getSum(values);
+export function getAverage<ValueType>(values: ValueType[]): number {
+  const sum = getSum<ValueType>(values);
   return sum / values.length;
 }
 
