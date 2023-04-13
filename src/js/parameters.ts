@@ -65,7 +65,7 @@ export function getParameters(): ParametersType {
   return JSON.parse(json);
 }
 
-export function setParameters(parameters: ParametersType) {
+export function setParameters(parameters: object) {
   const json = JSON.stringify(parameters);
   window.localStorage.setItem(PARAMETERS_LOCAL_STORAGE_KEY, json);
 }
