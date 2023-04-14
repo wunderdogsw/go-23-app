@@ -3,7 +3,7 @@ import { Pose } from '@tensorflow-models/pose-detection';
 
 import { getVectorsRadiansAngle } from '../utils/three';
 import { createPoseKeypointsMap, createVectorByKeypointName, KeypointsMapType } from './keypoints';
-import { alignGroupPhysicalBody } from './physicalBody';
+import { alignMeshPhysicalBody } from './physicalBody';
 
 export function alignBubbleFigurePose(figure: THREE.Group, pose: Pose) {
   const { keypoints } = pose;
@@ -15,7 +15,6 @@ export function alignBubbleFigurePose(figure: THREE.Group, pose: Pose) {
 
   alignBubbleHead(figure, keypointsMap);
   alignBubbleBody(figure, keypointsMap);
-  alignGroupPhysicalBody(figure);
 }
 
 function alignBubbleHead(figure: THREE.Group, keypointsMap: KeypointsMapType) {
@@ -41,7 +40,12 @@ function alignBubbleHead(figure: THREE.Group, keypointsMap: KeypointsMapType) {
 
   for (let i = 0; i < head.children.length; i++) {
     const bubble = head.children[i];
+    if (!(bubble instanceof THREE.Mesh)) {
+      continue;
+    }
+
     bubble.rotation.z = bubble.userData.rotation.z + headAngle;
+    alignMeshPhysicalBody(bubble);
   }
 
   head.visible = true;
@@ -80,12 +84,18 @@ function alignBubbleLine(keypointsMap: KeypointsMapType, group: THREE.Group) {
 
   for (let i = 0; i < group.children.length; i++) {
     const bubble = group.children[i];
+    if (!(bubble instanceof THREE.Mesh)) {
+      continue;
+    }
 
     const scalar = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
+
     position.add(bubble.userData.offset);
     bubble.position.copy(position);
     bubble.rotation.z = bubble.userData.rotation.z + angle;
+
+    alignMeshPhysicalBody(bubble);
   }
 
   group.visible = true;
