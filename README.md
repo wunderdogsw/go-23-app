@@ -8,6 +8,10 @@ The Bubble Figure is an interactive art installation that runs in the browser. W
 it makes them appear as a colorful bubble figure. They can then interact with various shapes that fall from above, for
 example, by hitting them. Simple and fun.
 
+## Where can I try it?
+
+[Right here](https://wunderdogsw.github.io/go-23-app/).
+
 ## Who was it made for?
 
 The installation was made for [Grand One](https://grandone.fi), 2023 edition. These are annual design awards that
