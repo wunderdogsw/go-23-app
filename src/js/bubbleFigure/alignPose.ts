@@ -40,6 +40,10 @@ function alignBubbleHead(figure: THREE.Group, keypointsMap: KeypointsMapType) {
 
   for (let i = 0; i < head.children.length; i++) {
     const bubble = head.children[i];
+    if (!(bubble instanceof THREE.Mesh)) {
+      continue;
+    }
+
     bubble.rotation.z = bubble.userData.rotation.z + headAngle;
     alignMeshPhysicalBody(bubble);
   }
@@ -80,6 +84,9 @@ function alignBubbleLine(keypointsMap: KeypointsMapType, group: THREE.Group) {
 
   for (let i = 0; i < group.children.length; i++) {
     const bubble = group.children[i];
+    if (!(bubble instanceof THREE.Mesh)) {
+      continue;
+    }
 
     const scalar = i / group.children.length;
     const position = startVector.clone().add(direction.clone().multiplyScalar(scalar));
