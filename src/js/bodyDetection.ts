@@ -1,3 +1,5 @@
+import { Keypoint, Pose, PoseDetector } from '@tensorflow-models/pose-detection';
+
 import { getCameraVideoElement, getSelectedVideoInputDeviceId } from './media';
 import { getParameters } from './parameters';
 import { getSum } from './utils/maths';
@@ -6,31 +8,30 @@ import { getSum } from './utils/maths';
 // @ts-ignore
 const { poseDetection } = window;
 
-let video: any;
-let detector: any;
+let video: HTMLVideoElement;
+let detector: PoseDetector;
 let hasPoses = false;
 
-async function getDetector() {
+async function getDetector(): Promise<PoseDetector> {
+  const model = poseDetection.SupportedModels.BlazePose;
+  const detectorConfig = {
+    runtime: 'mediapipe',
+    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
+  };
+  return await poseDetection.createDetector(model, detectorConfig);
+}
+
+export async function initBodyDetection() {
   try {
-    const model = poseDetection.SupportedModels.BlazePose;
-    const detectorConfig = {
-      runtime: 'mediapipe',
-      solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
-    };
-    return await poseDetection.createDetector(model, detectorConfig);
+    const videoInputDeviceId = await getSelectedVideoInputDeviceId();
+    video = await getCameraVideoElement(videoInputDeviceId);
+    detector = await getDetector();
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function initBodyDetection() {
-  const videoInputDeviceId = await getSelectedVideoInputDeviceId();
-  video = await getCameraVideoElement(videoInputDeviceId);
-
-  detector = await getDetector();
-}
-
-async function getPoses() {
+async function getPoses(): Promise<Pose[]> {
   if (!(detector && video)) {
     return [];
   }
@@ -42,7 +43,7 @@ async function getPoses() {
   }
 
   const { keypoints } = poses[0];
-  const scoreSum = getSum(keypoints, 'score');
+  const scoreSum = getSum<Keypoint>(keypoints, (keypoint) => keypoint?.score ?? 0);
 
   const { minPosesScore } = getParameters();
 
@@ -53,7 +54,12 @@ async function getPoses() {
   return poses;
 }
 
-export async function detectPoses() {
+type DetectPosesReturnType = {
+  poses: Pose[];
+  posesLost: boolean;
+  posesFound: boolean;
+};
+export async function detectPoses(): Promise<DetectPosesReturnType> {
   const poses = await getPoses();
   const posesExist = !!poses.length;
 

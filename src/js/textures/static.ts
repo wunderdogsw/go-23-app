@@ -19,11 +19,11 @@ const COLOR_IMAGE_FILENAMES = [
 
 export const COLOR_STATIC_TEXTURES = createStaticTextures(COLOR_IMAGE_FILENAMES);
 
-function createStaticTextures(paths: any) {
-  return paths.map((path: any) => createStaticTexture(path));
+function createStaticTextures(paths: string[]): THREE.Texture[] {
+  return paths.map((path) => createStaticTexture(path));
 }
 
-function createStaticTexture(filename: any, rotation = -1.57, x = 0.5, y = 0.5) {
+function createStaticTexture(filename: string, rotation = -1.57, x = 0.5, y = 0.5): THREE.Texture {
   const fullPath = `${COLOR_IMAGES_PATH}${filename}`;
   const texture = new THREE.TextureLoader().load(fullPath);
 

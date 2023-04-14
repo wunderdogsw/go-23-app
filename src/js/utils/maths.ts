@@ -1,13 +1,13 @@
 // lazy source: ChatGPT
-export function getRandomInt(min: any, max: any) {
+export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function getRandomFloat(min: any, max: any) {
+export function getRandomFloat(min: number, max: number): number {
   return Math.random() * (max - min) + min;
 }
 
-export function getRandomItem<ItemType>(array: ItemType[] = []) {
+export function getRandomItem<ItemType>(array: ItemType[] = []): ItemType | undefined {
   if (!array.length) {
     return undefined;
   }
@@ -15,24 +15,25 @@ export function getRandomItem<ItemType>(array: ItemType[] = []) {
   return array[index];
 }
 
-export function getSum(values: any, byObjectKey: any) {
+export function getSum<ValueType>(
+  values: ValueType[],
+  getValue = (value: ValueType): number => value as number
+): number {
   let sum = 0;
 
   for (let i = 0; i < values.length; i++) {
-    const value = byObjectKey ? values[i][byObjectKey] : values[i];
+    const value = getValue(values[i]);
     sum += value;
   }
 
   return sum;
 }
 
-export function getAverage(values: any, byObjectKey = null) {
-  const sum = getSum(values, byObjectKey);
+export function getAverage<ValueType>(values: ValueType[]): number {
+  const sum = getSum<ValueType>(values);
   return sum / values.length;
 }
 
-// reference: https://stackoverflow.com/questions/175739/how-can-i-check-if-a-string-is-a-valid-number
-export function isStringNumeric(str: any) {
-  if (typeof str != 'string') return false;
+export function isStringNumeric(str: string): boolean {
   return !isNaN(parseFloat(str));
 }

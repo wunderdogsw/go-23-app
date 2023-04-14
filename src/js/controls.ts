@@ -4,7 +4,11 @@ import { getSelectedVideoInputDeviceId, getVideoInputDevices } from './media';
 import { getParameters, setDefaultParameters, setParameters } from './parameters';
 import { convertFormToJson, createSelectOption, getQueryStringValue, setInputValueByName } from './utils/browser';
 
-export async function initControls({ onSubmit }: any) {
+type OnSubmitType = () => void;
+type InitControlsParamsType = {
+  onSubmit: OnSubmitType;
+};
+export async function initControls({ onSubmit }: InitControlsParamsType) {
   initInputValues();
   await initVideoInput();
   initEventHandlers(onSubmit);
@@ -31,7 +35,7 @@ async function initVideoInput() {
   });
 }
 
-function initEventHandlers(onSubmit: any) {
+function initEventHandlers(onSubmit: OnSubmitType) {
   const controls = document.getElementById('controls');
   const resetButton = document.getElementById('reset');
 
@@ -43,15 +47,15 @@ function initEventHandlers(onSubmit: any) {
   resetButton.onclick = () => resetInputValues(onSubmit);
 }
 
-function submitControlsForm(event: any, onSubmit: any) {
+function submitControlsForm(event: SubmitEvent, onSubmit: OnSubmitType) {
   event.preventDefault();
 
-  const parameters = convertFormToJson(event.target);
+  const parameters = convertFormToJson(event.target as HTMLFormElement);
   setParameters(parameters);
   onSubmit();
 }
 
-function resetInputValues(onSubmit: any) {
+function resetInputValues(onSubmit: OnSubmitType) {
   setDefaultParameters();
   initInputValues();
   onSubmit();

@@ -1,9 +1,12 @@
 import * as THREE from 'three';
+import { Keypoint } from '@tensorflow-models/pose-detection';
 
 import { getAverage } from '../utils/maths';
 import { getObjectX, getObjectY } from '../utils/three';
 
-export function createPoseKeypointsMap(keypoints: any) {
+export type KeypointsMapType = Map<string, Keypoint>;
+
+export function createPoseKeypointsMap(keypoints: Keypoint[]): KeypointsMapType {
   const keypointsMap = new Map();
 
   if (!keypoints.length) {
@@ -20,7 +23,7 @@ export function createPoseKeypointsMap(keypoints: any) {
   return keypointsMap;
 }
 
-export function createVectorByKeypointName(keypointsMap: any, name: any) {
+export function createVectorByKeypointName(keypointsMap: KeypointsMapType, name: string): THREE.Vector3 | null {
   const keypoint = keypointsMap.get(name);
   if (!keypoint) {
     return null;
@@ -29,14 +32,14 @@ export function createVectorByKeypointName(keypointsMap: any, name: any) {
   return createVectorByKeypoint(keypoint);
 }
 
-function addExtraKeypointsToMap(keypointsMap: any) {
+function addExtraKeypointsToMap(keypointsMap: KeypointsMapType) {
   const neck = createAverageKeypoint({
     keypointsMap,
     name: 'neck',
     startKeypointName: 'left_shoulder',
     endKeypointName: 'right_shoulder',
   });
-  keypointsMap.set(neck.name, neck);
+  neck && keypointsMap.set(neck.name, neck);
 
   const stomach = createAverageKeypoint({
     keypointsMap,
@@ -44,22 +47,37 @@ function addExtraKeypointsToMap(keypointsMap: any) {
     startKeypointName: 'left_hip',
     endKeypointName: 'right_hip',
   });
-  keypointsMap.set(stomach.name, stomach);
+  stomach && keypointsMap.set(stomach.name, stomach);
 }
 
-function createAverageKeypoint({ name, keypointsMap, startKeypointName, endKeypointName }: any) {
+type CreateAverageKeypointParamsType = {
+  name: string;
+  keypointsMap: KeypointsMapType;
+  startKeypointName: string;
+  endKeypointName: string;
+};
+function createAverageKeypoint({
+  name,
+  keypointsMap,
+  startKeypointName,
+  endKeypointName,
+}: CreateAverageKeypointParamsType): Required<Keypoint> | null {
   const startKeypoint = keypointsMap.get(startKeypointName);
   const endKeypoint = keypointsMap.get(endKeypointName);
 
+  if (!startKeypoint || !endKeypoint) {
+    return null;
+  }
+
   const x = getAverage([startKeypoint.x, endKeypoint.x]);
   const y = getAverage([startKeypoint.y, endKeypoint.y]);
-  const z = getAverage([startKeypoint.z, endKeypoint.z]);
-  const score = getAverage([startKeypoint.score, endKeypoint.score]);
+  const z = startKeypoint.z && endKeypoint.z ? getAverage([startKeypoint.z, endKeypoint.z]) : 0;
+  const score = startKeypoint.score && endKeypoint.score ? getAverage([startKeypoint.score, endKeypoint.score]) : 0;
 
   return { name, x, y, z, score };
 }
 
-function createVectorByKeypoint(keypoint: any) {
+function createVectorByKeypoint(keypoint: Keypoint): THREE.Vector3 {
   const objectX = getObjectX(keypoint.x);
   const objectY = getObjectY(keypoint.y);
   return new THREE.Vector3(objectX, objectY, 0);

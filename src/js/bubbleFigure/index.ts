@@ -8,7 +8,7 @@ import { alignBubbleFigurePose } from './alignPose';
 import { createBubbleBody } from './body';
 import { createBubbleHead } from './head';
 
-let bubbleFigure: any;
+let bubbleFigure: THREE.Group | null = null;
 
 export async function updateBubbleFigure() {
   const { poses, posesLost, posesFound } = await detectPoses();
@@ -19,11 +19,11 @@ export async function updateBubbleFigure() {
     createBubbleFigure();
   }
 
-  if (!poses.length) {
+  if (!poses.length || !bubbleFigure) {
     return;
   }
 
-  alignBubbleFigurePose({ figure: bubbleFigure, pose: poses[0] });
+  alignBubbleFigurePose(bubbleFigure, poses[0]);
 }
 
 export function resetBubbleFigure() {
@@ -49,7 +49,7 @@ function disposeBubbleFigure() {
   }
 
   getScene().remove(bubbleFigure);
-  disposeGroup(bubbleFigure, (mesh: any) => {
+  disposeGroup(bubbleFigure, (mesh: THREE.Mesh) => {
     if (!mesh.userData?.body) {
       return;
     }

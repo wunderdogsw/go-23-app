@@ -18,6 +18,7 @@
     "vite": "^4.2.0"
   },
   "dependencies": {
+    "@tensorflow-models/pose-detection": "^2.1.0",
     "cannon-es": "^0.20.0",
     "hotkeys-js": "^3.10.2",
     "three": "^0.151.3"
