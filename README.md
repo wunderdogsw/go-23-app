@@ -10,7 +10,7 @@ example, by hitting them. Simple and fun.
 
 ## Where can I try it?
 
-[Right here](https://wunderdogsw.github.io/go-23-app/).
+[Bubble Figure demo on GitHub pages](https://wunderdogsw.github.io/go-23-app/).
 
 ## Who was it made for?
 
