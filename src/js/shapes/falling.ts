@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { getScene } from '../cinematography';
 import { getParameters } from '../parameters';
 import { addCollidingContactMaterial, createBody, getWorld } from '../physics';
-import { getRandomColorTexture } from '../textures/index';
+import { getRandomColorTexture } from '../textures';
 import { getRandomFloat, getRandomItem } from '../utils/maths';
 import { disposeMesh, getVectorsRadiansAngle, visibleBoundingBox } from '../utils/three';
 import { createCone, createCylinder, createSphere } from './basic';
@@ -24,9 +24,9 @@ const ROTATION_RANGE = {
 const VISIBLE_AREA_MARGIN = 5;
 const SHAPE_BODY_MASS = 1;
 
-let visualArea: any;
-let visualAreaWithMargin: any;
-let shapes: any = [];
+let visualArea: THREE.Box3;
+let visualAreaWithMargin: THREE.Box3;
+let shapes: THREE.Mesh[] = [];
 
 export function resetShapes() {
   clearShapes();
@@ -53,7 +53,7 @@ export function updateShapes() {
   }
 }
 
-function createNewShape() {
+function createNewShape(): THREE.Mesh {
   const texture = getRandomColorTexture();
   const createShape = getRandomItem(SHAPE_FACTORIES);
 
@@ -73,7 +73,7 @@ function createNewShape() {
   return shape;
 }
 
-function disposeShape(shape: any) {
+function disposeShape(shape: THREE.Mesh) {
   getScene().remove(shape);
   getWorld().removeBody(shape.userData.body);
   disposeMesh(shape);
@@ -91,7 +91,7 @@ function setupVisibleArea() {
   visualAreaWithMargin = createVisibleAreaBox(VISIBLE_AREA_MARGIN);
 }
 
-function createVisibleAreaBox(margin = 0) {
+function createVisibleAreaBox(margin = 0): THREE.Box3 {
   const { top, right, bottom, left } = visibleBoundingBox();
 
   const bottomLeft = new THREE.Vector3(left - margin, bottom - margin, SHAPE_POSITION_DEPTH);
@@ -100,7 +100,7 @@ function createVisibleAreaBox(margin = 0) {
   return new THREE.Box3(bottomLeft, topRight);
 }
 
-function applyTrajectory(shape: any) {
+function applyTrajectory(shape: THREE.Mesh) {
   if (!shape.userData.trajectory) {
     shape.userData.trajectory = generateTrajectory();
 
@@ -110,14 +110,14 @@ function applyTrajectory(shape: any) {
   updateShapeByBody(shape);
 }
 
-function isShapeVisible(shape: any) {
+function isShapeVisible(shape: THREE.Mesh) {
   if (!shape) {
     return false;
   }
   return visualAreaWithMargin.containsPoint(shape.position);
 }
 
-function updateBodyByTrajectory(shape: any) {
+function updateBodyByTrajectory(shape: THREE.Mesh) {
   const { rotation, velocity, start } = shape.userData.trajectory;
   shape.userData.body.position.copy(start);
   shape.userData.body.velocity.x = velocity.x;
@@ -126,12 +126,13 @@ function updateBodyByTrajectory(shape: any) {
   shape.userData.body.angularVelocity.normalize();
 }
 
-function updateShapeByBody(shape: any) {
+function updateShapeByBody(shape: THREE.Mesh) {
   shape.position.copy(shape.userData.body.position);
   shape.quaternion.copy(shape.userData.body.quaternion);
 }
 
-function generateTrajectory() {
+type GenerateTrajectoryReturnType = { start: THREE.Vector3; rotation: THREE.Vector3; velocity: THREE.Vector3 };
+function generateTrajectory(): GenerateTrajectoryReturnType {
   const startVector = new THREE.Vector3(
     getRandomFloat(visualArea.min.x, visualArea.max.x),
     visualAreaWithMargin.max.y,
@@ -153,7 +154,7 @@ function generateTrajectory() {
   };
 }
 
-function generateTrajectoryVelocity(startVector: any) {
+function generateTrajectoryVelocity(startVector: THREE.Vector3): THREE.Vector3 {
   const endDirection = new THREE.Vector3(
     getRandomFloat(visualArea.min.x, visualArea.max.x),
     visualAreaWithMargin.min.y,
@@ -166,7 +167,7 @@ function generateTrajectoryVelocity(startVector: any) {
   return calculateVelocity(angle, speed, startVector.z);
 }
 
-function calculateVelocity(angleRadians: any, speed: any, depth: any) {
+function calculateVelocity(angleRadians: number, speed: number, depth: number): THREE.Vector3 {
   const x = speed * Math.cos(angleRadians);
   const y = speed * Math.sin(angleRadians);
   return new THREE.Vector3(x, y, depth);

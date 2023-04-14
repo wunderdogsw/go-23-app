@@ -5,7 +5,7 @@ import { createBubble } from '../shapes/basic';
 import { getRandomFloat, getRandomInt } from '../utils/maths';
 import { BUBBLE_BODY_MATERIAL } from './physicalBody';
 
-export function createBubbleHead(radius = 1.2, numSpheres = 50) {
+export function createBubbleHead(radius = 1.2, numSpheres = 50): THREE.Group {
   const group = new THREE.Group();
   group.name = 'HEAD';
   group.visible = false;
@@ -19,7 +19,7 @@ export function createBubbleHead(radius = 1.2, numSpheres = 50) {
   return group;
 }
 
-function createHeadBubble(radius: any) {
+function createHeadBubble(radius: number): THREE.Mesh {
   const randomRadius = getRandomFloat(0.1, 0.4);
 
   const bubble = createBubble({ radius: randomRadius, offset: 0 });
