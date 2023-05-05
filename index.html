@@ -1,0 +1,102 @@
+<html lang="en">
+  <head>
+    
+    <title>The Bubble Figure | Wunderdog</title>
+    <!-- importing pose detection libraries via npm doesn't work when building -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <script type="module" crossorigin src="/assets/index-a8b4f4c0.js"></script>
+    <link rel="stylesheet" href="/assets/index-cf1f6ba0.css">
+  </head>
+  <body>
+    <form id="controls" class="hidden">
+      <div>
+        <label> Limbs Big: <input type="number" name="limbsThickCount" min="0" /> </label>
+        <label>
+          of radius
+          <input type="number" name="limbsThickRadius" min="0.05" step="0.05" />
+        </label>
+        <label>
+          Med:
+          <input type="number" name="limbsMediumCount" min="0" />
+        </label>
+        <label>
+          of radius
+          <input type="number" name="limbsMediumRadius" min="0.05" step="0.05" />
+        </label>
+        <label>
+          Small:
+          <input type="number" name="limbsSmallCount" min="0" />
+        </label>
+        <label>
+          of radius
+          <input type="number" name="limbsSmallRadius" min="0.05" step="0.05" />
+        </label>
+        <label> Offset +/-<input type="number" name="limbsOffsetPercentage" min="0" step="0.1" /> </label>
+      </div>
+      <div>
+        <label> Torso Big: <input type="number" name="torsoThickCount" min="0" /> </label>
+        <label>
+          of radius
+          <input type="number" name="torsoThickRadius" min="0.05" step="0.05" />
+        </label>
+        <label>
+          Med:
+          <input type="number" name="torsoMediumCount" min="0" />
+        </label>
+        <label>
+          of radius
+          <input type="number" name="torsoMediumRadius" min="0.05" step="0.05" />
+        </label>
+        <label>
+          Small:
+          <input type="number" name="torsoSmallCount" min="0" />
+        </label>
+        <label>
+          of radius
+          <input type="number" name="torsoSmallRadius" min="0.05" step="0.05" />
+        </label>
+        <label> Offset +/-<input type="number" name="torsoOffsetPercentage" min="0" step="0.1" /> </label>
+      </div>
+      <div>
+        <label>
+          Camera Z position:
+          <input type="number" name="cameraZ" step="1" />
+        </label>
+        <label>
+          Camera Zoom:
+          <input type="number" name="cameraZoom" min="0" step="5" />
+        </label>
+      </div>
+      <div>
+        <label>
+          Amount of shapes:
+          <input type="number" name="amountShapes" min="0" step="1" />
+        </label>
+      </div>
+      <div>
+        <label>
+          Minimum poses score:
+          <input type="number" name="minPosesScore" step="1" />
+        </label>
+        <label>
+          Video input (refresh browser after Apply):
+          <select name="videoDeviceId"></select>
+        </label>
+      </div>
+
+      <button id="apply" type="submit">Apply</button>
+      <button id="reset">Reset</button>
+    </form>
+
+    
+  </body>
+</html>
