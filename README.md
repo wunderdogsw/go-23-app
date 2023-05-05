@@ -10,7 +10,7 @@ example, by hitting them. Simple and fun.
 
 ## Where can I try it?
 
-[Bubble Figure demo on GitHub pages](https://wunderdogsw.github.io/go-23-app/). Please make sure to step back from the screen so that your pose is detected.
+[Bubble Figure demo on GitHub pages](https://wunderdogsw.github.io/go-23-app/). Please make sure to step back from the webcam so that your pose is detected.
 
 ## Who was it made for?
 
